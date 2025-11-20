@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-color: #0d3c73;
+  /* --secondary-color: #cab132; */
+  --secondary-color: #aa921c; 
+  --background-color: #f3f4f6;
+  --text-color: #111827;
+}
+
+*,
+*::after,
+*::before {
+  transition: all 0.2s ease-in-out;
+}
+
+html,
+body {
+  scroll-behavior: smooth;
+  background-color: #f9fafb;
+  color: white;
+  font-family: "CustomFont", sans-serif;
+}
+@font-face {
+  font-family: "CustomFont";
+  src: local("Battambang"), local("Khmer Battambang");
+  unicode-range: U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC;
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "CustomFont";
+  src: local("Poppins"), local("Poppins Regular");
+  unicode-range: U+0000-007F, U+0080-00FF, U+0100-017F, U+0180-024F;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.primary-text {
+  color: #8f7d15;
+}

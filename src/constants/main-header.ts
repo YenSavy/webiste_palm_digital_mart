@@ -1,0 +1,58 @@
+import type { NavChild } from "../components/shared/MainHeader";
+
+export const SERVICE_MENU: NavChild[] = [
+  {
+    id: "fintech",
+    title: "PALM Fintech",
+    content: [
+      "Human Resource Management System",
+      "Asset Management System",
+      "Pawnshop Management System",
+      "Loan Management System",
+      "Cash Management System",
+      "Accounting System",
+      "Saving Management System",
+      "Project Management System",
+      "Fund Transfer Management System",
+      "Currency Exchange Management System",
+      "Loan Delinquency Management System",
+    ],
+  },
+  {
+    id: "erp",
+    title: "PALM ERP Biz",
+    content: [
+      "PALM Biz System",
+      "Point Of Sale System",
+      "Real Estate Management System",
+      "Hospital Management System",
+      "Delivering Management System",
+      "E-Commerce Management System",
+      "Network Marketing System",
+      "Quotation Management System",
+      "Customer Relation Management System",
+      "Land Title Management System",
+      "Game and Lottery Management System",
+      "Expenditure Control Management System",
+    ],
+  },
+  {
+    id: "management",
+    title: "PALM E-Management",
+    content: [
+      "Palm Realty System",
+      "Registration Management System",
+      "Loan Process Management System",
+      "HR Process Management System",
+    ],
+  },
+  {
+    id: "government",
+    title: "E-Government",
+    content: [
+      "RMS of Medical Council Of Cambodia",
+      "E-Library of Ministry Of Health",
+      "PMTCT System of National Center for Maternal and Child Health",
+    ],
+  },
+];
