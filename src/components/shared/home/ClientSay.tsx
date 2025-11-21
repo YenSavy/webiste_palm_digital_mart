@@ -93,16 +93,13 @@ const ClientSay: React.FC = () => {
               key={testimonial.id}
               className='snap-start bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 shadow-xl hover:border-[#DAA520]/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(218,165,32,0.2)] relative overflow-hidden group'
             >
-              {/* Decorative Quote Icon */}
               <div className='absolute -top-4 -right-4 opacity-5 group-hover:opacity-10 transition-opacity'>
                 <Quote size={100} className='text-[#DAA520]' />
               </div>
 
-              {/* Gold accent corner */}
               <div className='absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-[#DAA520]/10 to-transparent rounded-tr-2xl'></div>
 
               <div className='relative z-10'>
-                {/* Stars Rating */}
                 <div className='flex gap-1 mb-4'>
                   {[...Array(5)].map((_, i) => (
                     <Star

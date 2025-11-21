@@ -42,3 +42,7 @@ body {
 .primary-text {
   color: #8f7d15;
 }
+
+.bg-gradient-primary{
+  @apply bg-gradient-to-br from-slate-800/60 to-slate-900/60
+}

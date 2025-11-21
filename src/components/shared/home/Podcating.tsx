@@ -188,7 +188,7 @@ const Podcasting: React.FC<AdvertisingProps> = ({
                       type="button"
                       key={video.id}
                       onClick={() => setLatestVideo(video)}
-                      className="w-full text-left flex gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      className="w-full text-left flex gap-3 p-3 bg-gradient-primary  rounded-lg hover:bg-gray-100  transition-colors"
                     >
                       <div className="flex-shrink-0 w-32 h-20 bg-black rounded-md overflow-hidden">
                         {isYouTubeUrl(video.video_url) && youTubeThumb ? (
