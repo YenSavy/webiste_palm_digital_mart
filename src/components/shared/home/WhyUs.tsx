@@ -22,28 +22,26 @@ const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
   Shield: Shield,
   Rocket: Rocket
 }
-
+// bg-gradient-to-br from-slate-700/40 to-slate-800/40
 const WhyUs: React.FC = () => {
   const { t } = useTranslation("common")
   const {data: whyUs} = useWhyUs()
   return (
     <section className='flex flex-col items-center mt-12 px-4 py-8'>
-      <div className='mb-12'>
-        <TextTitle title={t("common:why_us")} icon={<Sparkles size={34} />} />
-      </div>
+        <TextTitle title={t("common:why_us")} icon={<Sparkles size={30} />} />
 
-      <article className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl w-full'>
+      <article className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl w-full my-12'>
         {whyUs?.data.map((item) => {
           const IconComponent = iconMap[item.icon] || Settings
           return (
             <div
               key={item.id}
-              className='group relative bg-gradient-to-br from-slate-700/40 to-slate-800/40 backdrop-blur-sm rounded-2xl p-6 border border-slate-600/30 hover:border-[#DAA520]/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(218,165,32,0.3)] hover:-translate-y-2'
+              className='group relative bg-gradient-primary shadow-md shadow-secondary backdrop-blur-sm rounded-2xl p-6 border border-slate-600/30 hover:border-[#DAA520]/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(218,165,32,0.3)] hover:-translate-y-2'
             >
               <div className='absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#DAA520]/10 to-transparent rounded-tr-2xl'></div>
 
-              <span className='flex items-center gap-3'><div className='relative z-10 mb-4 inline-flex p-3 bg-gradient-to-br from-[#DAA520]/20 to-[#8f7c15]/20 rounded-xl group-hover:scale-110 transition-transform duration-300'>
-                <div style={{ color: '#DAA520' }} className='drop-shadow-[0_0_8px_rgba(218,165,32,0.6)]'>
+              <span className='flex items-center gap-3'><div className='relative z-10 mb-4 inline-flex p-3 bg-secondary rounded-xl group-hover:scale-110 transition-transform duration-300'>
+                <div className='drop-shadow-[0_0_8px_rgba(218,165,32,0.6)] '>
                   <IconComponent size={32} />
                 </div>
               </div>

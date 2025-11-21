@@ -93,7 +93,7 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
 
   return (
     <header
-      className={`px-5 md:px-16 lg:px-32 py-4 flex items-center justify-between fixed z-50 bg-[#18385d] left-0 right-0 shadow-md shadow-lime-200/50 transition-transform duration-300 ${
+      className={`px-5 md:px-16 lg:px-32 py-4 flex items-center justify-between fixed z-50 bg-gradient-secondary left-0 right-0 shadow-md shadow-lime-200/50 transition-transform duration-300 ${
         isHeaderHidden ? "-translate-y-full" : "translate-y-0"
       }`}
     >
@@ -106,7 +106,7 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
           height={60}
           className="object-cover"
         />
-        <h1 className="uppercase font-semibold text-sm sm:text-base text-secondary text-shadow-md drop-shadow-[0_0_8px_rgba(218,165,32,0.5)]">{company.name}</h1>
+        <h1 className="uppercase font-semibold text-sm sm:text-base text-secondary text-shadow-md drop-shadow-[0_0_8px_rgba(218,165,32,0.5)] moul-regular text-gradient">{company.name}</h1>
       </Link>
 
       <button
@@ -126,7 +126,7 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
       </button>
 
       <nav
-        className="hidden lg:flex items-center gap-6 uppercase text-xs lg:text-sm font-medium"
+        className="hidden lg:flex items-center gap-6 uppercase text-sm lg:text-base font-medium"
         aria-label="Main navigation"
         ref={dropdownRef}
       >
@@ -153,11 +153,8 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
       </nav>
 
       <div className="hidden md:flex items-center gap-4">
-        <button className="uppercase text-xs font-medium hover:text-[#8f7c15] transition-colors">
-          {t("common:help")}
-        </button>
         <button
-          className="bg-secondary text-white text-xs uppercase px-3 py-2 rounded-2xl font-bold shadow-md hover:bg-[#a98f25] transition-colors"
+          className="bg-secondary text-white text-xs lg:text-base uppercase px-3 py-2 rounded-3xl shadow-md  transition-colors font-medium"
           onClick={() => {
             setIsSignInPage(false);
             navigate("/auth");
@@ -166,7 +163,7 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
           {t("common:sign_up")}
         </button>
         <button
-          className="uppercase text-xs font-medium hover:text-[#8f7c15] transition-colors"
+          className="uppercase text-xs lg:text-base transition-colors font-medium"
           onClick={() => {
             setIsSignInPage(true);
             navigate("/auth");

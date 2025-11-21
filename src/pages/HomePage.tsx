@@ -8,6 +8,7 @@ import SlideShow from '../components/shared/home/SlideShow'
 import { useAdverts, usePlan, usePodcast } from '../lib/queries'
 import ClientSay from '../components/shared/home/ClientSay'
 import Podcasting from '../components/shared/home/Podcating'
+// import SocialLogin from '../components/SocialLogin'
 
 
 
@@ -17,6 +18,7 @@ const HomePage: React.FC = () => {
   const {data: podcastings} = usePodcast()
   return (
     <>
+      {/* <SocialLogin /> */}
       <Hero />
       <Banner />
       <SlideShow />

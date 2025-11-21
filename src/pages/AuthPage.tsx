@@ -24,7 +24,7 @@ console.log(isAuthenticated)
                 <div
                     className={`hidden
                     md:flex flex-col items-center justify-center p-8 transition-all duration-300
-                    border-white/20 border-r
+                
                 `}
                 >
                     <img
@@ -43,7 +43,7 @@ console.log(isAuthenticated)
 
                 <div
                     className={`
-                    flex flex-col justify-center p-3 bg-primary/5 transition-all duration-300
+                    flex flex-col justify-center p-3 bg-primary/5 transition-all duration-300 bg-gradient-primary rounded-xl
                     ${isSignInPage ? "md:order-2" : "md:order-1"}
                 `}
                 >

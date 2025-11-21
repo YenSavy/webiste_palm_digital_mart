@@ -10,6 +10,7 @@ import AuthLayout from "./layouts/AuthLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import DashboardPage from "./pages/DashboardPage";
 import { useAuthStore } from "./store/authStore";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +49,7 @@ function App() {
   }, [i18n]);
 
   return (
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID!}>
     <QueryClientProvider client={queryClient}>
       <Routes>
         <Route element={<MainPageLayout />}>
@@ -60,6 +62,7 @@ function App() {
       </Routes>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
+    </GoogleOAuthProvider>
   );
 }
 
