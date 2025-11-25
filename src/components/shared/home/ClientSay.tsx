@@ -91,7 +91,7 @@ const ClientSay: React.FC = () => {
           {testimonials.map((testimonial) => (
             <div
               key={testimonial.id}
-              className='snap-start bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 shadow-xl hover:border-[#DAA520]/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(218,165,32,0.2)] relative overflow-hidden group'
+              className='snap-start bg-gradient-to-br from-slate-800/60 to-slate-900/60  shadow-secondary backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 shadow-md hover:border-[#DAA520]/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(218,165,32,0.2)] relative overflow-hidden group'
             >
               <div className='absolute -top-4 -right-4 opacity-5 group-hover:opacity-10 transition-opacity'>
                 <Quote size={100} className='text-[#DAA520]' />

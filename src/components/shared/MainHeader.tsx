@@ -10,6 +10,7 @@ import { useServiceMenu } from "../../hooks/useServiceMenu";
 import { useTranslation } from "react-i18next";
 import useScrollTo from "../../hooks/useScrollTo";
 import { useAuthStore } from "../../store/authStore";
+import { LayoutDashboard } from "lucide-react";
 
 export type NavChild = {
   id: string;
@@ -38,6 +39,7 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
   const SERVICE_MENU = useServiceMenu();
   const navigate = useNavigate();
   const { setIsSignInPage } = useAuthStore();
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated)
   const DEFAULT_NAV: NavItem[] = useMemo(
     () => [
       { nav: t("header:services"), href: "#services", hasChild: true, children: SERVICE_MENU },
@@ -72,16 +74,13 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openDropdown]);
 
-  // Scroll behavior
   useEffect(() => {
     let lastScrollY = window.scrollY;
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       if (currentScrollY > lastScrollY) {
-        // Scrolling down
         setIsHeaderHidden(true);
       } else {
-        // Scrolling up
         setIsHeaderHidden(false);
       }
       lastScrollY = currentScrollY;
@@ -93,7 +92,7 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
 
   return (
     <header
-      className={`px-5 md:px-16 lg:px-32 py-4 flex items-center justify-between fixed z-50 bg-gradient-secondary left-0 right-0 shadow-md shadow-lime-200/50 transition-transform duration-300 ${
+      className={`px-5 md:px-16 lg:px-32 py-4 flex items-center justify-between fixed z-50 bg-gradient-primary left-0 right-0 shadow-md shadow-lime-200/50 transition-transform duration-300 ${
         isHeaderHidden ? "-translate-y-full" : "translate-y-0"
       }`}
     >
@@ -136,7 +135,7 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
               <>
                 <button
                   onClick={() => toggleDropdown(n.nav)}
-                  className="flex items-center gap-1 hover:text-[#8f7c15] transition-colors uppercase"
+                  className="flex items-center gap-1 text-sm hover:text-[#8f7c15] transition-colors uppercase"
                 >
                   {n.nav}
                   <ChevronIcon isOpen={openDropdown === n.nav} />
@@ -144,7 +143,7 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
                 {openDropdown === n.nav && <DropdownMenu children={n.children || []} />}
               </>
             ) : (
-              <Link to={n.href} onClick={() => scrollTo(n.href.split("#")[1], -80)} className="hover:text-[#8f7c15] transition-colors">
+              <Link to={n.href} onClick={() => scrollTo(n.href.split("#")[1], -80)} className="hover:text-[#8f7c15] transition-colors text-sm">
                 {n.nav}
               </Link>
             )}
@@ -153,7 +152,9 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
       </nav>
 
       <div className="hidden md:flex items-center gap-4">
-        <button
+
+        {isAuthenticated && <Link to={"/dashboard"} className="uppercase text-xs flex items-center justify-center gap-1 px-3 py-2 bg-secondary rounded-full"><LayoutDashboard size={18}/>{t("header:dashboard")}</Link>}
+        {!isAuthenticated && <><button
           className="bg-secondary text-white text-xs lg:text-base uppercase px-3 py-2 rounded-3xl shadow-md  transition-colors font-medium"
           onClick={() => {
             setIsSignInPage(false);
@@ -170,7 +171,7 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
           }}
         >
           {t("common:login")}
-        </button>
+        </button></>}
         <LanguageSwitcher />
       </div>
 

@@ -1,14 +1,17 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../store/authStore";
-import { AlertCircle, ArrowLeftIcon, Lock, LogIn, Mail, User, UserPen } from "lucide-react";
+import { AlertCircle, ArrowLeftIcon, Lock, LogIn, Mail, Phone, User, UserPen } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import TextInput from "../components/TextInput";
+import { useLogin, useSignUp } from "../lib/mutations";
+import CodeVerificationModal from "../components/auth/CodeVerificationModal";
+import type { SignInData } from "../lib/apis/auth/authApi";
 
 const AuthPage: React.FC = () => {
     const { t } = useTranslation();
     const { isSignInPage, isAuthenticated } = useAuthStore();
-console.log(isAuthenticated)
+    console.log(isAuthenticated)
     return (
         <section
             id="auth-page"
@@ -72,20 +75,28 @@ console.log(isAuthenticated)
 export default AuthPage;
 
 const LoginForm: React.FC = () => {
-    const { setIsSignInPage, setLoginFormData, loginFormData, setToken } = useAuthStore()
+    const { setIsSignInPage, setToken } = useAuthStore()
     const { t } = useTranslation()
-    const [errors, setErrors] = useState<{ username?: string; password?: string }>({})
-    const [touched, setTouched] = useState<{ username: boolean; password: boolean }>({
-        username: false,
-        password: false
-    })
     const navigate = useNavigate()
     const [rememberMe, setRememberMe] = useState(false)
+    
+    const [loginData, setLoginData] = useState<SignInData>({
+        name: "",
+        password: ""
+    })
+    
+    const [errors, setErrors] = useState<{ name?: string; password?: string }>({})
+    const [touched, setTouched] = useState<{ name: boolean; password: boolean }>({
+        name: false,
+        password: false
+    })
 
-    const validateField = (name: 'username' | 'password', value: string) => {
+    const { mutate: login, isPending } = useLogin()
+
+    const validateField = (name: 'name' | 'password', value: string) => {
         let error = ''
 
-        if (name === 'username') {
+        if (name === 'name') {
             if (!value.trim()) {
                 error = t('username_required') || 'Username is required'
             } else if (value.length < 3) {
@@ -105,13 +116,13 @@ const LoginForm: React.FC = () => {
         return error
     }
 
-    const handleBlur = (field: 'username' | 'password') => {
+    const handleBlur = (field: 'name' | 'password') => {
         setTouched(prev => ({ ...prev, [field]: true }))
-        validateField(field, loginFormData[field])
+        validateField(field, loginData[field])
     }
 
-    const handleChange = (field: 'username' | 'password', value: string) => {
-        setLoginFormData({ ...loginFormData, [field]: value })
+    const handleChange = (field: 'name' | 'password', value: string) => {
+        setLoginData(prev => ({ ...prev, [field]: value }))
         if (touched[field]) {
             validateField(field, value)
         }
@@ -119,37 +130,49 @@ const LoginForm: React.FC = () => {
 
     const setAuthCookie = (token: string, maxAgeSeconds?: number) => {
         if (maxAgeSeconds) {
-            document.cookie = `auth_token=${token}; max-age=${maxAgeSeconds}; path=/`
+            document.cookie = `auth_token=${token}; max-age=${maxAgeSeconds}; path=/; secure; samesite=strict`
         } else {
-            document.cookie = `auth_token=${token}; path=/`
+            document.cookie = `auth_token=${token}; path=/; secure; samesite=strict`
         }
     }
 
-    const onLogin = async (e: React.FormEvent) => {
+    const onLogin = (e: React.FormEvent) => {
         e.preventDefault()
 
-        setTouched({ username: true, password: true })
+        setTouched({ name: true, password: true })
 
-        const usernameError = validateField('username', loginFormData.username)
-        const passwordError = validateField('password', loginFormData.password)
+        const usernameError = validateField('name', loginData.name)
+        const passwordError = validateField('password', loginData.password)
 
         if (usernameError || passwordError) return
-        const fakeToken = 'example-token-from-api'
 
-        setToken(fakeToken)
-
-        if (rememberMe) {
-            setAuthCookie(fakeToken, 7 * 24 * 60 * 60)
-        } else {
-            setAuthCookie(fakeToken)
-        }
-
-        console.log('Login success:', loginFormData, 'rememberMe:', rememberMe)
-          navigate('/dashboard')
+        login(loginData, {
+            onSuccess: (data) => {
+                const token = data.data.token
+                setToken(token)
+                
+                if (rememberMe) {
+                    setAuthCookie(token, 7 * 24 * 60 * 60) // 7 days
+                } else {
+                    setAuthCookie(token) // Session cookie
+                }
+                
+                console.log('Login success:', loginData, 'rememberMe:', rememberMe)
+                navigate('/dashboard')
+            },
+            onError: (error) => {
+                console.error('Login failed:', error)
+                setErrors(prev => ({ 
+                    ...prev, 
+                    password: error.message || 'Login failed. Please try again.' 
+                }))
+            }
+        })
     }
 
     return (
         <form className="flex flex-col gap-3" onSubmit={onLogin}>
+            {/* Username Field */}
             <div className="flex flex-col gap-1">
                 <label className="flex gap-1 items-center">
                     <User size={20} />{t("username")}
@@ -157,19 +180,20 @@ const LoginForm: React.FC = () => {
                 <TextInput
                     type="text"
                     placeholder="Username"
-                    className={`py-4 px-3 ${errors.username && touched.username ? 'border-red-500 border-2' : ''}`}
-                    value={loginFormData.username}
-                    onChange={(e) => handleChange('username', e.target.value)}
-                    onBlur={() => handleBlur('username')}
+                    className={`py-4 px-3 ${errors.name && touched.name ? 'border-red-500 border-2' : ''}`}
+                    value={loginData.name}
+                    onChange={(e) => handleChange("name", e.target.value)}
+                    onBlur={() => handleBlur('name')}
                 />
-                {errors.username && touched.username && (
+                {errors.name && touched.name && (
                     <span className="text-red-500 text-sm flex items-center gap-1">
                         <AlertCircle size={14} />
-                        {errors.username}
+                        {errors.name}
                     </span>
                 )}
             </div>
 
+            {/* Password Field */}
             <div className="flex flex-col gap-1">
                 <label className="flex gap-1 items-center">
                     <Lock size={20} />{t("password")}
@@ -178,8 +202,8 @@ const LoginForm: React.FC = () => {
                     type="password"
                     placeholder="Password"
                     className={`py-4 px-3 ${errors.password && touched.password ? 'border-red-500 border-2' : ''}`}
-                    value={loginFormData.password}
-                    onChange={(e) => handleChange('password', e.target.value)}
+                    value={loginData.password}
+                    onChange={(e) => handleChange("password", e.target.value)}
                     onBlur={() => handleBlur('password')}
                 />
                 {errors.password && touched.password && (
@@ -190,19 +214,20 @@ const LoginForm: React.FC = () => {
                 )}
             </div>
 
-            {/* NEW: remember me checkbox */}
-            <label className="flex items-center gap-2 text-sm">
+            {/* Remember Me Checkbox */}
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
                 <input
                     type="checkbox"
-                    className="w-4 h-4"
+                    className="w-4 h-4 cursor-pointer"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
                 />
-                {t("remember_me") || "Remember me"}
+                <span>{t("remember_me") || "Remember me"}</span>
             </label>
 
+            {/* Sign Up Link */}
             <span className="flex gap-2">
-                <p>{t("don't_have_account")}</p>
+                <p>{t("don't_have_account") || "Don't have an account?"}</p>
                 <button
                     type="button"
                     className="underline hover:text-secondary"
@@ -212,12 +237,22 @@ const LoginForm: React.FC = () => {
                 </button>
             </span>
 
+            {/* Login Button */}
             <button
                 type="submit"
                 className="py-4 bg-secondary mt-3 rounded-3xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!!errors.username || !!errors.password}
+                disabled={!!errors.name || !!errors.password || isPending}
             >
-                <LogIn />{t("login")}
+                {isPending ? (
+                    <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                        {t("logging_in") || "Logging in"}...
+                    </>
+                ) : (
+                    <>
+                        <LogIn />{t("login")}
+                    </>
+                )}
             </button>
         </form>
     )
@@ -225,26 +260,41 @@ const LoginForm: React.FC = () => {
 
 const SignUpForm: React.FC = () => {
     const { t } = useTranslation()
-    const { setIsSignInPage, registerFormData, setRegisterFormData } = useAuthStore()
-    const [errors, setErrors] = useState<{ username?: string; email?: string; password?: string }>({})
-    const [touched, setTouched] = useState<{ username: boolean; email: boolean; password: boolean }>({
-        username: false,
-        email: false,
-        password: false
+    const { setIsSignInPage } = useAuthStore()
+    const [message, setMessage] = useState<string>("")
+    const [showVerificationModal, setShowVerificationModal] = useState<boolean>(false)
+    const [formData, setFormData] = useState({
+        name: 'Heak1',
+        email: 'example.12@gmail.com',
+        prefix: '855',
+        phone: '0192833464',
+        password: '12345678',
+        c_password: '12345678'
     })
-
-    const validateField = (name: 'username' | 'email' | 'password', value: string) => {
+    const [errors, setErrors] = useState<{
+        name?: string
+        email?: string
+        phone?: string
+        password?: string
+        c_password?: string
+    }>({})
+    const [touched, setTouched] = useState<Record<keyof typeof formData, boolean>>({
+        name: false,
+        email: false,
+        prefix: false,
+        phone: false,
+        password: false,
+        c_password: false
+    })
+    const { mutate: signUpMutation, isPending} = useSignUp()
+    const validateField = (name: keyof typeof formData, value: string) => {
         let error = ''
 
-        if (name === 'username') {
+        if (name === 'name') {
             if (!value.trim()) {
-                error = t('username_required') || 'Username is required'
+                error = t('name_required') || 'Name is required'
             } else if (value.length < 3) {
-                error = t('username_min_length') || 'Username must be at least 3 characters'
-            } else if (value.length > 20) {
-                error = t('username_max_length') || 'Username must be less than 20 characters'
-            } else if (!/^[a-zA-Z0-9_]+$/.test(value)) {
-                error = t('username_invalid') || 'Username can only contain letters, numbers, and underscores'
+                error = t('name_min_length') || 'Name must be at least 3 characters'
             }
         }
 
@@ -256,6 +306,14 @@ const SignUpForm: React.FC = () => {
             }
         }
 
+        if (name === 'phone') {
+            if (!value.trim()) {
+                error = t('phone_required') || 'Phone number is required'
+            } else if (!/^\d{8,10}$/.test(value)) {
+                error = t('phone_invalid') || 'Please enter a valid phone number (8-10 digits)'
+            }
+        }
+
         if (name === 'password') {
             if (!value.trim()) {
                 error = t('password_required') || 'Password is required'
@@ -264,69 +322,100 @@ const SignUpForm: React.FC = () => {
             }
         }
 
+        if (name === 'c_password') {
+            if (!value.trim()) {
+                error = t('confirm_password_required') || 'Please confirm your password'
+            } else if (value !== formData.password) {
+                error = t('password_mismatch') || 'Passwords do not match'
+            }
+        }
+
         setErrors(prev => ({ ...prev, [name]: error }))
         return error
     }
 
-    const handleBlur = (field: 'username' | 'email' | 'password') => {
+    const handleBlur = (field: keyof typeof formData) => {
         setTouched(prev => ({ ...prev, [field]: true }))
-        validateField(field, registerFormData[field])
+        validateField(field, formData[field])
     }
 
-    const handleChange = (field: 'username' | 'email' | 'password', value: string) => {
-        setRegisterFormData({ ...registerFormData, [field]: value })
-        if (touched[field]) {
+    const handleChange = (field: keyof typeof formData, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }))
+        if (touched[field as keyof typeof formData]) {
             validateField(field, value)
         }
-    }
-
-    const onRegister = (e: React.FormEvent) => {
-        e.preventDefault()
-
-        // Mark all fields as touched
-        setTouched({ username: true, email: true, password: true })
-
-        // Validate all fields
-        const usernameError = validateField('username', registerFormData.username)
-        const emailError = validateField('email', registerFormData.email)
-        const passwordError = validateField('password', registerFormData.password)
-
-        if (!usernameError && !emailError && !passwordError) {
-            console.log('Register data:', registerFormData)
+        if (field === 'password' && touched.c_password) {
+            validateField('c_password', formData.c_password)
         }
     }
+
+    const onRegister = async (e: React.FormEvent) => {
+        e.preventDefault()
+
+        setTouched({
+            name: true,
+            email: true,
+            prefix: true,
+            phone: true,
+            password: true,
+            c_password: true
+        })
+        const nameError = validateField('name', formData.name)
+        const emailError = validateField('email', formData.email)
+        const phoneError = validateField('phone', formData.phone)
+        const passwordError = validateField('password', formData.password)
+        const cPasswordError = validateField('c_password', formData.c_password)
+
+        if (!nameError && !emailError && !phoneError && !passwordError && !cPasswordError) {
+          if (!nameError && !emailError && !phoneError && !passwordError && !cPasswordError) {
+            signUpMutation(formData, {
+            onSuccess: (data) => {
+                setMessage(data?.message || "")
+                setShowVerificationModal(true)
+            },
+            onError: (error) => {
+                console.error('Registration failed:', error)
+            }
+        })
+    }
+        
+        }
+    }
+
+    const hasErrors = Object.values(errors).some(error => error !== '')
 
     return (
         <form className="flex flex-col gap-3" onSubmit={onRegister}>
             <div className="flex flex-col gap-1">
                 <label className="flex gap-1 items-center">
-                    <User size={20} />{t("username")}
+                    <User size={20} />{t("name")}
                 </label>
                 <TextInput
                     type="text"
-                    placeholder="Username"
-                    className={`py-4 px-3 ${errors.username && touched.username ? 'border-red-500 border-2' : ''}`}
-                    value={registerFormData.username}
-                    onChange={(e) => handleChange('username', e.target.value)}
-                    onBlur={() => handleBlur('username')}
+                    placeholder="Enter your name"
+                    className={`py-4 px-3 ${errors.name && touched.name ? 'border-red-500 border-2' : ''}`}
+                    value={formData.name}
+                    onChange={(e) => handleChange('name', e.target.value)}
+                    onBlur={() => handleBlur('name')}
                 />
-                {errors.username && touched.username && (
+                {errors.name && touched.name && (
                     <span className="text-red-500 text-sm flex items-center gap-1">
                         <AlertCircle size={14} />
-                        {errors.username}
+                        {errors.name}
                     </span>
                 )}
             </div>
 
+            {/* Email Field */}
             <div className="flex flex-col gap-1">
                 <label className="flex gap-1 items-center">
                     <Mail size={20} />{t("email")}
                 </label>
                 <TextInput
                     type="email"
-                    placeholder="Email"
+                    placeholder="Enter your email"
                     className={`py-4 px-3 ${errors.email && touched.email ? 'border-red-500 border-2' : ''}`}
-                    value={registerFormData.email}
+                    value={formData.email}
                     onChange={(e) => handleChange('email', e.target.value)}
                     onBlur={() => handleBlur('email')}
                 />
@@ -340,13 +429,48 @@ const SignUpForm: React.FC = () => {
 
             <div className="flex flex-col gap-1">
                 <label className="flex gap-1 items-center">
+                    <Phone size={20} />{t("phone")}
+                </label>
+                <div className="flex gap-2">
+                    <select
+                        className="py-4 px-5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-white appearance-none cursor-pointer"
+                        style={{
+                            background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.6), rgba(30, 41, 59, 0.6))',
+                            backdropFilter: 'blur(10px)'
+                        }}
+                        value={formData.prefix}
+                        onChange={(e) => handleChange('prefix', e.target.value)}
+                    >
+                        <option value="855" style={{ background: '#1e293b', color: 'white' }}>+855</option>
+                        <option value="1" style={{ background: '#1e293b', color: 'white' }}>+1</option>
+                        <option value="86" style={{ background: '#1e293b', color: 'white' }}>+86</option>
+                        <option value="66" style={{ background: '#1e293b', color: 'white' }}>+66</option>
+                    </select>
+                    <TextInput
+                        type="tel"
+                        placeholder="Phone number"
+                        className={`py-4 px-3 flex-1 ${errors.phone && touched.phone ? 'border-red-500 border-2' : ''}`}
+                        value={formData.phone}
+                        onChange={(e) => handleChange('phone', e.target.value)}
+                        onBlur={() => handleBlur('phone')}
+                    />
+                </div>
+                {errors.phone && touched.phone && (
+                    <span className="text-red-500 text-sm flex items-center gap-1">
+                        <AlertCircle size={14} />
+                        {errors.phone}
+                    </span>
+                )}
+            </div>
+            <div className="flex flex-col gap-1">
+                <label className="flex gap-1 items-center">
                     <Lock size={20} />{t("password")}
                 </label>
                 <TextInput
                     type="password"
-                    placeholder="Password"
+                    placeholder="Enter password"
                     className={`py-4 px-3 ${errors.password && touched.password ? 'border-red-500 border-2' : ''}`}
-                    value={registerFormData.password}
+                    value={formData.password}
                     onChange={(e) => handleChange('password', e.target.value)}
                     onBlur={() => handleBlur('password')}
                 />
@@ -358,6 +482,27 @@ const SignUpForm: React.FC = () => {
                 )}
             </div>
 
+            {/* Confirm Password Field */}
+            <div className="flex flex-col gap-1">
+                <label className="flex gap-1 items-center">
+                    <Lock size={20} />{t("confirm_password")}
+                </label>
+                <TextInput
+                    type="password"
+                    placeholder="Confirm password"
+                    className={`py-4 px-3 ${errors.c_password && touched.c_password ? 'border-red-500 border-2' : ''}`}
+                    value={formData.c_password}
+                    onChange={(e) => handleChange('c_password', e.target.value)}
+                    onBlur={() => handleBlur('c_password')}
+                />
+                {errors.c_password && touched.c_password && (
+                    <span className="text-red-500 text-sm flex items-center gap-1">
+                        <AlertCircle size={14} />
+                        {errors.c_password}
+                    </span>
+                )}
+            </div>
+                <CodeVerificationModal isOpen={showVerificationModal} message={message} onClose={() => setShowVerificationModal(false)} onVerify={() => {}}/>
             <span className="flex gap-2">
                 <p>{t("already_have_account")}</p>
                 <button
@@ -369,12 +514,19 @@ const SignUpForm: React.FC = () => {
                 </button>
             </span>
 
+            {/* Submit Button */}
             <button
                 type="submit"
                 className="py-4 bg-secondary mt-3 rounded-3xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!!errors.username || !!errors.email || !!errors.password}
+                disabled={hasErrors || isPending}
             >
-                <UserPen />{t("sign_up")}
+                {isPending ? (
+                    <>Loading...</>
+                ) : (
+                    <>
+                        <UserPen />{t("sign_up")}
+                    </>
+                )}
             </button>
         </form>
     )

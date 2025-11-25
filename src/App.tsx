@@ -26,7 +26,7 @@ function App() {
   const { i18n } = useTranslation();
   const initializeAuth = useAuthStore(state => state.initializeAuth)
   useEffect(() => {
-    initializeAuth()
+      initializeAuth()
   }, [initializeAuth])
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
