@@ -1,4 +1,9 @@
 import React, { useState } from 'react'
+// Edit
+import Userpage from './Userpage'
+import { BrowserRouter } from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
+
 import {
   LayoutDashboard,
   Users,
@@ -14,7 +19,8 @@ import {
   LogOut,
   User,
   ChevronDown,
-  Palmtree
+  Palmtree,
+  Edit
 } from 'lucide-react'
 
 const DashboardPage: React.FC = () => {
@@ -24,7 +30,8 @@ const DashboardPage: React.FC = () => {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'users', label: 'Users', icon: Users },
+    // edit-------------------------------------------------------
+    { id: 'users', label: 'Users', icon: Users, path: "/User" },
     { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
@@ -33,6 +40,7 @@ const DashboardPage: React.FC = () => {
   ]
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
+  const navigate = useNavigate();
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-[#102A43] via-[#0D3C73] to-[#102A43]'>
@@ -63,13 +71,15 @@ const DashboardPage: React.FC = () => {
                 key={item.id}
                 onClick={() => {
                   setActiveNav(item.id)
+                  if (item.path) navigate(item.path);
+                  // ------------------Edite
                   if (window.innerWidth < 1024) {
                     setIsSidebarOpen(false)
                   }
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                   isActive
-                    ? 'bg-[#DAA520]/20 text-[#DAA520] shadow-[0_0_20px_rgba(218,165,32,0.3)]'
+                    ? 'bg-[#D5A520]/20 text-[#DAA520] shadow-[0_0_20px_rgba(218,165,32,0.3)]'
                     : 'text-gray-400 hover:bg-slate-700/50 hover:text-white'
                 }`}
               >

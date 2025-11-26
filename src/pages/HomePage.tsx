@@ -10,7 +10,7 @@ import ClientSay from '../components/shared/home/ClientSay'
 import Podcasting from '../components/shared/home/Podcating'
 // import SocialLogin from '../components/SocialLogin'
 
-
+ 
 
 const HomePage: React.FC = () => {
   const {data: plans} = usePlan()
