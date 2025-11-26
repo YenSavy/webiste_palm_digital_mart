@@ -20,7 +20,7 @@ const LanguageSwitcher: React.FC = () => {
     const url = new URL(window.location.href);
     url.searchParams.set("lang", lang);
     window.history.replaceState({}, "", url.toString());
-    setIsOpen(false); // Close the dropdown after selecting a language
+    setIsOpen(false); 
   };
 
   return (

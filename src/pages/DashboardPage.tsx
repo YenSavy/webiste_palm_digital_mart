@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import {
   LayoutDashboard,
   Users,
@@ -16,11 +16,15 @@ import {
   ChevronDown,
   Palmtree
 } from 'lucide-react'
+import { useAuthStore } from '../store/authStore'
+import { useNavigate } from 'react-router-dom'
 
-const DashboardPage: React.FC = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false) // Changed to false for mobile-first
+const DashboardPage = () => {
+  const navigate = useNavigate()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [activeNav, setActiveNav] = useState('dashboard')
+  const isAuth  = useAuthStore(state => state.isAuthenticated)
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -33,11 +37,11 @@ const DashboardPage: React.FC = () => {
   ]
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
-
+  if(!isAuth) return navigate("/")
   return (
     <div className='min-h-screen bg-gradient-to-br from-[#102A43] via-[#0D3C73] to-[#102A43]'>
       <aside
-        className={`fixed top-0 left-0 h-full bg-gradient-to-b from-[#102A43] to-slate-900 border-r border-slate-700/50 transition-all duration-300 z-40 ${
+        className={`fixed top-0 left-0 h-full bg-gradient-to-b bg-gradient-primary transition-all duration-300 z-40 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0 lg:w-64`}
         style={{ width: isSidebarOpen ? '256px' : '256px' }}
@@ -97,7 +101,7 @@ const DashboardPage: React.FC = () => {
       </aside>
 
       <div className='lg:ml-64'>
-        <header className='h-16 lg:h-20 bg-[#0D3C73]/30 backdrop-blur-sm border-b border-slate-700/50 sticky top-0 z-20'>
+        <header className='h-16 lg:h-20 bg-gradient-primary backdrop-blur-sm border-b border-slate-700/50 sticky top-0 z-20'>
           <div className='h-full px-4 lg:px-6 flex items-center justify-between gap-4'>
             <button
               onClick={toggleSidebar}
@@ -106,7 +110,6 @@ const DashboardPage: React.FC = () => {
               <Menu size={24} />
             </button>
 
-            {/* Search Bar */}
             <div className='flex-1 max-w-xl'>
               <div className='relative'>
                 <Search className='absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 text-gray-400' size={18} />
@@ -227,7 +230,6 @@ const DashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Table Section */}
           <div className='bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm border border-slate-700/50 rounded-xl sm:rounded-2xl p-4 sm:p-6'>
             <h3 className='text-base sm:text-lg font-bold text-white mb-3 sm:mb-4 flex items-center gap-2'>
               <FileText size={18} className='text-[#DAA520] sm:w-5 sm:h-5' />
@@ -276,7 +278,6 @@ const DashboardPage: React.FC = () => {
         </main>
       </div>
 
-      {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div
           className='fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden'

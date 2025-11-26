@@ -8,10 +8,12 @@ import { useLogin, useSignUp } from "../lib/mutations";
 import CodeVerificationModal from "../components/auth/CodeVerificationModal";
 import type { SignInData } from "../lib/apis/auth/authApi";
 
-const AuthPage: React.FC = () => {
+
+const AuthPage = () => {
+    const navigate  = useNavigate()
     const { t } = useTranslation();
     const { isSignInPage, isAuthenticated } = useAuthStore();
-    console.log(isAuthenticated)
+    if(isAuthenticated) return window.history.length > 1 ? navigate(-1) : navigate("/")
     return (
         <section
             id="auth-page"
@@ -79,12 +81,12 @@ const LoginForm: React.FC = () => {
     const { t } = useTranslation()
     const navigate = useNavigate()
     const [rememberMe, setRememberMe] = useState(false)
-    
+    const [message, setMessage]  = useState<string | null>(null)
     const [loginData, setLoginData] = useState<SignInData>({
         name: "",
         password: ""
     })
-    
+    const [isFailed, setIsFailed] = useState<boolean>(false)
     const [errors, setErrors] = useState<{ name?: string; password?: string }>({})
     const [touched, setTouched] = useState<{ name: boolean; password: boolean }>({
         name: false,
@@ -149,30 +151,25 @@ const LoginForm: React.FC = () => {
         login(loginData, {
             onSuccess: (data) => {
                 const token = data.data.token
-                setToken(token)
-                
+                setToken(token) 
+                setIsFailed(false)
                 if (rememberMe) {
-                    setAuthCookie(token, 7 * 24 * 60 * 60) // 7 days
+                    setAuthCookie(token, 7 * 24 * 60 * 60)
                 } else {
-                    setAuthCookie(token) // Session cookie
+                    setAuthCookie(token)
                 }
                 
                 console.log('Login success:', loginData, 'rememberMe:', rememberMe)
                 navigate('/dashboard')
             },
             onError: (error) => {
-                console.error('Login failed:', error)
-                setErrors(prev => ({ 
-                    ...prev, 
-                    password: error.message || 'Login failed. Please try again.' 
-                }))
+                setIsFailed(true)
+                setMessage(error.message.toLowerCase() === "unauthorized" ? "Incorrect credential !, Try again.": "Sign In failed")
             }
         })
     }
-
     return (
         <form className="flex flex-col gap-3" onSubmit={onLogin}>
-            {/* Username Field */}
             <div className="flex flex-col gap-1">
                 <label className="flex gap-1 items-center">
                     <User size={20} />{t("username")}
@@ -193,7 +190,6 @@ const LoginForm: React.FC = () => {
                 )}
             </div>
 
-            {/* Password Field */}
             <div className="flex flex-col gap-1">
                 <label className="flex gap-1 items-center">
                     <Lock size={20} />{t("password")}
@@ -214,7 +210,6 @@ const LoginForm: React.FC = () => {
                 )}
             </div>
 
-            {/* Remember Me Checkbox */}
             <label className="flex items-center gap-2 text-sm cursor-pointer">
                 <input
                     type="checkbox"
@@ -237,7 +232,7 @@ const LoginForm: React.FC = () => {
                 </button>
             </span>
 
-            {/* Login Button */}
+                <p className={isFailed ? "text-red-500": "text-lime-500"}>{message || ""}</p>
             <button
                 type="submit"
                 className="py-4 bg-secondary mt-3 rounded-3xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
@@ -278,6 +273,8 @@ const SignUpForm: React.FC = () => {
         password?: string
         c_password?: string
     }>({})
+
+    const [isFailed, setIsFailed] = useState<boolean>(false)
     const [touched, setTouched] = useState<Record<keyof typeof formData, boolean>>({
         name: false,
         email: false,
@@ -370,18 +367,19 @@ const SignUpForm: React.FC = () => {
           if (!nameError && !emailError && !phoneError && !passwordError && !cPasswordError) {
             signUpMutation(formData, {
             onSuccess: (data) => {
+                setIsFailed(false)
                 setMessage(data?.message || "")
                 setShowVerificationModal(true)
             },
             onError: (error) => {
-                console.error('Registration failed:', error)
+                setIsFailed(true)
+                setMessage(error.message)
             }
         })
     }
         
         }
     }
-
     const hasErrors = Object.values(errors).some(error => error !== '')
 
     return (
@@ -513,9 +511,8 @@ const SignUpForm: React.FC = () => {
                     {t("login")}
                 </button>
             </span>
-
-            {/* Submit Button */}
-            <button
+                <p className={isFailed ? "text-red-500": "text-lime-500" }>{message || ""}</p>
+            <button 
                 type="submit"
                 className="py-4 bg-secondary mt-3 rounded-3xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={hasErrors || isPending}

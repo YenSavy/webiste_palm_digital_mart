@@ -43,7 +43,7 @@ export const signUp = async (data: SignUpData): Promise<ApiResponse<{data: strin
   } catch (error) {
     console.log(error)
     if (error instanceof AxiosError) {
-      throw new Error(error.response?.data?.message || 'Sign in failed');
+      throw new Error(error.response?.data?.data || 'Sign in failed');
     }
     throw error;
   }
@@ -78,9 +78,8 @@ export const login = async (data: SignInData): Promise<ApiResponse<TLoginReponse
 
     return response.data;
   } catch (error) {
-    console.log(error)
     if (error instanceof AxiosError) {
-      throw new Error(error.response?.data?.message || 'Sign in failed');
+      throw new Error(error.response?.data?.message);
     }
     throw error;
   }
