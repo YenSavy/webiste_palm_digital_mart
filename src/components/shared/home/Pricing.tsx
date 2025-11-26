@@ -75,7 +75,7 @@ const Card: React.FC<TPricingProps & { onClick?: () => void; mostFamous: boolean
     <div
       onClick={onClick}
       className={`relative w-full max-w-[320px] sm:max-w-[360px] md:max-w-[380px]
-        border p-6 bg-gradient-to-br from-slate-700/40 to-slate-800/40 hover:scale-105 rounded-xl cursor-pointer shadow-2xl shadow-white/10
+        border p-6 bg-gradient-primary hover:scale-105 rounded-xl cursor-pointer shadow-2xl shadow-white/10
         transition-all duration-200 flex flex-col justify-between
         ${active ? "border-transparent bg-primary/10" : "hover:bg-primary/10 border-transparent"}
         ${mostFamous ? "ring-4 ring-secondary shadow-secondary min-h-[480px]" : "min-h-[440px]"}

@@ -52,7 +52,7 @@ body {
 }
 
 .bg-gradient-primary{
-  @apply bg-gradient-to-br from-slate-800/60 to-slate-900/60
+  @apply bg-gradient-to-br from-slate-800/60 to-slate-900/60 bg-[#0d3c73]
 }
 .bg-gradient-secondary{
  @apply bg-gradient-to-b from-slate-900 via-slate-800 to-slate-950

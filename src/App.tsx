@@ -30,10 +30,15 @@ function App() {
 
   // Initialize login state
   useEffect(() => {
+<<<<<<< HEAD
     initializeAuth();
   }, [initializeAuth]);
 
   // Initialize Language
+=======
+      initializeAuth()
+  }, [initializeAuth])
+>>>>>>> 2fa03019c7523930fb997e9d3f49cb6cf3713db0
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const lang = params.get("lang");

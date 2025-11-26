@@ -3,7 +3,6 @@ import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
 import FacebookLogin from 'react-facebook-login';
 import { useAuthStore } from '../store/authStore';
 import { loginSocialMedia } from '../services/authService';
-import { type FacebookLoginResponse } from '../types/auth.types';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
