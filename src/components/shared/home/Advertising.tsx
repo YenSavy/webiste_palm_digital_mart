@@ -45,12 +45,10 @@ const getYouTubeId = (url: string): string | null => {
   }
 };
 
-//check if the url is a youtube-url or not
 const isYouTubeUrl = (url?: string) =>
   !!url && (url.includes("youtube.com") || url.includes("youtu.be"));
 
 
-//Main component
 const Advertising: React.FC<AdvertisingProps> = ({
   videos = [],
   defaultLatestVideo,
@@ -64,7 +62,6 @@ const Advertising: React.FC<AdvertisingProps> = ({
     }
   }, [defaultLatestVideo]);
 
-  // if for some reason latestVideo is undefined, fall back to default
   const currentVideo = latestVideo ?? defaultLatestVideo;
 
   const otherVideos =
@@ -142,7 +139,7 @@ const Advertising: React.FC<AdvertisingProps> = ({
             </div>
 
             <div className="mt-4 space-y-2">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-xl font-semibold text-gray-100">
                 {currentVideo &&
                   useLangSwitch(
                     currentVideo.title_en,
@@ -151,7 +148,7 @@ const Advertising: React.FC<AdvertisingProps> = ({
                   )}
               </h3>
 
-              <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400 pt-2">
+              <div className="flex flex-wrap gap-4 text-smtext-gray-400 pt-2">
                 <span className="flex items-center gap-1">
                   <span className="font-medium">
                     {t("common:channel_name") || ""}
@@ -213,10 +210,10 @@ const Advertising: React.FC<AdvertisingProps> = ({
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2">
+                        <p className="text-sm text-gray-200 line-clamp-2 mb-2">
                           {displayTitle}
                         </p>
-                        <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                        <div className="text-xs text-gray-400 space-y-1">
                           <div className="flex items-center gap-1">
                             <span className="truncate">
                               {video.channel_name}

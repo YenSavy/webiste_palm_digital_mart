@@ -92,7 +92,7 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
 
   return (
     <header
-      className={`px-5 md:px-16 lg:px-32 py-4 flex items-center justify-between fixed z-50 bg-gradient-primary left-0 right-0 shadow-md shadow-lime-200/50 transition-transform duration-300 ${
+      className={`px-5 md:px-16 lg:px-32 py-4 flex items-center justify-between fixed z-50 bg-gradient-primary left-0 right-0 shadow-md shadow-lime-200/30 transition-transform duration-300 ${
         isHeaderHidden ? "-translate-y-full" : "translate-y-0"
       }`}
     >
