@@ -12,8 +12,8 @@ import AuthLayout from "./layouts/AuthLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import DashboardPage from "./pages/DashboardPage";
 import { useAuthStore } from "./store/authStore";
-import UserPage from "./pages/UserPage";
 import "aos/dist/aos.css";
+import UserPage from "./pages/UserPage";
 
 
 const queryClient = new QueryClient({

@@ -1,6 +1,6 @@
 
 import axiosInstance from '../lib/api';
-import type { SocialLoginRequest, SocialLoginResponse } from '../types/auth.types';
+import type { SocialLoginResponse } from '../types/auth.types';
 
 export const loginSocialMedia = async (
   social_type: 'google' | 'facebook',
