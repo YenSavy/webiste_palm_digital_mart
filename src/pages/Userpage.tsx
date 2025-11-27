@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,7 +12,6 @@ import {
   Bell,
   Search as SearchIcon,
   Menu,
-  X,
   LogOut,
   User,
   ChevronDown,
@@ -22,7 +22,6 @@ const UserPage: React.FC = () => {
 const navigate = useNavigate();
 
 
-// ================== State ==================
 const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 const [isProfileOpen, setIsProfileOpen] = useState(false);
 const [activeNav, setActiveNav] = useState("users");
@@ -49,7 +48,6 @@ const navItems = [
 { id: "settings", label: "Settings", icon: Settings },
 ];
 
-// ================== Filtered Users ==================
 const filteredUsers = users.filter(u =>
 u.name.toLowerCase().includes(search.toLowerCase()) ||
 u.email.toLowerCase().includes(search.toLowerCase())

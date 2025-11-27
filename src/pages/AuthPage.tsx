@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../store/authStore";
 import { AlertCircle, ArrowLeftIcon, Lock, LogIn, Mail, Phone, User, UserPen } from "lucide-react";
@@ -9,11 +9,15 @@ import CodeVerificationModal from "../components/auth/CodeVerificationModal";
 import type { SignInData } from "../lib/apis/auth/authApi";
 
 
-const AuthPage = () => {
-    const navigate  = useNavigate()
+const AuthPage: React.FC = () => {
+    const navigate = useNavigate()
     const { t } = useTranslation();
     const { isSignInPage, isAuthenticated } = useAuthStore();
-    if(isAuthenticated) return window.history.length > 1 ? navigate(-1) : navigate("/")
+    useEffect(() => {
+        if (isAuthenticated) {
+            window.history.length > 1 ? navigate(-1) : navigate("/")
+        }
+    }, [isAuthenticated])
     return (
         <section
             id="auth-page"
@@ -81,7 +85,7 @@ const LoginForm: React.FC = () => {
     const { t } = useTranslation()
     const navigate = useNavigate()
     const [rememberMe, setRememberMe] = useState(false)
-    const [message, setMessage]  = useState<string | null>(null)
+    const [message, setMessage] = useState<string | null>(null)
     const [loginData, setLoginData] = useState<SignInData>({
         name: "",
         password: ""
@@ -151,7 +155,7 @@ const LoginForm: React.FC = () => {
         login(loginData, {
             onSuccess: (data) => {
                 const token = data.data.token
-                setToken(token) 
+                setToken(token)
                 setIsFailed(false)
                 if (rememberMe) {
                     setAuthCookie(token, 7 * 24 * 60 * 60)
@@ -162,7 +166,7 @@ const LoginForm: React.FC = () => {
             },
             onError: (error) => {
                 setIsFailed(true)
-                setMessage(error.message.toLowerCase() === "unauthorized" ? "Incorrect credential !, Try again.": "Sign In failed")
+                setMessage(error.message.toLowerCase() === "unauthorized" ? "Incorrect credential !, Try again." : "Sign In failed")
             }
         })
     }
@@ -230,7 +234,7 @@ const LoginForm: React.FC = () => {
                 </button>
             </span>
 
-                <p className={isFailed ? "text-red-500": "text-lime-500"}>{message || ""}</p>
+            <p className={isFailed ? "text-red-500" : "text-lime-500"}>{message || ""}</p>
             <button
                 type="submit"
                 className="py-4 bg-secondary mt-3 rounded-3xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
@@ -281,7 +285,7 @@ const SignUpForm: React.FC = () => {
         password: false,
         c_password: false
     })
-    const { mutate: signUpMutation, isPending} = useSignUp()
+    const { mutate: signUpMutation, isPending } = useSignUp()
     const validateField = (name: keyof typeof formData, value: string) => {
         let error = ''
 
@@ -362,20 +366,20 @@ const SignUpForm: React.FC = () => {
         const cPasswordError = validateField('c_password', formData.c_password)
 
         if (!nameError && !emailError && !phoneError && !passwordError && !cPasswordError) {
-          if (!nameError && !emailError && !phoneError && !passwordError && !cPasswordError) {
-            signUpMutation(formData, {
-            onSuccess: (data) => {
-                setIsFailed(false)
-                setMessage(data?.message || "")
-                setShowVerificationModal(true)
-            },
-            onError: (error) => {
-                setIsFailed(true)
-                setMessage(error.message)
+            if (!nameError && !emailError && !phoneError && !passwordError && !cPasswordError) {
+                signUpMutation(formData, {
+                    onSuccess: (data) => {
+                        setIsFailed(false)
+                        setMessage(data?.message || "")
+                        setShowVerificationModal(true)
+                    },
+                    onError: (error) => {
+                        setIsFailed(true)
+                        setMessage(error.message)
+                    }
+                })
             }
-        })
-    }
-        
+
         }
     }
     const hasErrors = Object.values(errors).some(error => error !== '')
@@ -498,7 +502,7 @@ const SignUpForm: React.FC = () => {
                     </span>
                 )}
             </div>
-                <CodeVerificationModal isOpen={showVerificationModal} message={message} onClose={() => setShowVerificationModal(false)} onVerify={() => {}}/>
+            <CodeVerificationModal isOpen={showVerificationModal} message={message} onClose={() => setShowVerificationModal(false)} onVerify={() => { }} />
             <span className="flex gap-2">
                 <p>{t("already_have_account")}</p>
                 <button
@@ -509,8 +513,8 @@ const SignUpForm: React.FC = () => {
                     {t("login")}
                 </button>
             </span>
-                <p className={isFailed ? "text-red-500": "text-lime-500" }>{message || ""}</p>
-            <button 
+            <p className={isFailed ? "text-red-500" : "text-lime-500"}>{message || ""}</p>
+            <button
                 type="submit"
                 className="py-4 bg-secondary mt-3 rounded-3xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={hasErrors || isPending}

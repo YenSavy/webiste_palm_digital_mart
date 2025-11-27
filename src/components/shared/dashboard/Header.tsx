@@ -14,6 +14,7 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
   const currentThemeKey = useThemeStore((state) => state.currentTheme)
   const setTheme = useThemeStore((state) => state.setTheme)
 
+
   return (
     <header 
       className={`h-16 lg:h-20 bg-gradient-to-br ${theme?.primary} backdrop-blur-sm border-b ${theme?.border} sticky top-0 z-20`}
@@ -31,7 +32,6 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
           <Menu size={24} />
         </button>
 
-        {/* Search Bar */}
         <div className='flex-1 max-w-xl'>
           <div className='relative'>
             <Search 
