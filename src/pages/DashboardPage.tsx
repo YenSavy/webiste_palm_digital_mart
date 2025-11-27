@@ -1,4 +1,7 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
+// Edit
+import { useNavigate } from "react-router-dom";
+
 import {
   LayoutDashboard,
   Users,
@@ -14,21 +17,18 @@ import {
   LogOut,
   User,
   ChevronDown,
-  Palmtree
+  Palmtree,
 } from 'lucide-react'
-import { useAuthStore } from '../store/authStore'
-import { useNavigate } from 'react-router-dom'
 
-const DashboardPage = () => {
-  const navigate = useNavigate()
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+const DashboardPage: React.FC = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false) // Changed to false for mobile-first
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [activeNav, setActiveNav] = useState('dashboard')
-  const isAuth  = useAuthStore(state => state.isAuthenticated)
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'users', label: 'Users', icon: Users },
+    // edit-------------------------------------------------------
+    { id: 'users', label: 'Users', icon: Users, path: "/user" },
     { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
@@ -37,11 +37,12 @@ const DashboardPage = () => {
   ]
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
-  if(!isAuth) return navigate("/")
+  const navigate = useNavigate();
+
   return (
     <div className='min-h-screen bg-gradient-to-br from-[#102A43] via-[#0D3C73] to-[#102A43]'>
       <aside
-        className={`fixed top-0 left-0 h-full bg-gradient-to-b bg-gradient-primary transition-all duration-300 z-40 ${
+        className={`fixed top-0 left-0 h-full bg-gradient-to-b from-[#102A43] to-slate-900 border-r border-slate-700/50 transition-all duration-300 z-40 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0 lg:w-64`}
         style={{ width: isSidebarOpen ? '256px' : '256px' }}
@@ -67,13 +68,15 @@ const DashboardPage = () => {
                 key={item.id}
                 onClick={() => {
                   setActiveNav(item.id)
+                  if (item.path) navigate(item.path);
+                  // ------------------Edite
                   if (window.innerWidth < 1024) {
                     setIsSidebarOpen(false)
                   }
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                   isActive
-                    ? 'bg-[#DAA520]/20 text-[#DAA520] shadow-[0_0_20px_rgba(218,165,32,0.3)]'
+                    ? 'bg-[#D5A520]/20 text-[#DAA520] shadow-[0_0_20px_rgba(218,165,32,0.3)]'
                     : 'text-gray-400 hover:bg-slate-700/50 hover:text-white'
                 }`}
               >
@@ -101,7 +104,7 @@ const DashboardPage = () => {
       </aside>
 
       <div className='lg:ml-64'>
-        <header className='h-16 lg:h-20 bg-gradient-primary backdrop-blur-sm border-b border-slate-700/50 sticky top-0 z-20'>
+        <header className='h-16 lg:h-20 bg-[#0D3C73]/30 backdrop-blur-sm border-b border-slate-700/50 sticky top-0 z-20'>
           <div className='h-full px-4 lg:px-6 flex items-center justify-between gap-4'>
             <button
               onClick={toggleSidebar}
@@ -110,6 +113,7 @@ const DashboardPage = () => {
               <Menu size={24} />
             </button>
 
+            {/* Search Bar */}
             <div className='flex-1 max-w-xl'>
               <div className='relative'>
                 <Search className='absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 text-gray-400' size={18} />
@@ -230,6 +234,7 @@ const DashboardPage = () => {
             </div>
           </div>
 
+          {/* Table Section */}
           <div className='bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm border border-slate-700/50 rounded-xl sm:rounded-2xl p-4 sm:p-6'>
             <h3 className='text-base sm:text-lg font-bold text-white mb-3 sm:mb-4 flex items-center gap-2'>
               <FileText size={18} className='text-[#DAA520] sm:w-5 sm:h-5' />
