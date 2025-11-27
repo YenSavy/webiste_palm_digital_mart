@@ -158,8 +158,6 @@ const LoginForm: React.FC = () => {
                 } else {
                     setAuthCookie(token)
                 }
-                
-                console.log('Login success:', loginData, 'rememberMe:', rememberMe)
                 navigate('/dashboard')
             },
             onError: (error) => {
