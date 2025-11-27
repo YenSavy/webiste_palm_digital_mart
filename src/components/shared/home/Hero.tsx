@@ -57,8 +57,8 @@ const Hero: React.FC = () => {
     if (isLoading || isLoadingFeature) return <HeroSkeleton />
 
     return (
-        <section className='grid md:grid-cols-2 min-h-[560px] mt-10 items-center gap-7 md:gap-0 justify-center'>
-            <article className='flex items-start justify-start h-full p-4 flex-col gap-6'>
+        <section className='grid md:grid-cols-2 min-h-[560px] mt-10 items-center gap-7 md:gap-0 justify-center' >
+            <article className='flex items-start justify-start h-full p-4 flex-col gap-6' data-aos="fade-right">
                 <span>
                     <h1 className='font-semibold text-2xl md:text-3xl lg:text-4xl'>
                         {mainTitle}
@@ -85,7 +85,7 @@ const Hero: React.FC = () => {
                 </ul>
             </article>
 
-            <div className='h-full flex items-center justify-center px-4 md:px-0'>
+            <div className='h-full flex items-center justify-center px-4 md:px-0' data-aos="fade-left">
                 <img
                     src={content?.image}
                     loading='lazy'

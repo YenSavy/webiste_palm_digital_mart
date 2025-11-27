@@ -36,10 +36,10 @@ const Footer: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
   const {t} = useTranslation("common")
-const footers = useFooter().data
+  const footers = useFooter().data
   return (
-    <footer id='footer' className='relative mt-[150px]'>
-      <div className='bg-gradient-to-b from-slate-900 via-slate-800 to-slate-950 border-t-2 border-[#DAA520]/30'>
+    <footer id='contact' className='relative mt-[150px]'>
+      <div className='bg-gradient-secondary border-t-2 border-[#DAA520]/30'>
         <div className='max-w-7xl mx-auto px-5 md:px-16 lg:px-32 py-12'>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12'>
             

@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-
+import AOS from "aos";
 import MainPageLayout from "./layouts/MainPageLayout";
 import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";
@@ -13,6 +13,8 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import DashboardPage from "./pages/DashboardPage";
 import { useAuthStore } from "./store/authStore";
 import UserPage from "./pages/UserPage";
+import "aos/dist/aos.css";
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -53,6 +55,18 @@ function App() {
       window.history.replaceState({}, "", url.toString());
     }
   }, [i18n]);
+
+
+
+useEffect(() => {
+    AOS.init({
+      duration: 1000, 
+      once: true, 
+      mirror: false, 
+      offset: 100, 
+      easing: 'ease-in-out', 
+    });
+  }, []);
 
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>

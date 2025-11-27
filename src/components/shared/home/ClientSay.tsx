@@ -69,7 +69,7 @@ const ClientSay: React.FC = () => {
   }
 
   return (
-    <section className='py-12 px-4 relative'>
+    <section className='py-12 px-4 relative' data-aos="fade-up">
       {/* Section Title */}
       <div className='flex justify-center mb-12'>
         <TextTitle

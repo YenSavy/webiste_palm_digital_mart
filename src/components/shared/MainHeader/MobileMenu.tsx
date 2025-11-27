@@ -6,6 +6,7 @@ import { useState } from "react";
 import useScrollTo from "../../../hooks/useScrollTo";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../../../store/authStore";
+import { LayoutDashboard } from "lucide-react";
 
 const MobileMenu: React.FC<{ navContent: NavItem[]; onClose: () => void }> = ({
   navContent,
@@ -16,12 +17,13 @@ const MobileMenu: React.FC<{ navContent: NavItem[]; onClose: () => void }> = ({
   const toggleDropdown = (navName: string) => {
     setActiveDropdown((prev) => (prev === navName ? null : navName));
   };
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated)
   const { t } = useTranslation("common")
   const scrollTo = useScrollTo()
   const navigate = useNavigate()
-  const {setIsSignInPage} = useAuthStore()
+  const { setIsSignInPage } = useAuthStore()
   return (
-    <div className="absolute top-full text-gray-700 left-0 w-full shadow-md flex flex-col items-center py-4 gap-4 md:hidden z-40 bg-white">
+    <div className="absolute top-full text-white left-0 w-full shadow-md flex flex-col items-center py-4 gap-4 md:hidden z-40 bg-gradient-secondary">
       <nav className="w-full px-5" aria-label="Mobile navigation">
         {navContent.map((n) => (
           <div key={n.nav} className="w-full border-b border-gray-100 py-2">
@@ -35,7 +37,7 @@ const MobileMenu: React.FC<{ navContent: NavItem[]; onClose: () => void }> = ({
                   <ChevronIcon isOpen={activeDropdown === n.nav} />
                 </button>
                 {activeDropdown === n.nav && n.children && (
-                  <div className="grid grid-cols-2 gap-4 px-2 py-3 text-sm bg-gray-50 mt-2 rounded">
+                  <div className="grid grid-cols-2 gap-4 px-2 py-3 text-sm mt-2 rounded">
                     {n.children.map((col) => (
                       <div key={col.id}>
                         <p className="font-semibold text-[#00509e] border-b mb-1 text-xs">
@@ -70,17 +72,15 @@ const MobileMenu: React.FC<{ navContent: NavItem[]; onClose: () => void }> = ({
       </nav>
 
       <div className="border-t w-3/4 my-2"></div>
-
+        {}
       <div className="flex flex-col gap-3 items-center">
-        <button className="uppercase text-xs font-medium hover:text-[#8f7c15] transition-colors" >
-          {t("common:help")}
-        </button>
-        <button className="bg-[#8f7c15] text-white text-xs uppercase px-4 py-2 rounded-2xl font-bold shadow-md hover:bg-[#a98f25] transition-colors" onClick={() => {navigate('/auth'); setIsSignInPage(false)}}>
+        {isAuthenticated && <Link to={"/dashboard"} className="uppercase text-xs flex items-center justify-center gap-1 px-3 py-2 bg-secondary rounded-full"><LayoutDashboard size={18}/>{t("header:dashboard")}</Link>}
+        {!isAuthenticated && <> <button className="bg-[#8f7c15] text-white text-xs uppercase px-4 py-2 rounded-2xl font-bold shadow-md hover:bg-[#a98f25] transition-colors" onClick={() => { navigate('/auth'); setIsSignInPage(false) }}>
           {t("common:sign_up")}
         </button>
-        <button className="uppercase text-xs font-medium hover:text-[#8f7c15] transition-colors" onClick={() => {navigate('/auth'); setIsSignInPage(true)}}>
-          {t("common:login")}
-        </button>
+          <button className="uppercase text-xs font-medium hover:text-[#8f7c15] transition-colors" onClick={() => { navigate('/auth'); setIsSignInPage(true) }}>
+            {t("common:login")}
+          </button> </>}
         <LanguageSwitcher />
       </div>
     </div>

@@ -105,7 +105,7 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
           height={60}
           className="object-cover"
         />
-        <h1 className="uppercase font-semibold text-sm sm:text-base text-secondary text-shadow-md drop-shadow-[0_0_8px_rgba(218,165,32,0.5)] moul-regular text-gradient">{company.name}</h1>
+        <h1 className="uppercase font-semibold text-sm sm:text-base text-secondary text-shadow-md drop-shadow-[0_0_8px_rgba(218,165,32,0.5)] moul-regular text-gradient py-2">{company.name}</h1>
       </Link>
 
       <button
@@ -155,7 +155,7 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
 
         {isAuthenticated && <Link to={"/dashboard"} className="uppercase text-xs flex items-center justify-center gap-1 px-3 py-2 bg-secondary rounded-full"><LayoutDashboard size={18}/>{t("header:dashboard")}</Link>}
         {!isAuthenticated && <><button
-          className="bg-secondary text-white text-xs lg:text-base uppercase px-3 py-2 rounded-3xl shadow-md  transition-colors font-medium"
+          className="bg-secondary text-white text-sm  uppercase px-3 py-2 rounded-3xl shadow-md  transition-colors"
           onClick={() => {
             setIsSignInPage(false);
             navigate("/auth");
@@ -164,7 +164,7 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
           {t("common:sign_up")}
         </button>
         <button
-          className="uppercase text-xs lg:text-base transition-colors font-medium"
+          className="uppercase text-sm transition-colors"
           onClick={() => {
             setIsSignInPage(true);
             navigate("/auth");

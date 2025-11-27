@@ -9,7 +9,7 @@ import { AlertCircle } from 'lucide-react';
 
 const SocialLogin: React.FC = () => {
   const { t } = useTranslation();
-  const { setToken, setUser } = useAuthStore();
+  const { setToken } = useAuthStore();
   const navigate = useNavigate();
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);

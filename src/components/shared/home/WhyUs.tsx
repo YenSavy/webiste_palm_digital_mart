@@ -36,6 +36,7 @@ const WhyUs: React.FC = () => {
           return (
             <div
               key={item.id}
+              data-aos = "fade-up"
               className='group relative bg-gradient-primary shadow-md shadow-secondary backdrop-blur-sm rounded-2xl p-6 border border-slate-600/30 hover:border-[#DAA520]/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(218,165,32,0.3)] hover:-translate-y-2'
             >
               <div className='absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#DAA520]/10 to-transparent rounded-tr-2xl'></div>

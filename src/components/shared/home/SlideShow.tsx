@@ -72,7 +72,7 @@ const SlideShow: React.FC = () => {
   }
 
   return (
-    <section className="mt-4 sm:mt-6 px-2 sm:px-4 py-4 sm:py-8">
+    <section className="mt-4 sm:mt-6 px-2 sm:px-4 py-4 sm:py-8" data-aos="fade-up">
       <div
         className="relative w-full max-w-7xl mx-auto group"
         role="region"

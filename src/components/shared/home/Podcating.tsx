@@ -109,7 +109,7 @@ const Podcasting: React.FC<AdvertisingProps> = ({
           icon={<Megaphone size={34} />}
         />
 
-        <article className="flex flex-col lg:flex-row w-full gap-6">
+        <article className="flex flex-col lg:flex-row w-full gap-6" data-aos="fade-right">
           <div className="flex-[3] flex flex-col">
             <div className="relative bg-black rounded-2xl overflow-hidden shadow-lg">
               {currentVideo && latestIsYouTube && latestEmbedUrl ? (
@@ -163,7 +163,7 @@ const Podcasting: React.FC<AdvertisingProps> = ({
 
           {/* SIDEBAR LIST */}
           {otherVideos.length > 0 && (
-            <div className="flex-[2] flex flex-col h-[500px]">
+            <div className="flex-[2] flex flex-col h-[500px]" data-aos="fade-left">
               <h3 className="font-semibold border-b py-3">
                 {t("common:other_video")}
               </h3>

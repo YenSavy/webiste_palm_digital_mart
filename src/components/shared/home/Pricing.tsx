@@ -74,6 +74,7 @@ const Card: React.FC<TPricingProps & { onClick?: () => void; mostFamous: boolean
   return (
     <div
       onClick={onClick}
+      data-aos="fade-up"
       className={`relative w-full max-w-[320px] sm:max-w-[360px] md:max-w-[380px]
         border p-6 bg-gradient-primary hover:scale-105 rounded-xl cursor-pointer shadow-2xl shadow-white/10
         transition-all duration-200 flex flex-col justify-between

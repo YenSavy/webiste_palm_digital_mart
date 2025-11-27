@@ -110,7 +110,7 @@ const Advertising: React.FC<AdvertisingProps> = ({
           icon={<Megaphone size={34} />}
         />
 
-        <article className="flex flex-col lg:flex-row w-full gap-6">
+        <article className="flex flex-col lg:flex-row w-full gap-6" data-aos="fade-right">
           {/* MAIN VIDEO */}
           <div className="flex-[3] flex flex-col">
             <div className="relative bg-black rounded-2xl overflow-hidden shadow-lg">
@@ -150,9 +150,7 @@ const Advertising: React.FC<AdvertisingProps> = ({
 
               <div className="flex flex-wrap gap-4 text-smtext-gray-400 pt-2">
                 <span className="flex items-center gap-1">
-                  <span className="font-medium">
-                    {t("common:channel_name") || ""}
-                  </span>
+
                   {currentVideo?.channel_name}
                 </span>
                 <span className="flex items-center gap-1">
@@ -165,7 +163,7 @@ const Advertising: React.FC<AdvertisingProps> = ({
 
           {/* SIDEBAR LIST */}
           {otherVideos.length > 0 && (
-            <div className="flex-[2] flex flex-col h-[500px]">
+            <div className="flex-[2] flex flex-col h-[500px]" data-aos="fade-left">
               <h3 className="font-semibold border-b py-3">
                 {t("common:other_video")}
               </h3>

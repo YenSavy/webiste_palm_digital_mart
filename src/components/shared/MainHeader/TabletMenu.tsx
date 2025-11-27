@@ -12,7 +12,7 @@ const TabletMenu: React.FC<{ navContent: NavItem[] }> = ({ navContent }) => {
   };
   const scrollTo = useScrollTo()
   return (
-    <div className="hidden md:flex text-gray-700 lg:hidden flex-col absolute top-full left-0 w-full bg-white shadow-md py-4 z-40">
+    <div className="hidden md:flex text-white lg:hidden flex-col absolute top-full left-0 w-full bg-gradient-secondary shadow-md py-6 z-40">
       {navContent.map((n) => (
         <div key={n.nav} className="border-b border-gray-100 px-6 py-2">
           {n.hasChild ? (
@@ -25,7 +25,7 @@ const TabletMenu: React.FC<{ navContent: NavItem[] }> = ({ navContent }) => {
                 <ChevronIcon isOpen={activeDropdown === n.nav} />
               </button>
               {activeDropdown === n.nav && n.children && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-3 text-sm px-4 bg-gray-50 py-3 rounded">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-3 text-sm px-4  py-3 rounded">
                   {n.children.map((col) => (
                     <div key={col.id}>
                       <p className="font-semibold text-[#00509e] border-b mb-1 text-xs">
