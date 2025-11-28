@@ -56,6 +56,7 @@ type TLoginReponse ={
   email: string;
   status: string;
   token: string;
+  full_name: string | null;
 }
 
 export const login = async (data: SignInData): Promise<ApiResponse<TLoginReponse>> => {

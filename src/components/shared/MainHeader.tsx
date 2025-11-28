@@ -49,7 +49,6 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
     ],
     [SERVICE_MENU, t]
   );
-
   const navItems = navContent || DEFAULT_NAV;
 
   const [menuOpen, setMenuOpen] = useState(false);

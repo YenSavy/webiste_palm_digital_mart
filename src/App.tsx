@@ -14,6 +14,7 @@ import DashboardPage from "./pages/DashboardPage";
 import { useAuthStore } from "./store/authStore";
 import "aos/dist/aos.css";
 import UserPage from "./pages/UserPage";
+import DashboardLayout from "./layouts/DashboardLayout";
 
 
 const queryClient = new QueryClient({
@@ -77,7 +78,6 @@ useEffect(() => {
               <Route path="/" element={<HomePage />} />
             </Route>
 
-            <Route path="/user" element={<UserPage />} />
 
             <Route element={<AuthLayout />}>
               <Route path="/auth" element={<AuthPage />} />
@@ -85,8 +85,11 @@ useEffect(() => {
 
             <Route
               path="/dashboard"
-              element={<ProtectedRoute component={DashboardPage} />}
-            />
+              element={<ProtectedRoute component={DashboardLayout} />}
+            >
+            <Route index element={<DashboardPage />} />
+            <Route path="/dashboard/user" element={<UserPage />} />
+            </Route>
           </Routes>
 
           <ReactQueryDevtools initialIsOpen={false} />

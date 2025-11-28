@@ -1,11 +1,10 @@
 import { create } from 'zustand'
 
 interface User {
-  id: string
   name: string
-  email: string
-  picture?: string
-  provider?: 'google' | 'facebook' | 'email'
+  phone: string;
+  email: string;
+  full_name: string | null;
 }
 
 interface AuthStore {
@@ -32,17 +31,17 @@ const getAuthToken = (): string | null => {
   return match ? match[2] : null
 }
 
-// const getUserFromStorage = (): User | null => {
-//   const userStr = localStorage.getItem('user')
-//   if (userStr) {
-//     try {
-//       return JSON.parse(userStr)
-//     } catch {
-//       return null
-//     }
-//   }
-//   return null
-// }
+const getUserFromStorage = (): User | null => {
+  const userStr = localStorage.getItem('user')
+  if (userStr) {
+    try {
+      return JSON.parse(userStr)
+    } catch {
+      return null
+    }
+  }
+  return null
+}
 
 export const useAuthStore = create<AuthStore>((set) => ({
   isAuthenticated: false,
@@ -82,7 +81,9 @@ export const useAuthStore = create<AuthStore>((set) => ({
   
   initializeAuth: () => {
     const token = getAuthToken()
-    if (token) {
+    const user = getUserFromStorage()
+    if (token && user) {
+      set({ user })
       set({ token, isAuthenticated: true, isAuthLoading: false })
     } else {
       set({ isAuthLoading: false })  

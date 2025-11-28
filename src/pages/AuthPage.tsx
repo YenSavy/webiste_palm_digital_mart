@@ -81,7 +81,7 @@ const AuthPage: React.FC = () => {
 export default AuthPage;
 
 const LoginForm: React.FC = () => {
-    const { setIsSignInPage, setToken } = useAuthStore()
+    const { setIsSignInPage, setToken, setUser } = useAuthStore()
     const { t } = useTranslation()
     const navigate = useNavigate()
     const [rememberMe, setRememberMe] = useState(false)
@@ -156,6 +156,7 @@ const LoginForm: React.FC = () => {
             onSuccess: (data) => {
                 const token = data.data.token
                 setToken(token)
+                setUser({email: data.data.email, name: data.data.name, phone: data.data.phone, full_name: data.data.full_name})
                 setIsFailed(false)
                 if (rememberMe) {
                     setAuthCookie(token, 7 * 24 * 60 * 60)

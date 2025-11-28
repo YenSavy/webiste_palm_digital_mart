@@ -1,6 +1,8 @@
-import { Bell, Search, Menu, User, ChevronDown, LogOut, Settings, Palette } from 'lucide-react'
+import { Bell, Search, Menu, User, ChevronDown, LogOut, Palette } from 'lucide-react'
 import { useState } from 'react'
 import { themes, useThemeStore, type ThemeType } from '../../../store/themeStore'
+import { useAuthStore } from '../../../store/authStore'
+import useMainStore from '../../../store/mainStore'
 
 interface HeaderProps {
   toggleSidebar: () => void
@@ -13,8 +15,8 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
   const theme = useThemeStore((state) => state.getTheme())
   const currentThemeKey = useThemeStore((state) => state.currentTheme)
   const setTheme = useThemeStore((state) => state.setTheme)
-
-
+  const user = useAuthStore(state => state.user)
+  const setSearch = useMainStore(state => state.setSearch)
   return (
     <header 
       className={`h-16 lg:h-20 bg-gradient-to-br ${theme?.primary} backdrop-blur-sm border-b ${theme?.border} sticky top-0 z-20`}
@@ -54,12 +56,12 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
                 e.currentTarget.style.borderColor = ''
                 e.currentTarget.style.boxShadow = ''
               }}
+              onChange={({target}) => setSearch(target.value) }
             />
           </div>
         </div>
 
         <div className='flex items-center gap-2 sm:gap-4'>
-          {/* Theme Selector */}
           <div className='relative'>
             <button
               onClick={() => {
@@ -158,7 +160,7 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
                 <User size={18} className='text-slate-900' />
               </div>
               <div className='text-left hidden md:block'>
-                <p className={`text-sm font-medium ${theme?.text}`}>John Doe</p>
+                <p className={`text-sm font-medium ${theme?.text}`}>{user?.full_name || user?.name}</p>
                 <p className={`text-xs ${theme?.textSecondary}`}>Administrator</p>
               </div>
               <ChevronDown
@@ -174,10 +176,10 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
                 className={`absolute right-0 mt-2 w-56 bg-gradient-to-br ${theme?.cardBg} backdrop-blur-sm border ${theme?.border} rounded-xl shadow-2xl overflow-hidden`}
               >
                 <div className={`p-4 border-b ${theme?.border}`}>
-                  <p className={`text-sm font-medium ${theme?.text}`}>John Doe</p>
-                  <p className={`text-xs ${theme?.textSecondary}`}>john.doe@example.com</p>
+                  <p className={`text-sm font-medium ${theme?.text}`}>{user?.full_name || user?.name}</p>
+                  <p className={`text-xs ${theme?.textSecondary}`}>{user?.email}</p>
                 </div>
-                <div className='py-2'>
+                {/* <div className='py-2'>
                   <button 
                     className={`w-full flex items-center gap-3 px-4 py-2 ${theme?.textSecondary} ${theme?.primaryHover} transition-colors`}
                     onMouseEnter={(e) => e.currentTarget.style.color = theme?.text}
@@ -192,7 +194,7 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
                     <Settings size={18} />
                     <span className='text-sm'>Settings</span>
                   </button>
-                </div>
+                </div> */}
                 <div className={`border-t ${theme?.border} py-2`}>
                   <button
                     onClick={onLogout}

@@ -20,8 +20,8 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'users', label: 'Users', icon: Users, path: '/user' },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path:"/dashboard" },
+  { id: 'users', label: 'Users', icon: Users, path: '/dashboard/user' },
   { id: 'reports', label: 'Reports', icon: FileText },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'calendar', label: 'Calendar', icon: Calendar },
@@ -51,7 +51,6 @@ const Sidebar: React.FC<SidebarProps> = ({
       } lg:translate-x-0 lg:w-64`}
       style={{ width: isSidebarOpen ? '256px' : '256px' }}
     >
-      {/* Logo Section */}
       <div className={`h-20 flex items-center justify-center border-b ${theme.border} px-4`}>
         <div className="flex items-center gap-2">
           <div
@@ -69,7 +68,6 @@ const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 py-6 px-3 space-y-2">
         {navItems.map((item) => {
           const Icon = item.icon
