@@ -81,7 +81,6 @@ const UserPage: React.FC = () => {
             </tbody>
           </table>
 
-          {/* Invite user button */}
           <button
             className="mt-6 px-4 py-2 bg-white text-black font-medium text-sm rounded-md shadow hover:bg-yellow-300"
             onClick={() => setOpenAdd(true)}
@@ -91,16 +90,16 @@ const UserPage: React.FC = () => {
 
       {openAdd && (
         <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
-          <div className="bg-gradient-to-br from-[#102A43] via-[#0D3C73] to-[#102A43] rounded-xl p-6 w-full max-w-md shadow-xl text-[#DAA520]">
+          <div className={cn("bg-gradient-to-br rounded-xl p-6 w-full max-w-md shadow-xl", theme.primary, theme.textSecondary)}>
             <h2 className="text-lg font-semibold mb-4">Add New User</h2>
             <div className="space-y-4">
-              <div><label className="text-sm font-medium">Name</label><input type="text" className="text-white w-full mt-1 px-3 py-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 bg-[#0D3C73]" value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} placeholder="Enter full name" /></div>
-              <div><label className="text-sm font-medium">Email</label><input type="email" className="text-white w-full mt-1 px-3 py-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 bg-[#0D3C73]" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} placeholder="Enter email" /></div>
-              <div><label className="text-sm font-medium ">Role</label><select className=" text-gray-300 w-full mt-1 px-3 py-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 bg-[#0D3C73]" value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })}><option value="Admin">Admin</option><option value="User">User</option><option value="Editor">Editor</option></select></div>
+              <div><label className="text-sm font-medium">Name</label><input type="text" className="text-white w-full mt-1 px-3 py-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 " value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} placeholder="Enter full name" /></div>
+              <div><label className="text-sm font-medium">Email</label><input type="email" className="text-white w-full mt-1 px-3 py-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 " value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} placeholder="Enter email" /></div>
+              <div><label className="text-sm font-medium ">Role</label><select className=" text-gray-300 w-full mt-1 px-3 py-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 " value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })}><option value="Admin">Admin</option><option value="User">User</option><option value="Editor">Editor</option></select></div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => setOpenAdd(false)} className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</button>
-              <button onClick={handleAddUser} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Add</button>
+              <button onClick={handleAddUser} className={`px-4 py-2  rounded-md bg-gradient-to-br ${theme.text} ${theme.primary}  border `}>Add</button>
             </div>
           </div>
         </div>
@@ -109,22 +108,22 @@ const UserPage: React.FC = () => {
       {openEdit && editIndex !== null && (
 
         <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
-          <div className="bg-gradient-to-br from-[#102A43] via-[#0D3C73] to-[#102A43] rounded-xl p-6 w-full max-w-md shadow-xl text-[#DAA520]">
+          <div className={cn("rounded-xl p-6 w-full max-w-md shadow-xl bg-gradient-to-tr", theme.primary, theme.textSecondary)}>
             <h2 className="text-lg font-semibold mb-4">Edit User</h2>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-[#DAA520]">Name</label>
+                <label className="text-sm font-medium">Name</label>
                 <input
                   type="text"
-                  className="text-gray-500 w-full mt-1 px-3 py-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 bg-[#0D3C73]"
+                  className={cn("text-gray-500 w-full mt-1 px-3 py-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 bg-gradient-to-tr", theme.cardBg)}
                   value={users[editIndex].name}
                   onChange={e => handleEditUser(editIndex, "name", e.target.value)}
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-[#DAA520]">Status</label>
+                <label className="text-sm font-medium">Status</label>
                 <select
-                  className="text-gray-500 w-full mt-1 px-3 py-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-200 bg-[#0D3C73]"
+                  className={cn("text-gray-500 w-full mt-1 px-3 py-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-200 bg-gradient-to-tr", theme.cardBg)}
                   value={users[editIndex].status}
                   onChange={e => handleEditUser(editIndex, "status", e.target.value)}
                 >
