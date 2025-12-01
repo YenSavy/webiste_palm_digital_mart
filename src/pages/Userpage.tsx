@@ -80,7 +80,6 @@ const UserPage: React.FC = () => {
               ))}
             </tbody>
           </table>
-
           <button
             className="mt-6 px-4 py-2 bg-white text-black font-medium text-sm rounded-md shadow hover:bg-yellow-300"
             onClick={() => setOpenAdd(true)}
@@ -93,8 +92,8 @@ const UserPage: React.FC = () => {
           <div className={cn("bg-gradient-to-br rounded-xl p-6 w-full max-w-md shadow-xl", theme.primary, theme.textSecondary)}>
             <h2 className="text-lg font-semibold mb-4">Add New User</h2>
             <div className="space-y-4">
-              <div><label className="text-sm font-medium">Name</label><input type="text" className="text-white w-full mt-1 px-3 py-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 " value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} placeholder="Enter full name" /></div>
-              <div><label className="text-sm font-medium">Email</label><input type="email" className="text-white w-full mt-1 px-3 py-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 " value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} placeholder="Enter email" /></div>
+              <div><label className="text-sm font-medium">Name</label> <input  type="text" className={`${theme.text.input} w-full mt-1 px-3 py-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300`} value={newUser.name} onChange={(e) =>setNewUser({ ...newUser, name: e.target.value }) } placeholder="Enter full name" /></div>
+              <div><label className="text-sm font-medium">Email</label><input type="email" className={`${theme.text.input} w-full mt-1 px-3 py-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300`} value={newUser.email} onChange={(e) =>  setNewUser({ ...newUser, email: e.target.value }) } placeholder="Enter email"/></div>
               <div><label className="text-sm font-medium ">Role</label><select className=" text-gray-300 w-full mt-1 px-3 py-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 " value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })}><option value="Admin">Admin</option><option value="User">User</option><option value="Editor">Editor</option></select></div>
             </div>
             <div className="flex justify-end gap-3 mt-6">

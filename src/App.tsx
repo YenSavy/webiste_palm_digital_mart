@@ -5,98 +5,103 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import AOS from "aos";
+import 'aos/dist/aos.css';
 import MainPageLayout from "./layouts/MainPageLayout";
 import HomePage from "./pages/HomePage";
-import AuthPage from "./pages/AuthPage";
+
 import AuthLayout from "./layouts/AuthLayout";
+import AuthPage from "./pages/AuthPage";
+
 import ProtectedRoute from "./routes/ProtectedRoute";
+import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardPage from "./pages/DashboardPage";
+import UserPage from "./pages/UserPage";
+
 import { useAuthStore } from "./store/authStore";
 import "aos/dist/aos.css";
-import UserPage from "./pages/UserPage";
-import DashboardLayout from "./layouts/DashboardLayout";
-
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 5 * 60 * 1000,
-    },
-  },
+defaultOptions: {
+queries: {
+refetchOnWindowFocus: false,
+retry: 1,
+staleTime: 5 * 60 * 1000,
+},
+},
 });
 
 function App() {
-  const { i18n } = useTranslation();
-  const initializeAuth = useAuthStore((state) => state.initializeAuth);
+const { i18n } = useTranslation();
+const initializeAuth = useAuthStore((state) => state.initializeAuth);
 
-  // Initialize login state
-  useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
-
-  // Initialize Language
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const lang = params.get("lang");
-
-    if (lang && ["en", "km", "zh"].includes(lang)) {
-      i18n.changeLanguage(lang);
-      localStorage.setItem("i18nextLng", lang);
-    } else {
-      const saved = localStorage.getItem("i18nextLng");
-      const defaultLang = ["en", "km", "zh"].includes(saved || "") ? saved! : "en";
-
-      i18n.changeLanguage(defaultLang);
-      localStorage.setItem("i18nextLng", defaultLang);
-
-      const url = new URL(window.location.href);
-      url.searchParams.set("lang", defaultLang);
-      window.history.replaceState({}, "", url.toString());
-    }
-  }, [i18n]);
-
-
-
+// Initialize Auth State
 useEffect(() => {
-    AOS.init({
-      duration: 1000, 
-      once: true, 
-      mirror: false, 
-      offset: 100, 
-      easing: 'ease-in-out', 
-    });
-  }, []);
+initializeAuth();
+}, [initializeAuth]);
 
-  return (
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <Routes>
-            <Route element={<MainPageLayout />}>
-              <Route path="/" element={<HomePage />} />
-            </Route>
+// Initialize Language
+useEffect(() => {
+const params = new URLSearchParams(window.location.search);
+const lang = params.get("lang");
 
 
-            <Route element={<AuthLayout />}>
-              <Route path="/auth" element={<AuthPage />} />
-            </Route>
+if (lang && ["en", "km", "zh"].includes(lang)) {
+  i18n.changeLanguage(lang);
+  localStorage.setItem("i18nextLng", lang);
+} else {
+  const saved = localStorage.getItem("i18nextLng");
+  const defaultLang = ["en", "km", "zh"].includes(saved || "") ? saved! : "en";
 
-            <Route
-              path="/dashboard"
-              element={<ProtectedRoute component={DashboardLayout} />}
-            >
-            <Route index element={<DashboardPage />} />
-            <Route path="/dashboard/user" element={<UserPage />} />
-            </Route>
-          </Routes>
+  i18n.changeLanguage(defaultLang);
+  localStorage.setItem("i18nextLng", defaultLang);
 
-          <ReactQueryDevtools initialIsOpen={false} />
-        </BrowserRouter>
-      </QueryClientProvider>
-    </GoogleOAuthProvider>
-  );
+  const url = new URL(window.location.href);
+  url.searchParams.set("lang", defaultLang);
+  window.history.replaceState({}, "", url.toString());
+}
+
+
+}, [i18n]);
+
+// AOS Animation
+useEffect(() => {
+AOS.init({
+duration: 1000,
+once: true,
+mirror: false,
+offset: 100,
+easing: "ease-in-out",
+});
+}, []);
+
+return ( <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}> <QueryClientProvider client={queryClient}> <BrowserRouter> <Routes>
+{/* Public Main Page Layout */}
+<Route element={<MainPageLayout />}>
+<Route path="/" element={<HomePage />} /> </Route>
+
+
+        {/* Auth Pages */}
+        <Route element={<AuthLayout />}>
+          <Route path="/auth" element={<AuthPage />} />
+        </Route>
+
+        {/* Dashboard (Protected Area) */}
+        <Route
+          path="/dashboard"
+          element={<ProtectedRoute component={DashboardLayout} />}
+        >
+          <Route index element={<DashboardPage />} />
+          <Route path="user" element={<UserPage />} /> 
+        </Route>
+      </Routes>
+
+      <ReactQueryDevtools initialIsOpen={false} />
+    </BrowserRouter>
+  </QueryClientProvider>
+</GoogleOAuthProvider>
+
+
+);
 }
 
 export default App;
