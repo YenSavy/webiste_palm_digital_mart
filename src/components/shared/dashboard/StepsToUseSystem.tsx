@@ -1,6 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Building2, CreditCard, UserPlus, BookOpen, Check, Lock, ChevronRight } from 'lucide-react'
-import { useThemeStore } from '../../../store/themeStore'
+import { Building2, CreditCard, UserPlus, BookOpen, Check, Lock, ChevronRight, GitBranch, Warehouse, Briefcase, DollarSign } from 'lucide-react'
+import { useThemeStore, type Theme } from '../../../store/themeStore'
+import CreateCompany from './company-profile/CreateCompany'
+import useDashboardStore from '../../../store/dashboardStore'
+
+interface SubStep {
+  id: 'company' | 'branch' | 'warehouse' | 'position' | 'currency'
+  label: string
+  icon: React.ElementType
+  completed: boolean
+}
 
 interface Step {
   id: string
@@ -8,19 +17,31 @@ interface Step {
   description: string
   icon: React.ElementType
   completed: boolean
+  hasSubSteps?: boolean
+  subSteps?: SubStep[]
 }
 
 const StepsToUseSystem: React.FC = () => {
   const theme = useThemeStore((state) => state.getTheme())
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const activeCategory = useDashboardStore((state) => state.activeCategory)
+  const setActiveCategory = useDashboardStore((state) => state.setActiveCategory)
   
   const [steps, setSteps] = useState<Step[]>([
     {
       id: 'company',
       title: 'Create Company',
-      description: 'Set up your company profile and information',
+      description: 'Set up your company profile and organizational structure',
       icon: Building2,
       completed: false,
+      hasSubSteps: true,
+      subSteps: [
+        { id: 'company', label: 'Company Profile', icon: Building2, completed: false },
+        { id: 'branch', label: 'Branch', icon: GitBranch, completed: false },
+        { id: 'warehouse', label: 'Warehouse', icon: Warehouse, completed: false },
+        { id: 'position', label: 'Position', icon: Briefcase, completed: false },
+        { id: 'currency', label: 'Currency', icon: DollarSign, completed: false },
+      ],
     },
     {
       id: 'subscription',
@@ -47,12 +68,37 @@ const StepsToUseSystem: React.FC = () => {
 
   const [currentStep, setCurrentStep] = useState(0)
 
+  // Check if all sub-steps are completed
+  const areAllSubStepsCompleted = (step: Step): boolean => {
+    if (!step.subSteps) return true
+    return step.subSteps.every((subStep) => subStep.completed)
+  }
+
+  // Get active sub-step index for company step
+  const getActiveSubStepIndex = (): number => {
+    const companyStep = steps[0]
+    if (!companyStep.subSteps) return 0
+    const firstIncomplete = companyStep.subSteps.findIndex((sub) => !sub.completed)
+    return firstIncomplete === -1 ? companyStep.subSteps.length - 1 : firstIncomplete
+  }
+
   const getActiveStepIndex = () => {
     const firstIncompleteIndex = steps.findIndex((step) => !step.completed)
     return firstIncompleteIndex === -1 ? steps.length - 1 : firstIncompleteIndex
   }
 
   const activeStepIndex = getActiveStepIndex()
+  const activeSubStepIndex = getActiveSubStepIndex()
+
+  // Set active category based on current sub-step
+  useEffect(() => {
+    if (currentStep === 0 && steps[0].subSteps) {
+      const currentSubStep = steps[0].subSteps[activeSubStepIndex]
+      if (currentSubStep && currentSubStep.id !== activeCategory) {
+        setActiveCategory(currentSubStep.id)
+      }
+    }
+  }, [currentStep, activeSubStepIndex, activeCategory, setActiveCategory, steps])
 
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -63,8 +109,36 @@ const StepsToUseSystem: React.FC = () => {
     }
   }, [currentStep])
 
+  // Handle sub-step completion
+  const handleCompleteSubStep = (subStepId: 'company' | 'branch' | 'warehouse' | 'position' | 'currency') => {
+    const newSteps = [...steps]
+    const companyStep = newSteps[0]
+    
+    if (!companyStep.subSteps) return
+
+    const subStepIndex = companyStep.subSteps.findIndex((sub) => sub.id === subStepId)
+    if (subStepIndex !== activeSubStepIndex) return // Only allow completing current active sub-step
+
+    companyStep.subSteps[subStepIndex].completed = true
+
+    // Check if all sub-steps are completed
+    if (areAllSubStepsCompleted(companyStep)) {
+      companyStep.completed = true
+    }
+
+    setSteps(newSteps)
+
+    // Move to next sub-step or next main step
+    if (subStepIndex < companyStep.subSteps.length - 1) {
+      setActiveCategory(companyStep.subSteps[subStepIndex + 1].id)
+    } else if (companyStep.completed) {
+      setCurrentStep(1) // Move to subscription step
+    }
+  }
+
   const handleCompleteStep = (index: number) => {
     if (index !== activeStepIndex) return
+    if (index === 0) return // Company step is handled by sub-steps
 
     const newSteps = [...steps]
     newSteps[index].completed = true
@@ -75,10 +149,19 @@ const StepsToUseSystem: React.FC = () => {
     }
   }
 
-  // Handle step click
   const handleStepClick = (index: number) => {
     if (index <= activeStepIndex) {
       setCurrentStep(index)
+    }
+  }
+
+  const handleSubStepClick = (subStepId: 'company' | 'branch' | 'warehouse' | 'position' | 'currency') => {
+    const companyStep = steps[0]
+    if (!companyStep.subSteps) return
+    
+    const subStepIndex = companyStep.subSteps.findIndex((sub) => sub.id === subStepId)
+    if (subStepIndex <= activeSubStepIndex) {
+      setActiveCategory(subStepId)
     }
   }
 
@@ -90,18 +173,14 @@ const StepsToUseSystem: React.FC = () => {
     return index === currentStep
   }
 
+  const isSubStepClickable = (subStepIndex: number): boolean => {
+    return subStepIndex <= activeSubStepIndex
+  }
+
+  if (!activeCategory) return null
+
   return (
     <div className="min-h-screen p-4 sm:p-6 lg:p-8">
-      {/* Header */}
-      <div className="max-w-6xl mx-auto mb-6">
-        <h1 className={`text-3xl sm:text-4xl font-bold ${theme.text} mb-2`}>
-          Getting Started
-        </h1>
-        <p className={`${theme.textSecondary} text-sm sm:text-base`}>
-          Complete these steps to start using the system
-        </p>
-      </div>
-
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1">
@@ -109,10 +188,6 @@ const StepsToUseSystem: React.FC = () => {
               <div
                 ref={scrollContainerRef}
                 className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
-                style={{
-                  scrollbarWidth: 'none',
-                  msOverflowStyle: 'none',
-                }}
               >
                 {steps.map((step, index) => {
                   const Icon = step.icon
@@ -181,7 +256,6 @@ const StepsToUseSystem: React.FC = () => {
                           </div>
                         </div>
                         
-                        {/* Progress indicator dots */}
                         <div className="flex gap-1.5 justify-center">
                           {steps.map((_, idx) => (
                             <div
@@ -216,7 +290,7 @@ const StepsToUseSystem: React.FC = () => {
                     {Math.round((steps.filter((s) => s.completed).length / steps.length) * 100)}%
                   </span>
                 </div>
-                <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
                   <div
                     className="h-full transition-all duration-500 rounded-full"
                     style={{
@@ -305,6 +379,84 @@ const StepsToUseSystem: React.FC = () => {
                             <Check size={20} className="text-green-400 flex-shrink-0" />
                           )}
                         </button>
+
+                        {/* Sub-steps for Company (Step 1) */}
+                        {index === 0 && isActive && step.subSteps && (
+                          <div className="mt-3 ml-8 space-y-2">
+                            {step.subSteps.map((subStep, subIndex) => {
+                              const SubIcon = subStep.icon
+                              const isSubActive = activeCategory === subStep.id
+                              const isSubClickable = isSubStepClickable(subIndex)
+                              const isSubCompleted = subStep.completed
+
+                              return (
+                                <button
+                                  key={subStep.id}
+                                  onClick={() => handleSubStepClick(subStep.id)}
+                                  disabled={!isSubClickable}
+                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${
+                                    !isSubClickable && 'opacity-40 cursor-not-allowed'
+                                  }`}
+                                  style={
+                                    isSubActive
+                                      ? {
+                                          backgroundColor: `${theme.accent}15`,
+                                          borderLeft: `3px solid ${theme.accent}`,
+                                        }
+                                      : isSubClickable
+                                      ? { backgroundColor: `${theme.accent}08` }
+                                      : {}
+                                  }
+                                >
+                                  <div
+                                    className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                                      isSubCompleted
+                                        ? 'bg-green-500'
+                                        : !isSubClickable
+                                        ? 'bg-gray-600'
+                                        : ''
+                                    }`}
+                                    style={
+                                      isSubActive && !isSubCompleted
+                                        ? { backgroundColor: `${theme.accent}30` }
+                                        : !isSubActive && isSubClickable && !isSubCompleted
+                                        ? { backgroundColor: `${theme.accent}15` }
+                                        : {}
+                                    }
+                                  >
+                                    {isSubCompleted ? (
+                                      <Check size={16} className="text-white" />
+                                    ) : !isSubClickable ? (
+                                      <Lock size={16} className="text-gray-400" />
+                                    ) : (
+                                      <SubIcon
+                                        size={16}
+                                        style={isSubActive ? { color: theme.accent } : {}}
+                                        className={!isSubActive ? theme.textSecondary : ''}
+                                      />
+                                    )}
+                                  </div>
+                                  <span
+                                    className={`text-xs font-medium ${
+                                      isSubCompleted
+                                        ? 'text-green-400'
+                                        : isSubActive
+                                        ? theme.text
+                                        : theme.textSecondary
+                                    }`}
+                                    style={isSubActive && !isSubCompleted ? { color: theme.accent } : {}}
+                                  >
+                                    {subStep.label}
+                                  </span>
+                                  {isSubCompleted && (
+                                    <Check size={14} className="text-green-400 ml-auto" />
+                                  )}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        )}
+
                         {index < steps.length - 1 && (
                           <div className="flex justify-center py-2">
                             <ChevronRight
@@ -326,7 +478,7 @@ const StepsToUseSystem: React.FC = () => {
                       {Math.round((steps.filter((s) => s.completed).length / steps.length) * 100)}%
                     </span>
                   </div>
-                  <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
                     <div
                       className="h-full transition-all duration-500 rounded-full"
                       style={{
@@ -340,7 +492,7 @@ const StepsToUseSystem: React.FC = () => {
             </div>
           </div>
 
-          {/* Step Content - Right Side */}
+          {/* Right Side - Step Content */}
           <div className="lg:col-span-2">
             <div
               className={`bg-gradient-to-br ${theme.cardBg} backdrop-blur-sm border ${theme.border} rounded-2xl p-6 sm:p-8`}
@@ -391,30 +543,45 @@ const StepsToUseSystem: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Step Content Based on ID */}
+                    {/* Sub-steps Progress for Company Step */}
+                    {step.id === 'company' && step.subSteps && (
+                      <div className="mb-6">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className={`text-sm font-medium ${theme.textSecondary}`}>
+                            Company Setup Progress
+                          </span>
+                          <span className={`text-sm font-bold ${theme.text}`}>
+                            {step.subSteps.filter((s) => s.completed).length} / {step.subSteps.length}
+                          </span>
+                        </div>
+                        <div className="flex gap-2">
+                          {step.subSteps.map((subStep) => (
+                            <div
+                              key={subStep.id}
+                              className="flex-1 h-2 rounded-full transition-all"
+                              style={{
+                                backgroundColor: subStep.completed
+                                  ? theme.accent
+                                  : subStep.id === activeCategory
+                                  ? `${theme.accent}50`
+                                  : `${theme.accent}20`,
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     <div className="mt-8">
-                      {step.id === 'company' && (
-                        <StepContent
-                          title="Company Information"
-                          description="Please provide your company details to get started. This information will be used across the platform."
-                          fields={[
-                            { label: 'Company Name', placeholder: 'Enter company name', type: 'text' },
-                            { label: 'Business Type', placeholder: 'Select business type', type: 'select' },
-                            { label: 'Tax ID', placeholder: 'Enter tax identification number', type: 'text' },
-                            { label: 'Address', placeholder: 'Enter company address', type: 'textarea' },
-                          ]}
-                          theme={theme}
-                        />
-                      )}
+                      {step.id === 'company' && <CreateCompany />}
 
                       {step.id === 'subscription' && (
                         <StepContent
                           title="Choose Your Plan"
-                          description="Select a subscription plan that fits your business needs. You can upgrade or downgrade anytime."
+                          description="Select a subscription plan that fits your business needs."
                           fields={[
                             { label: 'Plan Selection', placeholder: 'Select a plan', type: 'select' },
                             { label: 'Billing Cycle', placeholder: 'Monthly or Yearly', type: 'select' },
-                            { label: 'Payment Method', placeholder: 'Credit card, PayPal, etc.', type: 'select' },
                           ]}
                           theme={theme}
                         />
@@ -423,12 +590,10 @@ const StepsToUseSystem: React.FC = () => {
                       {step.id === 'user' && (
                         <StepContent
                           title="Add Team Members"
-                          description="Create user accounts for your team members and assign appropriate roles and permissions."
+                          description="Create user accounts for your team members."
                           fields={[
                             { label: 'Full Name', placeholder: 'Enter user full name', type: 'text' },
                             { label: 'Email Address', placeholder: 'user@company.com', type: 'email' },
-                            { label: 'Role', placeholder: 'Select user role', type: 'select' },
-                            { label: 'Department', placeholder: 'Select department', type: 'select' },
                           ]}
                           theme={theme}
                         />
@@ -436,34 +601,20 @@ const StepsToUseSystem: React.FC = () => {
 
                       {step.id === 'guide' && (
                         <div className="space-y-6">
-                          <div>
-                            <h3 className={`text-xl font-bold ${theme.text} mb-4`}>
-                              Welcome to the System! 🎉
-                            </h3>
-                            <p className={`${theme.textSecondary} mb-4`}>
-                              Congratulations on completing the setup! Here are some helpful resources to get you started:
-                            </p>
-                          </div>
-
+                          <h3 className={`text-xl font-bold ${theme.text} mb-4`}>
+                            Welcome! 🎉
+                          </h3>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {[
                               { title: 'Video Tutorials', desc: 'Watch step-by-step guides' },
                               { title: 'Documentation', desc: 'Read detailed instructions' },
-                              { title: 'FAQ', desc: 'Find answers to common questions' },
+                              { title: 'FAQ', desc: 'Find answers to questions' },
                               { title: 'Support', desc: 'Contact our support team' },
                             ].map((resource, idx) => (
                               <div
                                 key={idx}
                                 className={`p-4 rounded-xl border ${theme.border} transition-all cursor-pointer`}
                                 style={{ backgroundColor: `${theme.accent}10` }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.transform = 'scale(1.05)'
-                                  e.currentTarget.style.borderColor = theme.accent
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.transform = 'scale(1)'
-                                  e.currentTarget.style.borderColor = ''
-                                }}
                               >
                                 <h4 className={`font-semibold ${theme.text} mb-1`}>{resource.title}</h4>
                                 <p className={`text-sm ${theme.textSecondary}`}>{resource.desc}</p>
@@ -479,35 +630,38 @@ const StepsToUseSystem: React.FC = () => {
                       {index > 0 && (
                         <button
                           onClick={() => setCurrentStep(index - 1)}
-                          className={`px-6 py-3 rounded-xl font-medium transition-all ${theme.textSecondary} border ${theme.border}`}
-                          style={{ backgroundColor: `${theme.accent}10` }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = `${theme.accent}20`
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = `${theme.accent}10`
-                          }}
+                          className={`px-6 py-3 rounded-xl font-medium transition-all border ${theme.border}`}
+                          style={{ backgroundColor: `${theme.accent}10`, color: theme.textSecondary }}
                         >
                           Previous
                         </button>
                       )}
-                      {canComplete && !isCompleted && (
+                      
+                      {/* Company step button */}
+                      {step.id === 'company' && !isCompleted && (
+                        <button
+                          onClick={() => handleCompleteSubStep(activeCategory)}
+                          disabled={activeSubStepIndex !== step.subSteps?.findIndex(s => s.id === activeCategory)}
+                          className="px-6 py-3 rounded-xl font-medium text-white transition-all shadow-lg flex items-center gap-2 ml-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                          style={{ background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)` }}
+                        >
+                          {activeSubStepIndex === (step.subSteps?.length ?? 0) - 1 ? 'Complete Company Setup' : `Complete ${step.subSteps?.find(s => s.id === activeCategory)?.label}`}
+                          <Check size={20} />
+                        </button>
+                      )}
+
+                      {/* Other steps button */}
+                      {step.id !== 'company' && canComplete && !isCompleted && (
                         <button
                           onClick={() => handleCompleteStep(index)}
                           className="px-6 py-3 rounded-xl font-medium text-white transition-all shadow-lg flex items-center gap-2 ml-auto"
                           style={{ background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)` }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'scale(1.05)'
-                            e.currentTarget.style.boxShadow = `0 10px 40px ${theme.accentGlow}`
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'scale(1)'
-                          }}
                         >
                           Complete Step
                           <Check size={20} />
                         </button>
                       )}
+
                       {isCompleted && index < steps.length - 1 && (
                         <button
                           onClick={() => setCurrentStep(index + 1)}
@@ -533,14 +687,8 @@ const StepsToUseSystem: React.FC = () => {
         }
         
         @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
         
         .animate-fadeIn {
@@ -551,12 +699,11 @@ const StepsToUseSystem: React.FC = () => {
   )
 }
 
-// Helper component for step content
 interface StepContentProps {
   title: string
   description: string
   fields: Array<{ label: string; placeholder: string; type: string }>
-  theme: any
+  theme: Theme
 }
 
 const StepContent: React.FC<StepContentProps> = ({ title, description, fields, theme }) => {
@@ -566,40 +713,14 @@ const StepContent: React.FC<StepContentProps> = ({ title, description, fields, t
         <h3 className={`text-xl font-bold ${theme.text} mb-2`}>{title}</h3>
         <p className={`${theme.textSecondary}`}>{description}</p>
       </div>
-
       <div className="space-y-4">
         {fields.map((field, index) => (
           <div key={index}>
-            <label className={`block text-sm font-medium ${theme.text} mb-2`}>
-              {field.label}
-            </label>
-            {field.type === 'textarea' ? (
-              <textarea
-                placeholder={field.placeholder}
-                rows={3}
-                className={`w-full px-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all`}
-                style={{ backgroundColor: `${theme.accent}05` }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = theme.accent
-                  e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = ''
-                  e.currentTarget.style.boxShadow = ''
-                }}
-              />
-            ) : field.type === 'select' ? (
+            <label className={`block text-sm font-medium ${theme.text} mb-2`}>{field.label}</label>
+            {field.type === 'select' ? (
               <select
                 className={`w-full px-4 py-3 rounded-xl border ${theme.border} ${theme.text} focus:outline-none transition-all`}
                 style={{ backgroundColor: `${theme.accent}05` }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = theme.accent
-                  e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = ''
-                  e.currentTarget.style.boxShadow = ''
-                }}
               >
                 <option>{field.placeholder}</option>
               </select>
@@ -609,14 +730,6 @@ const StepContent: React.FC<StepContentProps> = ({ title, description, fields, t
                 placeholder={field.placeholder}
                 className={`w-full px-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all`}
                 style={{ backgroundColor: `${theme.accent}05` }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = theme.accent
-                  e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = ''
-                  e.currentTarget.style.boxShadow = ''
-                }}
               />
             )}
           </div>
@@ -626,4 +739,4 @@ const StepContent: React.FC<StepContentProps> = ({ title, description, fields, t
   )
 }
 
-export default StepsToUseSystem
+export default StepsToUseSystem   

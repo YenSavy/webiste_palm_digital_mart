@@ -10,6 +10,8 @@
   "password": "Password",
   "email": "Email",
 
+
+
   "username_min_length": "Username must be at least 3 characters",
   "username_required": "Username is required",
   "username_invalid": "Username can only contain letters, numbers, and underscores",
@@ -17,9 +19,18 @@
 
   "password_required": "Password is required",
   "password_min_length": "Password must be at least 6 characters",
+  "confirm_password": "Confirm Password",
+  "confirm_password_required": "Please confirm your password",
+
 
   "email_required": "Email is required",
   "email_invalid": "Please enter a valid email address",
+
+  "phone_number": "Phone Number",
+  "phone_required":" Phone number is required",
+
+  "remember_me": "Remember Me",
+
 
   "why_us": "Why Us?",
   "client_say": "Feedbacks",

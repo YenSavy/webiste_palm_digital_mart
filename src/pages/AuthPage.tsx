@@ -15,9 +15,14 @@ const AuthPage: React.FC = () => {
     const { isSignInPage, isAuthenticated } = useAuthStore();
     useEffect(() => {
         if (isAuthenticated) {
-            window.history.length > 1 ? navigate(-1) : navigate("/")
+            if (window.history.length > 1) {
+                navigate("/dashboard");
+            } else {
+                navigate("/");
+            }
         }
-    }, [isAuthenticated])
+    }, [isAuthenticated, navigate]);
+
     return (
         <section
             id="auth-page"
@@ -143,34 +148,48 @@ const LoginForm: React.FC = () => {
     }
 
     const onLogin = (e: React.FormEvent) => {
-        e.preventDefault()
+    e.preventDefault()
 
-        setTouched({ name: true, password: true })
+    setTouched({ name: true, password: true })
 
-        const usernameError = validateField('name', loginData.name)
-        const passwordError = validateField('password', loginData.password)
+    const usernameError = validateField('name', loginData.name)
+    const passwordError = validateField('password', loginData.password)
 
-        if (usernameError || passwordError) return
+    if (usernameError || passwordError) return
 
-        login(loginData, {
-            onSuccess: (data) => {
-                const token = data.data.token
-                setToken(token)
-                setUser({email: data.data.email, name: data.data.name, phone: data.data.phone, full_name: data.data.full_name})
-                setIsFailed(false)
-                if (rememberMe) {
-                    setAuthCookie(token, 7 * 24 * 60 * 60)
-                } else {
-                    setAuthCookie(token)
-                }
-                navigate('/dashboard')
-            },
-            onError: (error) => {
-                setIsFailed(true)
-                setMessage(error.message.toLowerCase() === "unauthorized" ? "Incorrect credential !, Try again." : "Sign In failed")
+    login(loginData, {
+        onSuccess: (data) => {
+            const token = data.data.token
+            
+            // Set auth state FIRST
+            setToken(token)
+            setUser({ 
+                email: data.data.email, 
+                name: data.data.name, 
+                phone: data.data.phone, 
+                full_name: data.data.full_name 
+            })
+            
+            if (rememberMe) {
+                setAuthCookie(token, 7 * 24 * 60 * 60)
+            } else {
+                setAuthCookie(token)
             }
-        })
-    }
+            
+            setIsFailed(false)
+            
+            navigate('/dashboard')
+        },
+        onError: (error) => {
+            setIsFailed(true)
+            setMessage(
+                error.message.toLowerCase() === "unauthorized" 
+                    ? "Incorrect credentials! Try again." 
+                    : "Sign in failed"
+            )
+        }
+    })
+}
     return (
         <form className="flex flex-col gap-3" onSubmit={onLogin}>
             <div className="flex flex-col gap-1">
@@ -262,12 +281,12 @@ const SignUpForm: React.FC = () => {
     const [message, setMessage] = useState<string>("")
     const [showVerificationModal, setShowVerificationModal] = useState<boolean>(false)
     const [formData, setFormData] = useState({
-        name: 'Heak1',
-        email: 'example.12@gmail.com',
-        prefix: '855',
-        phone: '0192833464',
-        password: '12345678',
-        c_password: '12345678'
+        name: '',
+        email: '',
+        prefix: '',
+        phone: '',
+        password: '',
+        c_password: ''
     })
     const [errors, setErrors] = useState<{
         name?: string
@@ -292,7 +311,7 @@ const SignUpForm: React.FC = () => {
 
         if (name === 'name') {
             if (!value.trim()) {
-                error = t('name_required') || 'Name is required'
+                error = t('username_required') || 'Name is required'
             } else if (value.length < 3) {
                 error = t('name_min_length') || 'Name must be at least 3 characters'
             }
@@ -389,7 +408,7 @@ const SignUpForm: React.FC = () => {
         <form className="flex flex-col gap-3" onSubmit={onRegister}>
             <div className="flex flex-col gap-1">
                 <label className="flex gap-1 items-center">
-                    <User size={20} />{t("name")}
+                    <User size={20} />{t("username")}
                 </label>
                 <TextInput
                     type="text"
@@ -430,7 +449,7 @@ const SignUpForm: React.FC = () => {
 
             <div className="flex flex-col gap-1">
                 <label className="flex gap-1 items-center">
-                    <Phone size={20} />{t("phone")}
+                    <Phone size={20} />{t("phone_number")}
                 </label>
                 <div className="flex gap-2">
                     <select

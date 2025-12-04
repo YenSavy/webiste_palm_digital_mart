@@ -17,9 +17,18 @@
 
   "password_required": "密码为必填项",
   "password_min_length": "密码至少需要6个字符",
+  "confirm_password": "确认密码",
+  "confirm_password_required": "请确认密码",
 
   "email_required": "邮箱为必填项",
   "email_invalid": "请输入有效的邮箱地址",
+
+
+  "phone_number": "电话号码", 
+  "phone_required":"电话号码为必填项",
+
+  "remember_me": "记住我",
+
 
   "why_us": "为什么选择我们？",
   "client_say": "为什么选择我们？",
