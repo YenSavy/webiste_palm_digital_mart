@@ -64,7 +64,6 @@ const CreateCompany: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
 
-    // Reset child selections when parent changes
     if (name === 'country') {
       setFormData({
         ...formData,

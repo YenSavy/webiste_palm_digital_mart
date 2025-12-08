@@ -1,35 +1,12 @@
 import React from 'react'
 import {
-  LayoutDashboard,
-  Users,
-  FileText,
-  Settings,
-  BarChart3,
-  Calendar,
-  MessageSquare,
   Palmtree,
   X,
-  ChevronLeft,
-  ChevronRight,
+
 } from 'lucide-react'
 import { useThemeStore } from '../../../store/themeStore'
-
-interface NavItem {
-  id: string
-  label: string
-  icon: React.ElementType
-  path?: string
-}
-
-const navItems: NavItem[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-  { id: 'users', label: 'Users', icon: Users, path: '/dashboard/user' },
-  { id: 'reports', label: 'Reports', icon: FileText },
-  { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-  { id: 'calendar', label: 'Calendar', icon: Calendar },
-  { id: 'messages', label: 'Messages', icon: MessageSquare },
-  { id: 'settings', label: 'Settings', icon: Settings },
-]
+import useDashboardStore from '../../../store/dashboardStore'
+import { navItems } from '../../../constants/dashboard'
 
 interface SidebarProps {
   isSidebarOpen: boolean
@@ -45,24 +22,18 @@ const Sidebar: React.FC<SidebarProps> = ({
   onToggleSidebar,
 }) => {
   const theme = useThemeStore((state) => state.getTheme())
-  const [isMinimized, setIsMinimized] = React.useState(false)
-
-  const toggleMinimize = () => {
-    setIsMinimized(!isMinimized)
-  }
+  const { isMinimized } = useDashboardStore()
 
   return (
     <aside
-      className={`fixed top-0 left-0 h-full bg-gradient-to-b ${theme.primary} ${theme.border} border-r transition-all duration-300 z-40 ${
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } lg:translate-x-0`}
+      className={`fixed top-0 left-0 h-full bg-gradient-to-b ${theme.primary} ${theme.border} border-r transition-all duration-300 z-40 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:translate-x-0`}
       style={{ width: isMinimized ? '80px' : '256px' }}
     >
       {/* Header */}
       <div
-        className={`h-20 flex items-center ${
-          isMinimized ? 'justify-center' : 'justify-between'
-        } border-b ${theme.border} px-4 transition-all duration-300`}
+        className={`h-20 flex items-center ${isMinimized ? 'justify-center' : 'justify-between'
+          } border-b ${theme.border} px-4 transition-all duration-300`}
       >
         {!isMinimized && (
           <div className="flex items-center gap-2">
@@ -96,19 +67,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        {/* Minimize button for desktop */}
-        <button
-          onClick={toggleMinimize}
-          className={`hidden lg:flex items-center justify-center w-8 h-8 rounded-lg ${theme.primaryHover} ${theme.textSecondary} hover:${theme.text} transition-colors`}
-          style={{ ['--hover-color' as string]: theme.accent }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = theme.accent)}
-          onMouseLeave={(e) => (e.currentTarget.style.color = '')}
-        >
-          {isMinimized ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-        </button>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 py-6 px-3 space-y-2">
         {navItems.map((item) => {
           const Icon = item.icon
@@ -117,28 +77,25 @@ const Sidebar: React.FC<SidebarProps> = ({
             <button
               key={item.id}
               onClick={() => onNavClick(item.id, item.path)}
-              className={`w-full flex items-center ${
-                isMinimized ? 'justify-center' : 'gap-3'
-              } px-4 py-3 rounded-xl transition-all duration-200 group relative ${
-                isActive
+              className={`w-full flex items-center ${isMinimized ? 'justify-center' : 'gap-3'
+                } px-4 py-3 rounded-xl transition-all duration-200 group relative ${isActive
                   ? `${theme.primaryHover} shadow-[0_0_20px_${theme.accentGlow}]`
                   : `${theme.textSecondary} hover:${theme.primaryHover} hover:${theme.text}`
-              }`}
+                }`}
               style={
                 isActive
                   ? {
-                      backgroundColor: `${theme.accent}33`,
-                      color: theme.accent,
-                    }
+                    backgroundColor: `${theme.accent}33`,
+                    color: theme.accent,
+                  }
                   : undefined
               }
               title={isMinimized ? item.label : ''}
             >
               <Icon
                 size={22}
-                className={`flex-shrink-0 ${
-                  isActive ? `drop-shadow-[0_0_8px_${theme.accentGlow}]` : ''
-                }`}
+                className={`flex-shrink-0 ${isActive ? `drop-shadow-[0_0_8px_${theme.accentGlow}]` : ''
+                  }`}
               />
               {!isMinimized && <span className="font-medium text-sm">{item.label}</span>}
 
@@ -159,9 +116,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className={`p-4 border-t ${theme.border} lg:hidden`}>
         <button
           onClick={onToggleSidebar}
-          className={`w-full flex items-center ${
-            isMinimized ? 'justify-center' : 'gap-2'
-          } py-2 ${theme.textSecondary} transition-colors`}
+          className={`w-full flex items-center ${isMinimized ? 'justify-center' : 'gap-2'
+            } py-2 ${theme.textSecondary} transition-colors`}
           style={{ ['--hover-color' as string]: theme.accent }}
           onMouseEnter={(e) => (e.currentTarget.style.color = theme.accent)}
           onMouseLeave={(e) => (e.currentTarget.style.color = '')}

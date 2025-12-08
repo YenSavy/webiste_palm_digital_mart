@@ -18,6 +18,39 @@ export type TSaveCompanyResponse = {
   updated_at: string;
 };
 
+
+export type TCreateBranchInput = {
+  branch_name_km: string;
+  branch_name_en: string;
+  company: string; 
+  branch_email: string;
+  branch_phone: string;
+  branch_address_en: string;
+  lat: string;
+  lng: string;
+  telegram: string;
+};
+
+
+export type TCreateBranchResponse = {
+  branch_id: string;
+  branch_code: string;
+  branch_name_km: string;
+  branch_name_en: string;
+  company: string;
+  branch_email: string;
+  branch_phone: string;
+  branch_address_en: string;
+  branch_address_km?: string;
+  lat: string;
+  lng: string;
+  telegram: string;
+  created_by: number;
+  branch_profile?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export const saveCompanyInfo = async (
   company_name_en: string,
   village: string
@@ -31,5 +64,15 @@ export const saveCompanyInfo = async (
       village,
     },
   });
+  return res.data;
+};
+
+
+export const createBranch = async (payload: TCreateBranchInput) => {
+  const res = await axiosInstance.post<{
+    status: string;
+    data: TCreateBranchResponse;
+  }>("/branches", payload);
+  
   return res.data;
 };

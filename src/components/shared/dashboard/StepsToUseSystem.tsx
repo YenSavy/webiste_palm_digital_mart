@@ -2,7 +2,11 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Building2, CreditCard, UserPlus, BookOpen, Check, Lock, ChevronRight, GitBranch, Warehouse, Briefcase, DollarSign } from 'lucide-react'
 import { useThemeStore, type Theme } from '../../../store/themeStore'
 import CreateCompany from './company-profile/CreateCompany'
+import CreateBranch from './company-profile/CreateBranch' 
 import useDashboardStore from '../../../store/dashboardStore'
+import CreateWarehouse from './company-profile/CreateWarehouse'
+import CreatePosition from './company-profile/CreatePosition'
+import CreateCurrency from './company-profile/CreateCurrency'
 
 interface SubStep {
   id: 'company' | 'branch' | 'warehouse' | 'position' | 'currency'
@@ -68,13 +72,11 @@ const StepsToUseSystem: React.FC = () => {
 
   const [currentStep, setCurrentStep] = useState(0)
 
-  // Check if all sub-steps are completed
   const areAllSubStepsCompleted = (step: Step): boolean => {
     if (!step.subSteps) return true
     return step.subSteps.every((subStep) => subStep.completed)
   }
 
-  // Get active sub-step index for company step
   const getActiveSubStepIndex = (): number => {
     const companyStep = steps[0]
     if (!companyStep.subSteps) return 0
@@ -90,16 +92,6 @@ const StepsToUseSystem: React.FC = () => {
   const activeStepIndex = getActiveStepIndex()
   const activeSubStepIndex = getActiveSubStepIndex()
 
-  // Set active category based on current sub-step
-  useEffect(() => {
-    if (currentStep === 0 && steps[0].subSteps) {
-      const currentSubStep = steps[0].subSteps[activeSubStepIndex]
-      if (currentSubStep && currentSubStep.id !== activeCategory) {
-        setActiveCategory(currentSubStep.id)
-      }
-    }
-  }, [currentStep, activeSubStepIndex, activeCategory, setActiveCategory, steps])
-
   useEffect(() => {
     if (scrollContainerRef.current) {
       const activeElement = scrollContainerRef.current.children[currentStep] as HTMLElement
@@ -109,7 +101,6 @@ const StepsToUseSystem: React.FC = () => {
     }
   }, [currentStep])
 
-  // Handle sub-step completion
   const handleCompleteSubStep = (subStepId: 'company' | 'branch' | 'warehouse' | 'position' | 'currency') => {
     const newSteps = [...steps]
     const companyStep = newSteps[0]
@@ -117,28 +108,26 @@ const StepsToUseSystem: React.FC = () => {
     if (!companyStep.subSteps) return
 
     const subStepIndex = companyStep.subSteps.findIndex((sub) => sub.id === subStepId)
-    if (subStepIndex !== activeSubStepIndex) return // Only allow completing current active sub-step
+    if (subStepIndex !== activeSubStepIndex) return
 
     companyStep.subSteps[subStepIndex].completed = true
 
-    // Check if all sub-steps are completed
     if (areAllSubStepsCompleted(companyStep)) {
       companyStep.completed = true
     }
 
     setSteps(newSteps)
 
-    // Move to next sub-step or next main step
     if (subStepIndex < companyStep.subSteps.length - 1) {
       setActiveCategory(companyStep.subSteps[subStepIndex + 1].id)
     } else if (companyStep.completed) {
-      setCurrentStep(1) // Move to subscription step
+      setCurrentStep(1) 
     }
   }
 
   const handleCompleteStep = (index: number) => {
     if (index !== activeStepIndex) return
-    if (index === 0) return // Company step is handled by sub-steps
+    if (index === 0) return 
 
     const newSteps = [...steps]
     newSteps[index].completed = true
@@ -155,16 +144,16 @@ const StepsToUseSystem: React.FC = () => {
     }
   }
 
-  const handleSubStepClick = (subStepId: 'company' | 'branch' | 'warehouse' | 'position' | 'currency') => {
-    const companyStep = steps[0]
-    if (!companyStep.subSteps) return
-    
-    const subStepIndex = companyStep.subSteps.findIndex((sub) => sub.id === subStepId)
-    if (subStepIndex <= activeSubStepIndex) {
-      setActiveCategory(subStepId)
-    }
-  }
+const handleSubStepClick = (subStepId: 'company' | 'branch' | 'warehouse' | 'position' | 'currency') => {
+  const companyStep = steps[0]
+  if (!companyStep.subSteps) return
+  
+  const subStepIndex = companyStep.subSteps.findIndex((sub) => sub.id === subStepId)
 
+  if (subStepIndex !== -1 && (subStepIndex <= activeSubStepIndex || companyStep.subSteps[subStepIndex].completed)) {
+    setActiveCategory(subStepId) 
+  }
+}
   const isStepClickable = (index: number) => {
     return index <= activeStepIndex
   }
@@ -173,17 +162,19 @@ const StepsToUseSystem: React.FC = () => {
     return index === currentStep
   }
 
-  const isSubStepClickable = (subStepIndex: number): boolean => {
-    return subStepIndex <= activeSubStepIndex
-  }
+const isSubStepClickable = (subStep: SubStep, subStepIndex: number): boolean => {
+  return subStep.completed || subStepIndex <= activeSubStepIndex
+}
 
   if (!activeCategory) return null
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* LEFT SIDEBAR - Progress Steps (keeping original code) */}
           <div className="lg:col-span-1">
+            {/* Mobile Horizontal Scroll */}
             <div className="lg:hidden">
               <div
                 ref={scrollContainerRef}
@@ -230,7 +221,7 @@ const StepsToUseSystem: React.FC = () => {
                             style={
                               isActive && !isCompleted
                                 ? { background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)` }
-                                : {}
+                                : {background: theme.accent}
                             }
                           >
                             {isCompleted ? (
@@ -280,7 +271,6 @@ const StepsToUseSystem: React.FC = () => {
                 })}
               </div>
               
-              {/* Progress Bar Mobile */}
               <div
                 className={`mt-4 p-4 rounded-xl bg-gradient-to-br ${theme.cardBg} backdrop-blur-sm border ${theme.border}`}
               >
@@ -302,7 +292,7 @@ const StepsToUseSystem: React.FC = () => {
               </div>
             </div>
 
-            {/* Desktop Vertical */}
+            {/* Desktop Vertical (keeping the sub-steps section) */}
             <div className="hidden lg:block">
               <div
                 className={`bg-gradient-to-br ${theme.cardBg} backdrop-blur-sm border ${theme.border} rounded-2xl p-6 sticky top-6`}
@@ -341,7 +331,7 @@ const StepsToUseSystem: React.FC = () => {
                           <div
                             className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${
                               isCompleted
-                                ? 'bg-green-500'
+                                ? ''
                                 : isActive
                                 ? ''
                                 : !isClickable
@@ -351,7 +341,7 @@ const StepsToUseSystem: React.FC = () => {
                             style={
                               isActive && !isCompleted
                                 ? { background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)` }
-                                : {}
+                                : { background: theme.accent}
                             }
                           >
                             {isCompleted ? (
@@ -365,7 +355,7 @@ const StepsToUseSystem: React.FC = () => {
                           <div className="flex-1 text-left">
                             <div
                               className={`font-semibold text-sm ${
-                                isCompleted ? 'text-green-400' : isActive ? theme.text : theme.textSecondary
+                                isCompleted ? theme.textSecondary : isActive ? theme.text : theme.textSecondary
                               }`}
                               style={isActive && !isCompleted ? { color: theme.accent } : {}}
                             >
@@ -376,23 +366,22 @@ const StepsToUseSystem: React.FC = () => {
                             </div>
                           </div>
                           {isCompleted && (
-                            <Check size={20} className="text-green-400 flex-shrink-0" />
+                            <Check size={20} className={`${theme.textSecondary}`} />
                           )}
                         </button>
 
-                        {/* Sub-steps for Company (Step 1) */}
                         {index === 0 && isActive && step.subSteps && (
-                          <div className="mt-3 ml-8 space-y-2">
+                          <div className="mt-3 ml-8 space-y-2" >
                             {step.subSteps.map((subStep, subIndex) => {
                               const SubIcon = subStep.icon
                               const isSubActive = activeCategory === subStep.id
-                              const isSubClickable = isSubStepClickable(subIndex)
+                              const isSubClickable = isSubStepClickable(subStep, subIndex)
                               const isSubCompleted = subStep.completed
 
                               return (
                                 <button
                                   key={subStep.id}
-                                  onClick={() => handleSubStepClick(subStep.id)}
+                                  onClick={() =>{ handleSubStepClick(subStep.id); setActiveCategory(subStep.id)}}
                                   disabled={!isSubClickable}
                                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${
                                     !isSubClickable && 'opacity-40 cursor-not-allowed'
@@ -411,7 +400,7 @@ const StepsToUseSystem: React.FC = () => {
                                   <div
                                     className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
                                       isSubCompleted
-                                        ? 'bg-green-500'
+                                        ? ''
                                         : !isSubClickable
                                         ? 'bg-gray-600'
                                         : ''
@@ -421,7 +410,7 @@ const StepsToUseSystem: React.FC = () => {
                                         ? { backgroundColor: `${theme.accent}30` }
                                         : !isSubActive && isSubClickable && !isSubCompleted
                                         ? { backgroundColor: `${theme.accent}15` }
-                                        : {}
+                                        : {background: theme.accent}
                                     }
                                   >
                                     {isSubCompleted ? (
@@ -439,7 +428,7 @@ const StepsToUseSystem: React.FC = () => {
                                   <span
                                     className={`text-xs font-medium ${
                                       isSubCompleted
-                                        ? 'text-green-400'
+                                        ? theme.textSecondary
                                         : isSubActive
                                         ? theme.text
                                         : theme.textSecondary
@@ -449,7 +438,7 @@ const StepsToUseSystem: React.FC = () => {
                                     {subStep.label}
                                   </span>
                                   {isSubCompleted && (
-                                    <Check size={14} className="text-green-400 ml-auto" />
+                                    <Check size={14} className={`${theme.textSecondary} ml-auto`} />
                                   )}
                                 </button>
                               )
@@ -470,7 +459,6 @@ const StepsToUseSystem: React.FC = () => {
                   })}
                 </div>
 
-                {/* Progress Bar Desktop */}
                 <div className="mt-6 pt-6 border-t" style={{ borderColor: theme.border.split('-').pop() }}>
                   <div className="flex items-center justify-between mb-2">
                     <span className={`text-sm ${theme.textSecondary}`}>Overall Progress</span>
@@ -492,7 +480,7 @@ const StepsToUseSystem: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Side - Step Content */}
+          {/* RIGHT SIDE - Step Content */}
           <div className="lg:col-span-2">
             <div
               className={`bg-gradient-to-br ${theme.cardBg} backdrop-blur-sm border ${theme.border} rounded-2xl p-6 sm:p-8`}
@@ -507,16 +495,13 @@ const StepsToUseSystem: React.FC = () => {
 
                 return (
                   <div key={step.id} className="animate-fadeIn">
-                    {/* Step Header */}
                     <div className="flex items-start gap-4 mb-6">
                       <div
-                        className={`flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center ${
-                          isCompleted ? 'bg-green-500' : ''
-                        }`}
+                        className={`flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center`}
                         style={
                           !isCompleted
                             ? { background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)` }
-                            : {}
+                            : { background: theme.accent}
                         }
                       >
                         {isCompleted ? (
@@ -543,7 +528,6 @@ const StepsToUseSystem: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Sub-steps Progress for Company Step */}
                     {step.id === 'company' && step.subSteps && (
                       <div className="mb-6">
                         <div className="flex items-center justify-between mb-3">
@@ -572,8 +556,28 @@ const StepsToUseSystem: React.FC = () => {
                       </div>
                     )}
 
+                    {/* UPDATED CONTENT RENDERING - Renders different forms based on activeCategory */}
                     <div className="mt-8">
-                      {step.id === 'company' && <CreateCompany />}
+                      {step.id === 'company' && (
+                        <>
+                          {activeCategory === 'company' && <CreateCompany />}
+                          {activeCategory === 'branch' && (
+                            <CreateBranch
+                              onComplete={() => handleCompleteSubStep('branch')}
+                              companyId="C001"
+                            />
+                          )}
+                          {activeCategory === 'warehouse' && (
+                            <CreateWarehouse onComplete={() => handleCompleteSubStep("warehouse")}/>
+                          )}
+                          {activeCategory === 'position' && (
+                           <CreatePosition onComplete={() => handleCompleteSubStep("position")}/>
+                          )}
+                          {activeCategory === 'currency' && (
+                            <CreateCurrency onComplete={() => handleCompleteSubStep("currency")}/>
+                          )}
+                        </>
+                      )}
 
                       {step.id === 'subscription' && (
                         <StepContent
@@ -625,7 +629,6 @@ const StepsToUseSystem: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Action Buttons */}
                     <div className="flex items-center gap-4 mt-8 pt-6 border-t" style={{ borderColor: theme.border.split('-').pop() }}>
                       {index > 0 && (
                         <button
@@ -637,7 +640,6 @@ const StepsToUseSystem: React.FC = () => {
                         </button>
                       )}
                       
-                      {/* Company step button */}
                       {step.id === 'company' && !isCompleted && (
                         <button
                           onClick={() => handleCompleteSubStep(activeCategory)}
@@ -650,7 +652,6 @@ const StepsToUseSystem: React.FC = () => {
                         </button>
                       )}
 
-                      {/* Other steps button */}
                       {step.id !== 'company' && canComplete && !isCompleted && (
                         <button
                           onClick={() => handleCompleteStep(index)}
@@ -739,4 +740,4 @@ const StepContent: React.FC<StepContentProps> = ({ title, description, fields, t
   )
 }
 
-export default StepsToUseSystem   
+export default StepsToUseSystem
