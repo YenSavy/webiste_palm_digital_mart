@@ -11,14 +11,9 @@ import {
   Info,
 } from 'lucide-react'
 import { useThemeStore } from '../../../../store/themeStore'
+import type { TCreateCurrencyInput } from '../../../../lib/apis/dashboard/companyApi'
+import { useCreateCurrencyMutation } from '../../../../lib/mutations'
 
-export type TCreateCurrencyInput = {
-  crrcode: string
-  crrname: string
-  crrbase: number
-  crrsymbol: string
-  rate: number
-}
 
 interface CreateCurrencyProps {
   onComplete?: () => void
@@ -35,10 +30,9 @@ const CreateCurrency: React.FC<CreateCurrencyProps> = ({ onComplete }) => {
     rate: 0,
   })
 
-  const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
+  const {mutate: saveCurrency, isPending: isLoading}  = useCreateCurrencyMutation()
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     
@@ -93,21 +87,15 @@ const CreateCurrency: React.FC<CreateCurrencyProps> = ({ onComplete }) => {
   const handleSave = async () => {
     if (!validateForm()) return
 
-    setIsLoading(true)
-    setError(null)
-
-      console.log('Creating currency with data:', formData)
- 
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      setIsSuccess(true)
-
-      // Call onComplete callback after 1 second
-      setTimeout(() => {
-        if (onComplete) {
-          onComplete()
-        }
-      }, 1000)
+    saveCurrency(formData, {
+      onSuccess: (data) => {
+        setError(data.message as string)
+        if(onComplete) onComplete()
+      },
+      onError: (err) => {
+        setError(err.message)
+      }
+    })
 
   }
 

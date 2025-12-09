@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query"
 import { login, signUp, type SignInData, type SignUpData } from "./apis/auth/authApi"
-import { createBranch, saveCompanyInfo, type TCreateBranchInput } from "./apis/dashboard/companyApi"
+import { createBranch, createCurrency, createPosition, createWarehouse, saveCompanyInfo, type TCreateBranchInput, type TCreateCurrencyInput, type TCreatePositionInput, type TCreateWarehouseInput } from "./apis/dashboard/companyApi"
 
 export const useSignUp = () => {
     return useMutation({
@@ -30,4 +30,22 @@ export const useCreateBranchMutation = () => {
         mutationKey: ["create", "company", "branch"],
         mutationFn: (payload: TCreateBranchInput) => createBranch(payload)
     })
+}
+export const useCreateWarehouseMutation = () => {
+    return useMutation({
+        mutationKey: ["create", "company", "warehouse"],
+        mutationFn: (payload: TCreateWarehouseInput) => createWarehouse(payload)
+    })
+}
+export const useCreatePositionMutation = () => {
+    return useMutation({
+        mutationKey: ["create", "company", "position"],
+        mutationFn: (payload: TCreatePositionInput) => createPosition(payload)
+    })
+}
+export const useCreateCurrencyMutation = () => {
+    return useMutation({
+        mutationKey: ["create", "company", "currency"],
+        mutationFn: (payload: TCreateCurrencyInput) => createCurrency(payload)
+    })  
 }

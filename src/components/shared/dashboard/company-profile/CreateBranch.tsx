@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { useThemeStore } from '../../../../store/themeStore'
 import type { TCreateBranchInput } from '../../../../lib/apis/dashboard/companyApi'
+import { useCreateBranchMutation } from '../../../../lib/mutations'
 
 interface CreateBranchProps {
   onComplete?: () => void
@@ -22,7 +23,7 @@ interface CreateBranchProps {
 
 const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C001' }) => {
   const theme = useThemeStore((state) => state.getTheme())
-
+  const {mutate: saveBranch, isPending: isLoading}  = useCreateBranchMutation()
   const [formData, setFormData] = useState<TCreateBranchInput>({
     branch_name_km: '',
     branch_name_en: '',
@@ -35,7 +36,6 @@ const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C0
     telegram: '',
   })
 
-  const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -101,18 +101,16 @@ const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C0
   }
 
   const handleSave = async () => {
-    if (!validateForm()) return
-    setIsLoading(true)
-    setError(null)
-      console.log('Creating branch with data:', formData)
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      setIsSuccess(true)
-      setTimeout(() => {
-        if (onComplete) {
-          onComplete()
-        }
-      }, 1000)
-
+    if(!validateForm()) return;
+    saveBranch(formData, {
+      onSuccess: (data) => {
+        setError(data.message as string)
+        if(onComplete) onComplete()
+      },
+      onError: (err) => {
+        setError(err.message)
+      }
+    })
   }
 
   return (

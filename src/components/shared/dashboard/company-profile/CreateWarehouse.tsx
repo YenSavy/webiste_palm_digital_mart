@@ -11,15 +11,9 @@ import {
   GitBranch,
 } from 'lucide-react'
 import { useThemeStore } from '../../../../store/themeStore'
+import { useCreateWarehouseMutation } from '../../../../lib/mutations'
+import type { TCreateWarehouseInput } from '../../../../lib/apis/dashboard/companyApi'
 
-export type TCreateWarehouseInput = {
-  company: number
-  branch: number
-  warehouse_km: string
-  warehouse_en: string
-  address: string
-  description: string
-}
 
 interface CreateWarehouseProps {
   onComplete?: () => void
@@ -43,10 +37,9 @@ const CreateWarehouse: React.FC<CreateWarehouseProps> = ({
     description: '',
   })
 
-  const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
+  const {mutate: saveWarehouse, isPending: isLoading} = useCreateWarehouseMutation()
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData({
@@ -88,20 +81,15 @@ const CreateWarehouse: React.FC<CreateWarehouseProps> = ({
   const handleSave = async () => {
     if (!validateForm()) return
 
-    setIsLoading(true)
-    setError(null)
-
-      console.log('Creating warehouse with data:', formData)
-
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      setIsSuccess(true)
-
-      setTimeout(() => {
-        if (onComplete) {
-          onComplete()
+    saveWarehouse(formData, {
+        onSuccess: (data) => {
+          setError(data.message as string)
+          if(onComplete) onComplete()
+        },
+        onError: (err) => {
+          setError(err.message)
         }
-      }, 1000)
+    })
 
   }
 

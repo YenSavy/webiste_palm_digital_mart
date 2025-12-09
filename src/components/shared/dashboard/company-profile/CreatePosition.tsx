@@ -9,23 +9,19 @@ import {
   CheckCircle,
 } from 'lucide-react'
 import { useThemeStore } from '../../../../store/themeStore'
+import { useCreatePositionMutation } from '../../../../lib/mutations'
+import type { TCreatePositionInput } from '../../../../lib/apis/dashboard/companyApi'
 
-// API payload type - matches your backend exactly
-export type TCreatePositionInput = {
-  company_id: number
-  position_km: string
-  position_en: string
-  description: string
-}
+
 
 interface CreatePositionProps {
   onComplete?: () => void
-  companyId?: number
+  companyId?: string;
 }
 
 const CreatePosition: React.FC<CreatePositionProps> = ({ 
   onComplete, 
-  companyId = 1 
+  companyId = "1"
 }) => {
   const theme = useThemeStore((state) => state.getTheme())
 
@@ -35,8 +31,8 @@ const CreatePosition: React.FC<CreatePositionProps> = ({
     position_en: '',
     description: '',
   })
+  const {mutate: savePosition, isPending: isLoading} = useCreatePositionMutation()
 
-  const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -74,19 +70,15 @@ const CreatePosition: React.FC<CreatePositionProps> = ({
 
   const handleSave = async () => {
     if (!validateForm()) return
-
-    setIsLoading(true)
-    setError(null)
-
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      setIsSuccess(true)
-
-      setTimeout(() => {
-        if (onComplete) {
-          onComplete()
-        }
-      }, 1000)
+    savePosition(formData, {
+      onSuccess: (data) => {
+        setError(data.message as string)
+        if(onComplete) onComplete()
+      },
+      onError: (err) => {
+        setError(err.message)
+      }
+    })
 
   }
 
