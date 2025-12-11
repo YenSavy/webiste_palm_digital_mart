@@ -74,7 +74,11 @@ const Podcasting: React.FC<AdvertisingProps> = ({
   const latestEmbedUrl = latestEmbedId
     ? `https://www.youtube.com/embed/${latestEmbedId}`
     : "";
-
+  const currentVideoTitle = useLangSwitch(currentVideo.title_en, currentVideo.title_kh, currentVideo.title_ch)
+  // const videoTitle =
+  const GetVideoTitle = (en: string, km: string, ch: string) => {
+    return useLangSwitch(en, km, ch)
+  }
   return (
     <>
       <style>{`
@@ -103,7 +107,7 @@ const Podcasting: React.FC<AdvertisingProps> = ({
         }
       `}</style>
 
-      <section className="mt-7 px-0 flex flex-col items-center justify-center gap-5">
+      <section className="mt-7 px-0 flex flex-col items-center justify-center gap-5" id="podcasting">
         <TextTitle
           title={t("common:podcasting")}
           icon={<Megaphone size={34} />}
@@ -139,11 +143,7 @@ const Podcasting: React.FC<AdvertisingProps> = ({
             <div className="mt-4 space-y-2">
               <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                 {currentVideo &&
-                  useLangSwitch(
-                    currentVideo.title_en,
-                    currentVideo.title_kh,
-                    currentVideo.title_ch
-                  )}
+                  currentVideoTitle}
               </h3>
 
               <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400 pt-2">
@@ -161,7 +161,6 @@ const Podcasting: React.FC<AdvertisingProps> = ({
             </div>
           </div>
 
-          {/* SIDEBAR LIST */}
           {otherVideos.length > 0 && (
             <div className="flex-[2] flex flex-col h-[500px]" data-aos="fade-left">
               <h3 className="font-semibold border-b py-3">
@@ -177,7 +176,7 @@ const Podcasting: React.FC<AdvertisingProps> = ({
                       ? `https://img.youtube.com/vi/${youTubeId}/hqdefault.jpg`
                       : "");
 
-                  const displayTitle = useLangSwitch(
+                  const displayTitle = GetVideoTitle(
                     video.title_en,
                     video.title_kh,
                     video.title_ch
