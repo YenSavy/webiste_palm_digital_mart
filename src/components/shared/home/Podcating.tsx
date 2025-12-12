@@ -74,7 +74,7 @@ const Podcasting: React.FC<AdvertisingProps> = ({
   const latestEmbedUrl = latestEmbedId
     ? `https://www.youtube.com/embed/${latestEmbedId}`
     : "";
-  const currentVideoTitle = useLangSwitch(currentVideo.title_en, currentVideo.title_kh, currentVideo.title_ch)
+  const currentVideoTitle = useLangSwitch(currentVideo?.title_en, currentVideo?.title_kh, currentVideo?.title_ch)
   // const videoTitle =
   const GetVideoTitle = (en: string, km: string, ch: string) => {
     return useLangSwitch(en, km, ch)
