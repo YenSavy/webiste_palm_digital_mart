@@ -114,6 +114,7 @@ export type TCreatePositionInput = {
 }
 
 export type TCreatePositionResponse = {
+  id: string;
   company_id: 1;
   position_km: string;
   position_en:  string;
@@ -121,7 +122,6 @@ export type TCreatePositionResponse = {
   created_by: string | number
   updated_at: string
   created_at: string;
-  id: string;
 }
 
 export const createPosition = async (payload: TCreatePositionInput) => {
@@ -151,5 +151,23 @@ export type TCreateCurrencyResponse = {
 
 export const createCurrency = async (payload: TCreateCurrencyInput) => {
   const res = await axiosInstance.post<ApiResponse<TCreateCurrencyResponse>>("/currency", payload)
+  return res.data
+}
+
+export type TPlanSubscriptionInput = {
+  company_id: string;
+  pricing_plan_id: string;
+}
+
+export const subscribePlan = async (payload: TPlanSubscriptionInput) => {
+  const res = await axiosInstance.post<{status: number; message: string;}>("/company/subscribe", null, {
+      params: payload
+  })  
+  return res.data
+}
+export const unsubscribePlan = async (payload: TPlanSubscriptionInput) => {
+  const res = await axiosInstance.post<{status: number; message: string;}>("/company/unsubscribe", null, {
+      params: payload
+  })  
   return res.data
 }

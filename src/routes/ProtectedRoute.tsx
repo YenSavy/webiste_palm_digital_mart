@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 
 interface ProtectedRouteProps {
-  component: React.ComponentType<any>;
+  component: React.ComponentType<unknown>;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ component: Component }) => {

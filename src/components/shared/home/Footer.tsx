@@ -151,15 +151,15 @@ const Footer: React.FC = () => {
               </h3>
               <ul className='space-y-4'>
                 <li className='flex items-start gap-3 text-gray-400 text-sm'>
-                  <MapPin size={18} className='text-[#DAA520]' />
-                  <span>{GetTranslatedText(footers?.data[0].address_en as string, footers?.data[0].address_kh as string, footers?.data[0].address_ch as string)}</span>
+                  <MapPin size={18} className='text-[#DAA520] flex-shrink-0'/>
+                  <span className='flex flex-wra'>{GetTranslatedText(footers?.data[0].address_en as string, footers?.data[0].address_kh as string, footers?.data[0].address_ch as string)}</span>
                 </li>
                 <li className='flex items-center gap-3 text-gray-400 text-sm'>
-                  <Phone size={18} className='text-[#DAA520]' />
+                  <Phone size={18} className='text-[#DAA520] flex-shrink-0' />
                   <a href={`tel:${footers?.data[0].phone}`}>{footers?.data[0].phone}</a>
                 </li>
                 <li className='flex items-center gap-3 text-gray-400 text-sm'>
-                  <Mail size={18} className='text-[#DAA520]' />
+                  <Mail size={18} className='text-[#DAA520] flex-shrink-0' />
                   <a href={`mailto:${footers?.data[0].email}`}>{footers?.data[0].email}</a>
                 </li>
               </ul>

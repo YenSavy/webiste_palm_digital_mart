@@ -7,6 +7,7 @@ import useDashboardStore from '../../../store/dashboardStore'
 import CreateWarehouse from './company-profile/CreateWarehouse'
 import CreatePosition from './company-profile/CreatePosition'
 import CreateCurrency from './company-profile/CreateCurrency'
+import SubscriptionStep from './steps-use-system-contents/SubscriptionStep'
 
 interface SubStep {
   id: 'company' | 'branch' | 'warehouse' | 'position' | 'currency'
@@ -480,7 +481,6 @@ const isSubStepClickable = (subStep: SubStep, subStepIndex: number): boolean => 
             </div>
           </div>
 
-          {/* RIGHT SIDE - Step Content */}
           <div className="lg:col-span-2">
             <div
               className={`bg-gradient-to-br ${theme.cardBg} backdrop-blur-sm border ${theme.border} rounded-2xl p-6 sm:p-8`}
@@ -580,14 +580,7 @@ const isSubStepClickable = (subStep: SubStep, subStepIndex: number): boolean => 
                       )}
 
                       {step.id === 'subscription' && (
-                        <StepContent
-                          title="Choose Your Plan"
-                          description="Select a subscription plan that fits your business needs."
-                          fields={[
-                            { label: 'Plan Selection', placeholder: 'Select a plan', type: 'select' },
-                            { label: 'Billing Cycle', placeholder: 'Monthly or Yearly', type: 'select' },
-                          ]}
-                          theme={theme}
+                        <SubscriptionStep
                         />
                       )}
 

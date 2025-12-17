@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query"
 import { login, signUp, type SignInData, type SignUpData } from "./apis/auth/authApi"
-import { createBranch, createCurrency, createPosition, createWarehouse, saveCompanyInfo, type TCreateBranchInput, type TCreateCurrencyInput, type TCreatePositionInput, type TCreateWarehouseInput } from "./apis/dashboard/companyApi"
+import { createBranch, createCurrency, createPosition, createWarehouse, saveCompanyInfo, subscribePlan, unsubscribePlan, type TCreateBranchInput, type TCreateCurrencyInput, type TCreatePositionInput, type TCreateWarehouseInput, type TPlanSubscriptionInput } from "./apis/dashboard/companyApi"
 
 export const useSignUp = () => {
     return useMutation({
@@ -48,4 +48,19 @@ export const useCreateCurrencyMutation = () => {
         mutationKey: ["create", "company", "currency"],
         mutationFn: (payload: TCreateCurrencyInput) => createCurrency(payload)
     })  
+}
+//subscription
+
+
+export const useSubscribePlanMutation = () => {
+    return useMutation({
+        mutationKey: ["company"],
+        mutationFn: (payload: TPlanSubscriptionInput) => subscribePlan(payload)
+    })
+}
+export const useUnsubscribePlanMutation = () => {
+    return useMutation({
+        mutationKey: ["company"],
+        mutationFn: (payload: TPlanSubscriptionInput) => unsubscribePlan(payload)
+    })
 }
