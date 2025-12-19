@@ -99,7 +99,6 @@ const Sidebar: React.FC<SidebarProps> = ({
               />
               {!isMinimized && <span className="font-medium text-sm">{item.label}</span>}
 
-              {/* Tooltip for minimized state */}
               {isMinimized && (
                 <div
                   className={`absolute left-full ml-2 px-3 py-2 rounded-lg ${theme.primary} ${theme.border} border shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50`}

@@ -1,8 +1,8 @@
 import React, { type JSX } from 'react'
-import StepsToUseSystem from '../components/shared/dashboard/StepsToUseSystem'
-import { useThemeStore } from '../store/themeStore'
+import StepsToUseSystem from '../../components/shared/dashboard/StepsToUseSystem'
+import { useThemeStore } from '../../store/themeStore'
 import { Building2, GitBranch, Warehouse, Briefcase, DollarSign } from 'lucide-react'
-import useDashboardStore from '../store/dashboardStore'
+import useDashboardStore from '../../store/dashboardStore'
 
 const DashboardPage: React.FC = () => {
   const theme = useThemeStore((state) => state.getTheme())

@@ -10,11 +10,13 @@ import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";
 import AuthLayout from "./layouts/AuthLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import DashboardPage from "./pages/DashboardPage";
+import DashboardPage from "./pages/Dashboard/DashboardPage";
 import { useAuthStore } from "./store/authStore";
 import "aos/dist/aos.css";
-import UserPage from "./pages/UserPage";
+import UserPage from "./pages/Dashboard/UserPage";
 import DashboardLayout from "./layouts/DashboardLayout";
+import UserGuidePage from "./pages/Dashboard/UserGuidePage";
+import ErrorPage from "./pages/ErrorPage";
 
 
 const queryClient = new QueryClient({
@@ -59,13 +61,13 @@ function App() {
 
 
 
-useEffect(() => {
+  useEffect(() => {
     AOS.init({
-      duration: 1000, 
-      once: true, 
-      mirror: false, 
-      offset: 100, 
-      easing: 'ease-in-out', 
+      duration: 1000,
+      once: true,
+      mirror: false,
+      offset: 100,
+      easing: 'ease-in-out',
     });
   }, []);
 
@@ -85,11 +87,13 @@ useEffect(() => {
 
             <Route
               path="/dashboard"
-              element={<ProtectedRoute component={DashboardLayout} />}
+              element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}
             >
-            <Route index element={<DashboardPage />} />
-            <Route path="/dashboard/user" element={<UserPage />} />
+              <Route index element={<DashboardPage />} />
+              <Route path="/dashboard/user" element={<UserPage />} />
+              <Route path="/dashboard/user-guide" element={<UserGuidePage/>} />
             </Route>
+            <Route path="*" element={<ErrorPage />} />
           </Routes>
 
           <ReactQueryDevtools initialIsOpen={false} />

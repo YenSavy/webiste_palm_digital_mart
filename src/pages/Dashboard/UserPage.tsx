@@ -1,8 +1,8 @@
 
 import React, { useMemo, useState } from "react";
-import { useThemeStore } from "../store/themeStore";
-import { cn } from "../lib/utils";
-import useMainStore from "../store/mainStore";
+import { useThemeStore } from "../../store/themeStore";
+import { cn } from "../../lib/utils";
+import useMainStore from "../../store/mainStore";
 
 
 const UserPage: React.FC = () => {
