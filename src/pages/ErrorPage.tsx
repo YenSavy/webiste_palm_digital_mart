@@ -74,7 +74,7 @@ const ErrorPage = () => {
               <p className={`text-sm ${theme.textSecondary}`}>
                 Need help? Contact our support team at{' '}
                 <a href="mailto:support@example.com" className="font-medium hover:underline" style={{ color: theme.accent }}>
-                  support@example.com
+                  yen.savy@gmail.com
                 </a>
               </p>
             </div>

@@ -4,6 +4,7 @@ import { themes, useThemeStore, type ThemeType } from '../../../store/themeStore
 import { useAuthStore } from '../../../store/authStore'
 import useMainStore from '../../../store/mainStore'
 import useDashboardStore from '../../../store/dashboardStore'
+import LanguageSwitcher from '../MainHeader/LanguageSwitcher'
 
 interface HeaderProps {
   toggleSidebar: () => void
@@ -99,8 +100,8 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
                         setIsThemeOpen(false)
                       }}
                       className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${currentThemeKey === key
-                          ? `bg-opacity-20`
-                          : `hover:${theme?.primaryHover}`
+                        ? `bg-opacity-20`
+                        : `hover:${theme?.primaryHover}`
                         }`}
                       style={currentThemeKey === key ? {
                         backgroundColor: `${themeOption.accent}20`,
@@ -132,7 +133,7 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
               </div>
             )}
           </div>
-
+          <LanguageSwitcher />
           {/* Notification Bell */}
           <button
             className={`relative p-2 ${theme?.textSecondary} rounded-lg ${theme?.primaryHover} transition-colors`}
@@ -146,7 +147,6 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
             <span className='absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full'></span>
           </button>
 
-          {/* Profile Dropdown */}
           <div className='relative'>
             <button
               onClick={() => {
@@ -156,12 +156,25 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
               className={`flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-lg ${theme?.primaryHover} transition-all`}
             >
               <div
-                className='w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center flex-shrink-0'
+                className='w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden'
                 style={{
                   background: `linear-gradient(to bottom right, ${theme?.accent}, ${theme?.accent}dd)`
                 }}
               >
-                <User size={18} className='text-slate-900' />
+                {user?.avatar_image ? (
+                  <img
+                    src={user?.avatar_image}
+                    alt={user?.name || "User avatar"}
+                    className='w-full h-full object-cover'
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.parentElement!.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-900"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
+                    }}
+                  />
+                ) : (
+                  <User size={18} className='text-slate-900' />
+                )}
               </div>
               <div className='text-left hidden md:block'>
                 <p className={`text-sm font-medium ${theme?.text}`}>{user?.full_name || user?.name}</p>

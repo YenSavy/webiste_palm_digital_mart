@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import TextTitle from "../../TextTitle";
 import { Megaphone } from "lucide-react";
 import useLangSwitch from "../../../hooks/useLangSwitch";
+import { Link } from "react-router-dom";
 
 export type TVideoType = {
   id: string;
@@ -162,8 +163,9 @@ const Podcasting: React.FC<AdvertisingProps> = ({
 
           {otherVideos.length > 0 && (
             <div className="flex-[2] flex flex-col h-[500px]" data-aos="fade-left">
-              <h3 className="font-semibold border-b py-3">
-                {t("common:other_video")}
+              <h3 className="font-semibold border-b py-3 flex items-center justify-between">
+               <span>{t("common:other_video")}</span> 
+               <Link to={"/videos"} className="font-thin text-xs cursor-pointer hover:underline hover:text-secondary">{t("common:see_all")}</Link>
               </h3>
 
               <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar mt-2">

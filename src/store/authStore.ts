@@ -5,6 +5,7 @@ interface User {
   phone: string;
   email: string;
   full_name: string | null;
+  avatar_image?: string
 }
 
 interface AuthStore {
@@ -16,7 +17,7 @@ interface AuthStore {
   loginFormData: { username: string; password: string }
   registerFormData: { username: string; email: string; password: string }
   
-  setToken: (token: string, user?: User) => void
+  setToken: (token: string, user?: User, expireTime?: number) => void
   setIsAuthenticated: (value: boolean) => void
   logout: () => void
   setIsSignInPage: (value: boolean) => void
@@ -43,6 +44,14 @@ const getUserFromStorage = (): User | null => {
   return null
 }
 
+    const setAuthCookie = (token: string, maxAgeSeconds?: number) => {
+        if (maxAgeSeconds) {
+            document.cookie = `auth_token=${token}; max-age=${maxAgeSeconds}; path=/; secure; samesite=strict`
+        } else {
+            document.cookie = `auth_token=${token}; path=/; secure; samesite=strict`
+        }
+    }
+
 export const useAuthStore = create<AuthStore>((set) => ({
   isAuthenticated: false,
   isAuthLoading: true, 
@@ -52,8 +61,9 @@ export const useAuthStore = create<AuthStore>((set) => ({
   loginFormData: { username: '', password: '' },
   registerFormData: { username: '', email: '', password: '' },
 
-  setToken: (token, user) => {
+  setToken: (token, user, expireTime) => {
     set({ token, isAuthenticated: true, isAuthLoading: false })
+    setAuthCookie(token, expireTime)
     if (user) {
       localStorage.setItem('user', JSON.stringify(user))
       set({ user })
@@ -82,6 +92,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   initializeAuth: () => {
     const token = getAuthToken()
     const user = getUserFromStorage()
+    if(user && token) console.log(true)
     if (token && user) {
       set({ user })
       set({ token, isAuthenticated: true, isAuthLoading: false })
@@ -90,3 +101,5 @@ export const useAuthStore = create<AuthStore>((set) => ({
     }
   }
 }))
+
+useAuthStore.getState().initializeAuth();

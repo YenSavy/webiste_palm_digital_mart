@@ -7,6 +7,8 @@ import TextInput from "../components/TextInput";
 import { useLogin, useSignUp } from "../lib/mutations";
 import CodeVerificationModal from "../components/auth/CodeVerificationModal";
 import type { SignInData } from "../lib/apis/auth/authApi";
+import FacebookAuth from "../components/auth/FacebookAuth";
+import GoogleAuth from "../components/auth/GoogleAuth";
 
 
 const AuthPage: React.FC = () => {
@@ -146,50 +148,46 @@ const LoginForm: React.FC = () => {
             document.cookie = `auth_token=${token}; path=/; secure; samesite=strict`
         }
     }
-
     const onLogin = (e: React.FormEvent) => {
-    e.preventDefault()
+        e.preventDefault()
 
-    setTouched({ name: true, password: true })
+        setTouched({ name: true, password: true })
 
-    const usernameError = validateField('name', loginData.name)
-    const passwordError = validateField('password', loginData.password)
+        const usernameError = validateField('name', loginData.name)
+        const passwordError = validateField('password', loginData.password)
 
-    if (usernameError || passwordError) return
+        if (usernameError || passwordError) return
 
-    login(loginData, {
-        onSuccess: (data) => {
-            const token = data.data.token
-            
-            // Set auth state FIRST
-            setToken(token)
-            setUser({ 
-                email: data.data.email, 
-                name: data.data.name, 
-                phone: data.data.phone, 
-                full_name: data.data.full_name 
-            })
-            
-            if (rememberMe) {
-                setAuthCookie(token, 7 * 24 * 60 * 60)
-            } else {
-                setAuthCookie(token)
+        login(loginData, {
+            onSuccess: (data) => {
+                const token = data.data.token
+                setToken(token)
+                setUser({
+                    email: data.data.email,
+                    name: data.data.name,
+                    phone: data.data.phone,
+                    full_name: data.data.full_name
+                })
+
+                if (rememberMe) {
+                    setAuthCookie(token, 7 * 24 * 60 * 60)
+                } else {
+                    setAuthCookie(token)
+                }
+
+                setIsFailed(false)
+                navigate('/dashboard')
+            },
+            onError: (error) => {
+                setIsFailed(true)
+                setMessage(
+                    error.message.toLowerCase() === "unauthorized"
+                        ? "Incorrect credentials! Try again."
+                        : "Sign in failed"
+                )
             }
-            
-            setIsFailed(false)
-            
-            navigate('/dashboard')
-        },
-        onError: (error) => {
-            setIsFailed(true)
-            setMessage(
-                error.message.toLowerCase() === "unauthorized" 
-                    ? "Incorrect credentials! Try again." 
-                    : "Sign in failed"
-            )
-        }
-    })
-}
+        })
+    }
     return (
         <form className="flex flex-col gap-3" onSubmit={onLogin}>
             <div className="flex flex-col gap-1">
@@ -242,7 +240,6 @@ const LoginForm: React.FC = () => {
                 <span>{t("remember_me") || "Remember me"}</span>
             </label>
 
-            {/* Sign Up Link */}
             <span className="flex gap-2">
                 <p>{t("don't_have_account") || "Don't have an account?"}</p>
                 <button
@@ -253,7 +250,13 @@ const LoginForm: React.FC = () => {
                     {t("sign_up")}
                 </button>
             </span>
-
+            <div className="flex items-center justify-between gap-4">
+                <hr className="flex-1 border-gray-300" />
+                <span className="text-gray-500 text-sm">Or</span>
+                <hr className="flex-1 border-gray-300" />
+            </div>
+            <FacebookAuth />
+            <GoogleAuth />
             <p className={isFailed ? "text-red-500" : "text-lime-500"}>{message || ""}</p>
             <button
                 type="submit"
@@ -502,7 +505,6 @@ const SignUpForm: React.FC = () => {
                 )}
             </div>
 
-            {/* Confirm Password Field */}
             <div className="flex flex-col gap-1">
                 <label className="flex gap-1 items-center">
                     <Lock size={20} />{t("confirm_password")}

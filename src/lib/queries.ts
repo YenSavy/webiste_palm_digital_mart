@@ -5,6 +5,7 @@ import { fetchFooter, fetchWhyUs } from "./apis/home-page/whyUsApi";
 import { fetchPlans } from "./apis/home-page/planApi";
 import { fetchVideo, fetchVideoPodcast } from "./apis/home-page/advertsApi";
 import { fetchClientSay } from "./apis/home-page/clientSayApi";
+import { getUserList } from "./apis/dashboard/userApi";
 
 export const useHeroContent = () => {
   return useQuery({
@@ -66,3 +67,10 @@ export const usePodcast = () => {
    })
 }
 
+
+export const useGetUserQuery = () => {
+  return useQuery({
+    queryKey: ["company", "user", "system-user"],
+    queryFn: () => getUserList()
+  })
+}

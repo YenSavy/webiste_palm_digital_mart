@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -11,12 +11,15 @@ import AuthPage from "./pages/AuthPage";
 import AuthLayout from "./layouts/AuthLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
-import { useAuthStore } from "./store/authStore";
+// import { useAuthStore } from "./store/authStore";
 import "aos/dist/aos.css";
 import UserPage from "./pages/Dashboard/UserPage";
 import DashboardLayout from "./layouts/DashboardLayout";
 import UserGuidePage from "./pages/Dashboard/UserGuidePage";
 import ErrorPage from "./pages/ErrorPage";
+import VideoPage from "./pages/Dashboard/VideoPage";
+import MainBackground from "./components/shared/MainBackground";
+import MainHeader, { type THeaderProps } from "./components/shared/MainHeader";
 
 
 const queryClient = new QueryClient({
@@ -31,14 +34,7 @@ const queryClient = new QueryClient({
 
 function App() {
   const { i18n } = useTranslation();
-  const initializeAuth = useAuthStore((state) => state.initializeAuth);
 
-  // Initialize login state
-  useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
-
-  // Initialize Language
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const lang = params.get("lang");
@@ -71,6 +67,15 @@ function App() {
     });
   }, []);
 
+  const { t } = useTranslation("common");
+  const Company: THeaderProps = {
+    company: {
+      logo: "./palm technology.png",
+      name: t("company"),
+    },
+  };
+
+
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <QueryClientProvider client={queryClient}>
@@ -79,7 +84,15 @@ function App() {
             <Route element={<MainPageLayout />}>
               <Route path="/" element={<HomePage />} />
             </Route>
+            <Route element={<MainBackground>
+              <MainHeader company={Company.company} />
+              <main className=" px-5 md:px-16 lg:px-32 translate-y-[6rem]">
+                <Outlet />
+              </main>
+            </MainBackground>}>
+              <Route path="/videos" element={<VideoPage />} />
 
+            </Route>
 
             <Route element={<AuthLayout />}>
               <Route path="/auth" element={<AuthPage />} />
@@ -91,7 +104,7 @@ function App() {
             >
               <Route index element={<DashboardPage />} />
               <Route path="/dashboard/user" element={<UserPage />} />
-              <Route path="/dashboard/user-guide" element={<UserGuidePage/>} />
+              <Route path="/dashboard/user-guide" element={<UserGuidePage />} />
             </Route>
             <Route path="*" element={<ErrorPage />} />
           </Routes>
