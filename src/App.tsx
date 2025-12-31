@@ -104,6 +104,7 @@ function App() {
             >
               <Route index element={<DashboardPage />} />
               <Route path="/dashboard/user" element={<UserPage />} />
+              <Route path="/dashboard/subscription" element={<h1 className="text-black">Subscription step</h1>}/>
               <Route path="/dashboard/user-guide" element={<UserGuidePage />} />
             </Route>
             <Route path="*" element={<ErrorPage />} />

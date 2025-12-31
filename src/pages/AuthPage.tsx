@@ -255,7 +255,7 @@ const LoginForm: React.FC = () => {
                 <span className="text-gray-500 text-sm">Or</span>
                 <hr className="flex-1 border-gray-300" />
             </div>
-            <FacebookAuth />
+            <FacebookAuth setMessage={setMessage} setIsError={setIsFailed}/>
             <GoogleAuth />
             <p className={isFailed ? "text-red-500" : "text-lime-500"}>{message || ""}</p>
             <button

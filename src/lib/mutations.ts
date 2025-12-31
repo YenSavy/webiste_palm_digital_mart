@@ -2,8 +2,10 @@ import { useMutation } from "@tanstack/react-query";
 import {
   login,
   signUp,
+  socialLogin,
   type SignInData,
   type SignUpData,
+  type TSocialLoginInput,
 } from "./apis/auth/authApi";
 import {
   createBranch,
@@ -40,6 +42,15 @@ export const useLogin = () => {
     mutationFn: (formData: SignInData) => login(formData),
   });
 };
+
+
+export const useSocialLoginMutation = () => {
+  return useMutation({
+    mutationKey: ["login", "user", "users"],
+    mutationFn: (payload: TSocialLoginInput) => socialLogin(payload)
+  })
+}
+
 
 export const useCreateCompanyMutation = () => {
   return useMutation({

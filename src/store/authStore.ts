@@ -92,7 +92,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   initializeAuth: () => {
     const token = getAuthToken()
     const user = getUserFromStorage()
-    if(user && token) console.log(true)
+
     if (token && user) {
       set({ user })
       set({ token, isAuthenticated: true, isAuthLoading: false })
