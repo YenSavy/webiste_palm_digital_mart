@@ -87,4 +87,14 @@ export const login = async (data: SignInData): Promise<ApiResponse<TLoginReponse
 };
 
 
+export type TSocialLoginInput = {
+  social_type: "google" | "facebook";
+  token: string;
+}
 
+export const socialLogin = async (payload: TSocialLoginInput) => {
+  const res = await axiosInstance.post<{success: boolean, message: string}>("/login-with-social-media", null, {
+    params: payload,
+  })
+  return res.data
+}

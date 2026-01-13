@@ -13,7 +13,7 @@ const useDashboardStore = create<DashboardStoreType>((set) => ({
     setActiveCategory: (cat: "company" | "branch" | "warehouse" | "position" | "currency") => set({activeCategory: cat}),
 
 
-    isMinimized: false,
+    isMinimized: true,
     toggleMinimize: () => set((state) => ({isMinimized: !state.isMinimized}))
 }))
 

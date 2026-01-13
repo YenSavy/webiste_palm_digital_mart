@@ -1,4 +1,4 @@
-import { BarChart3, Calendar, FileText, LayoutDashboard, MessageSquare, Settings, Users } from "lucide-react"
+import { BadgeDollarSign, BarChart3, Calendar, FileText, LayoutDashboard, MessageSquare, Settings, Users } from "lucide-react"
 
 interface NavItem {
   id: string
@@ -9,6 +9,7 @@ interface NavItem {
 
 export const navItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+    { id: 'subscription', label: 'Subscription', icon: BadgeDollarSign , path: '/dashboard/subscription' },
   { id: 'users', label: 'Users', icon: Users, path: '/dashboard/user' },
   { id: 'reports', label: 'Reports', icon: FileText },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },

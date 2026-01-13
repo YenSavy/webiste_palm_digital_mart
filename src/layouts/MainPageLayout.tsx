@@ -6,9 +6,11 @@ import MainHeader, { type THeaderProps } from '../components/shared/MainHeader'
 import { Outlet } from 'react-router';
 import Footer from '../components/shared/home/Footer';
 
+
+
 const MainPageLayout: React.FC = () => {
     const { t } = useTranslation("common");
-    const Company: THeaderProps = {
+     const Company: THeaderProps = {
         company: {
             logo: "./palm technology.png",
             name: t("company"),

@@ -13,11 +13,11 @@ export type TCreateUserProfileInput = {
   facebook: string;
   twitter: string;
   link: string;
-  position: number;
+  position: number | string;
   date_of_employment: string;
-  branch: number;
-  company: number;
-  project: number;
+  branch: number | string;
+  company: number | string;
+  project: number | string;
 };
 
 type Position = {
@@ -108,3 +108,23 @@ export const deleteUser = async (id: string) => {
   );
   return res.data;
 };
+
+
+
+export type TGetUserResponse = {
+  id: string;
+  name: string;
+  email: string
+  profile_id: string;
+  role: string;
+  status: "1" | "0";
+  status_text: string;
+}
+
+
+
+
+export const getUserList = async () => {
+  const res = await axiosInstance.get<ApiResponse<TGetUserResponse[]>>("/user_list");
+  return res.data;
+}

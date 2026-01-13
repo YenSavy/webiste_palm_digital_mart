@@ -22,7 +22,7 @@ const LanguageSwitcher: React.FC = () => {
     window.history.replaceState({}, "", url.toString());
     setIsOpen(false); 
   };
-
+  
   return (
     <div className="relative">
       <button
@@ -37,7 +37,7 @@ const LanguageSwitcher: React.FC = () => {
           width={24}
           height={16}
         />
-        <span className="text-sm">{i18n.language}</span>
+        <span className="text-sm text-gray-400">{i18n.language}</span>
       </button>
 
       {isOpen && (
@@ -58,7 +58,7 @@ const LanguageSwitcher: React.FC = () => {
                 width={24}
                 height={16}
               />
-              <span>{lang.alt}</span>
+              <span className="text-gray-400">{lang.alt}</span>
             </button>
           ))}
         </div>

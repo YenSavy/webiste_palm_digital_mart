@@ -145,7 +145,7 @@ const CreateCompany: React.FC = () => {
   }
   return (
     <div className="">
-      <div className="max-w-6xl mx-auto lg:max-h-[370px] overflow-auto">
+      <div className="max-w-6xl mx-auto">
         <form onSubmit={(e) => e.preventDefault()}>
           <div className="space-y-6">
             <CompanyInformationSection
