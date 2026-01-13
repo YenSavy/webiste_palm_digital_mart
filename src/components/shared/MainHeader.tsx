@@ -6,7 +6,7 @@ import LanguageSwitcher from "./MainHeader/LanguageSwitcher";
 import DropdownMenu from "./MainHeader/DropDownMenu";
 import MobileMenu from "./MainHeader/MobileMenu";
 import TabletMenu from "./MainHeader/TabletMenu";
-import { useServiceMenu } from "../../hooks/useServiceMenu";
+// import { useServiceMenu } from "../../hooks/useServiceMenu";
 import { useTranslation } from "react-i18next";
 import useScrollTo from "../../hooks/useScrollTo";
 import { useAuthStore } from "../../store/authStore";
@@ -36,18 +36,20 @@ export type THeaderProps = {
 const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
   const scrollTo = useScrollTo();
   const { t } = useTranslation(["header", "common"]);
-  const SERVICE_MENU = useServiceMenu();
+  // const SERVICE_MENU = useServiceMenu();
   const navigate = useNavigate();
   const { setIsSignInPage } = useAuthStore();
   const isAuthenticated = useAuthStore(state => state.isAuthenticated)
   const DEFAULT_NAV: NavItem[] = useMemo(
     () => [
-      { nav: t("header:services"), href: "#services", hasChild: true, children: SERVICE_MENU },
+      // { nav: t("header:services"), href: "#services", hasChild: true, children: SERVICE_MENU },
       { nav: t("header:pricing"), href: "#pricing" },
-      { nav: t("header:about_us"), href: "#about" },
+      { nav: t("header:about_us"), href: "#about_us" },
+      {nav: t("common:podcasting"), href: "#podcasting"},
+      {nav: t("common:advertise"), href: "#advertising"},
       { nav: t("header:contact_us"), href: "#contact" },
     ],
-    [SERVICE_MENU, t]
+    [t]
   );
   const navItems = navContent || DEFAULT_NAV;
 

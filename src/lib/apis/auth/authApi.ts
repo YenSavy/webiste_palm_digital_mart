@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios';
-import axiosErpInstance from '../../apiErp';
 import type { ApiResponse } from '../../../types';
+import axiosInstance from '../../api';
 
 export interface SignUpData {
   name: string;
@@ -19,7 +19,7 @@ export interface SignInData{
 
 export const signUp = async (data: SignUpData): Promise<ApiResponse<{data: string}>> => {
   try {
-    const response = await axiosErpInstance.post<ApiResponse<{data: string}>>(
+    const response = await axiosInstance.post<ApiResponse<{data: string}>>(
       '/register',
       null, 
       {
@@ -61,7 +61,7 @@ type TLoginReponse ={
 
 export const login = async (data: SignInData): Promise<ApiResponse<TLoginReponse>> => {
   try {
-    const response = await axiosErpInstance.post<ApiResponse<TLoginReponse>>(
+    const response = await axiosInstance.post<ApiResponse<TLoginReponse>>(
       '/login',
       null, 
       {

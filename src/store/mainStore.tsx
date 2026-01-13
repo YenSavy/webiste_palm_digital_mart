@@ -14,7 +14,7 @@ type TTypeStore = {
 const useMainStore = create<TTypeStore>((set) => ({
     isLoadingWebsite: false,
     setIsLoadingStore: (isLoading: boolean) => set(() => ({isLoadingWebsite: isLoading})),
-
+    
     search: "",
     setSearch: (s: string) => (set({search: s}))
 }))

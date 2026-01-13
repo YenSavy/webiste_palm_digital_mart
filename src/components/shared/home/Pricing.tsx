@@ -90,7 +90,7 @@ const Card: React.FC<TPricingProps & { onClick?: () => void; mostFamous: boolean
 
       <div>
         <h2 className="font-semibold text-lg text-gray-200">{name}</h2>
-        {best_for_ch && <h4 className="text-sm text-gray-400">{useLangSwitch(best_for_en, best_for_kh, best_for_ch)}</h4>}
+         <h4 className="text-sm text-gray-400">{useLangSwitch(best_for_en, best_for_kh, best_for_ch)}</h4>
         <p className="text-xl font-semibold mt-4 bg-gradient-to-r from-secondary via-slate-50 to-[#8f7c15] bg-clip-text text-transparent">
           ${price}/{useLangSwitch(billing_cycle_en, billing_cycle_kh, billing_cycle_ch)}
         </p>

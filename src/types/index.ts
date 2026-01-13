@@ -32,3 +32,19 @@ export interface ApiError {
   code?: string;
   errors?: Record<string, string[]>;
 }
+
+export type TCreateCompanyInput = {
+  companyNameLocal: string
+  companyNameEnglish: string
+  phone: string
+  addressEnglish: string
+  file: null | File
+  email: string
+  country: string
+  district: string
+  province: string
+  commune: string
+  village: string
+  roadStrNumber: string
+  homeStrNumber: string
+}

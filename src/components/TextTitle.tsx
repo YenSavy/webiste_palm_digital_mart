@@ -13,7 +13,7 @@ const TextTitle: React.FC<TextTitleProps> = ({ title, icon, className="" }) => {
         {icon}
       </div>
       
-      <h2 className="tracking-wide drop-shadow-[0_0_8px_rgba(218,165,32,0.5)] text-gradient py-3 font-semibold text-2xl" 
+      <h2 className=" drop-shadow-[0_0_8px_rgba(218,165,32,0.5)] text-gradient py-3 font-semibold text-2xl moul-regular" 
           style={{ 
             textRendering: 'optimizeLegibility',
             WebkitFontSmoothing: 'antialiased',

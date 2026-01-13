@@ -55,12 +55,14 @@ const Hero: React.FC = () => {
     }, [isLoading]);
 
     if (isLoading || isLoadingFeature) return <HeroSkeleton />
-
+    const GetLangSwitch = (en: string, km: string, ch: string) => {
+        return useLangSwitch(en, km, ch)
+    }
     return (
         <section className='grid md:grid-cols-2 min-h-[560px] mt-10 items-center gap-7 md:gap-0 justify-center' >
             <article className='flex items-start justify-start h-full p-4 flex-col gap-6' data-aos="fade-right">
                 <span>
-                    <h1 className='font-semibold text-2xl md:text-3xl lg:text-4xl'>
+                    <h1 className='font-semibold text-2xl md:text-3xl text-gradient py-3 moul-regular'>
                         {mainTitle}
                     </h1>
                     <h3 className='mt-2 text-sm md:text-base text-gray-700 dark:text-gray-300'>
@@ -74,7 +76,7 @@ const Hero: React.FC = () => {
                                 className='text-secondary flex-shrink-0 w-5 h-5 md:w-6 md:h-6'
                             />
                             <span>
-                                {useLangSwitch(
+                                {GetLangSwitch(
                                     f.feature_text,
                                     f.feature_text_kh,
                                     f.feature_text_ch

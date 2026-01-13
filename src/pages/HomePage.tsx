@@ -9,7 +9,6 @@ import { useAdverts, usePlan, usePodcast } from '../lib/queries'
 import ClientSay from '../components/shared/home/ClientSay'
 import Podcasting from '../components/shared/home/Podcating'
 
- 
 
 const HomePage: React.FC = () => {
   const {data: plans} = usePlan()

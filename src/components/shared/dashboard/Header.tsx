@@ -1,8 +1,9 @@
-import { Bell, Search, Menu, User, ChevronDown, LogOut, Palette } from 'lucide-react'
+import { Bell, Search, Menu, User, ChevronDown, LogOut, Palette, SquareMenu } from 'lucide-react'
 import { useState } from 'react'
 import { themes, useThemeStore, type ThemeType } from '../../../store/themeStore'
 import { useAuthStore } from '../../../store/authStore'
 import useMainStore from '../../../store/mainStore'
+import useDashboardStore from '../../../store/dashboardStore'
 
 interface HeaderProps {
   toggleSidebar: () => void
@@ -17,16 +18,17 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
   const setTheme = useThemeStore((state) => state.setTheme)
   const user = useAuthStore(state => state.user)
   const setSearch = useMainStore(state => state.setSearch)
+  const toggleMinimize = useDashboardStore().toggleMinimize
   return (
-    <header 
-      className={`h-16 lg:h-20 bg-gradient-to-br ${theme?.primary} backdrop-blur-sm border-b ${theme?.border} sticky top-0 z-20`}
+    <header
+      className={`h-16 w-full lg:h-20 bg-gradient-to-br ${theme?.primary} backdrop-blur-sm border-b ${theme?.border} sticky top-0 z-20`}
     >
       <div className='h-full px-4 lg:px-6 flex items-center justify-between gap-4'>
         <button
           onClick={toggleSidebar}
           className={`lg:hidden p-2 ${theme?.textSecondary} rounded-lg ${theme?.primaryHover} transition-colors`}
-          style={{ 
-            '--hover-color': theme?.accent 
+          style={{
+            '--hover-color': theme?.accent
           } as React.CSSProperties}
           onMouseEnter={(e) => e.currentTarget.style.color = theme?.accent}
           onMouseLeave={(e) => e.currentTarget.style.color = ''}
@@ -34,11 +36,14 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
           <Menu size={24} />
         </button>
 
-        <div className='flex-1 max-w-xl'>
-          <div className='relative'>
-            <Search 
-              className={`absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 ${theme?.textSecondary}`} 
-              size={18} 
+        <div className='flex-1 max-w-xl flex items-center gap-4'>
+          <button className={` bg-gradient-to-tr ${theme.gradient} p-2 border rounded-lg ${theme.border} hidden lg:block`} onClick={toggleMinimize}>
+            <SquareMenu className={`${theme.textSecondary}`} />
+          </button>
+          <div className='relative w-full'>
+            <Search
+              className={`absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 ${theme?.textSecondary}`}
+              size={18}
             />
             <input
               type='text'
@@ -56,7 +61,7 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
                 e.currentTarget.style.borderColor = ''
                 e.currentTarget.style.boxShadow = ''
               }}
-              onChange={({target}) => setSearch(target.value) }
+              onChange={({ target }) => setSearch(target.value)}
             />
           </div>
         </div>
@@ -69,8 +74,8 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
                 setIsProfileOpen(false)
               }}
               className={`p-2 ${theme?.textSecondary} rounded-lg ${theme?.primaryHover} transition-colors`}
-              style={{ 
-                '--hover-color': theme?.accent 
+              style={{
+                '--hover-color': theme?.accent
               } as React.CSSProperties}
               onMouseEnter={(e) => e.currentTarget.style.color = theme?.accent}
               onMouseLeave={(e) => e.currentTarget.style.color = ''}
@@ -79,7 +84,7 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
             </button>
 
             {isThemeOpen && (
-              <div 
+              <div
                 className={`absolute right-0 mt-2 w-64 bg-gradient-to-br ${theme?.cardBg} backdrop-blur-sm border ${theme?.border} rounded-xl shadow-2xl overflow-hidden`}
               >
                 <div className={`p-4 border-b ${theme?.border}`}>
@@ -93,23 +98,22 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
                         setTheme(key as ThemeType)
                         setIsThemeOpen(false)
                       }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
-                        currentThemeKey === key 
-                          ? `bg-opacity-20` 
+                      className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${currentThemeKey === key
+                          ? `bg-opacity-20`
                           : `hover:${theme?.primaryHover}`
-                      }`}
+                        }`}
                       style={currentThemeKey === key ? {
                         backgroundColor: `${themeOption.accent}20`,
                       } : {}}
                     >
-                      <div 
+                      <div
                         className='w-8 h-8 rounded-lg flex-shrink-0'
-                        style={{ 
-                          background: `linear-gradient(to bottom right, ${themeOption.accent}, ${themeOption.accent}dd)` 
+                        style={{
+                          background: `linear-gradient(to bottom right, ${themeOption.accent}, ${themeOption.accent}dd)`
                         }}
                       />
                       <div className='text-left flex-1'>
-                        <p 
+                        <p
                           className={`text-sm font-medium ${currentThemeKey === key ? '' : theme?.text}`}
                           style={currentThemeKey === key ? { color: themeOption.accent } : {}}
                         >
@@ -117,7 +121,7 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
                         </p>
                       </div>
                       {currentThemeKey === key && (
-                        <div 
+                        <div
                           className='w-2 h-2 rounded-full'
                           style={{ backgroundColor: themeOption.accent }}
                         />
@@ -130,10 +134,10 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
           </div>
 
           {/* Notification Bell */}
-          <button 
+          <button
             className={`relative p-2 ${theme?.textSecondary} rounded-lg ${theme?.primaryHover} transition-colors`}
-            style={{ 
-              '--hover-color': theme?.accent 
+            style={{
+              '--hover-color': theme?.accent
             } as React.CSSProperties}
             onMouseEnter={(e) => e.currentTarget.style.color = theme?.accent}
             onMouseLeave={(e) => e.currentTarget.style.color = ''}
@@ -151,10 +155,10 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
               }}
               className={`flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-lg ${theme?.primaryHover} transition-all`}
             >
-              <div 
+              <div
                 className='w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center flex-shrink-0'
-                style={{ 
-                  background: `linear-gradient(to bottom right, ${theme?.accent}, ${theme?.accent}dd)` 
+                style={{
+                  background: `linear-gradient(to bottom right, ${theme?.accent}, ${theme?.accent}dd)`
                 }}
               >
                 <User size={18} className='text-slate-900' />
@@ -165,14 +169,13 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
               </div>
               <ChevronDown
                 size={16}
-                className={`${theme?.textSecondary} transition-transform hidden md:block ${
-                  isProfileOpen ? 'rotate-180' : ''
-                }`}
+                className={`${theme?.textSecondary} transition-transform hidden md:block ${isProfileOpen ? 'rotate-180' : ''
+                  }`}
               />
             </button>
 
             {isProfileOpen && (
-              <div 
+              <div
                 className={`absolute right-0 mt-2 w-56 bg-gradient-to-br ${theme?.cardBg} backdrop-blur-sm border ${theme?.border} rounded-xl shadow-2xl overflow-hidden`}
               >
                 <div className={`p-4 border-b ${theme?.border}`}>

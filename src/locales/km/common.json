@@ -1,5 +1,5 @@
 {
-  "company": "ផាម តិចណឡូជី",
+  "company": "ផាម ថេកណឡជី ឯ.ក",
   "login": "ចូលគណនី",
   "logout": "ចេញពីគណនី",
   "sign_up": "ចុះឈ្មោះ",
@@ -17,9 +17,20 @@
 
   "password_required": "សូមបញ្ចូលលេខសម្អាត់",
   "password_min_length": "សូមបញ្ចូលលេខសម្អាត់យ៉ាងតិច៦ខ្ទង់",
+  "confirm_password": "បញ្ជាក់លេខសម្ងាត់",
+  "confirm_password_required": "សូមបញ្ជាក់លេខសម្ងាត់",
+
+
+
 
   "email_required": "សូមបញ្ចូលអ៊ីមែល",
   "email_invalid": "សូមបញ្ចូលអ៊ីមែលអោយបានត្រឺមត្រូវ",
+
+  "phone_number": "លេខទូរស័ព្ទ",
+  "phone_required":" សូមបញ្ចូលលេខទូរស័ព្ទ",
+
+  "remember_me": "ចងចាំខ្ញុំ",
+
 
   "advertise": "ពាណិជ្ជកម្ម",
   "podcasting": "ផតខេសធ៍",

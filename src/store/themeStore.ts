@@ -1,9 +1,9 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-export type ThemeType = 'ocean' | 'sunset' | 'forest' | 'midnight' | 'royal' | 'light'
+export type ThemeType = 'ocean' | 'sunset' | 'forest' | 'midnight' | 'royal' | 'light' | 'luxe'
 
-interface Theme {
+export interface Theme {
   name: string
   gradient: string
   primary: string
@@ -89,6 +89,18 @@ export const themes: Record<ThemeType, Theme> = {
     text: 'text-gray-900',
     textSecondary: 'text-gray-600',
   },
+  luxe: {
+    name: 'Luxe Gold',
+    gradient: 'from-slate-900 via-blue-950 to-slate-900',
+    primary: 'from-slate-800 via-blue-900 to-slate-800',
+    primaryHover: 'bg-slate-800',
+    accent: '#FFD700',
+    accentGlow: 'rgba(255,215,0,0.4)',
+    cardBg: 'from-slate-800/90 to-blue-900/90',
+    border: 'border-slate-700',
+    text: 'text-gray-100',
+    textSecondary: 'text-secondary',
+  },
 }
 
 interface ThemeState {
@@ -100,7 +112,7 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set, get) => ({
-      currentTheme: 'ocean',
+      currentTheme: 'luxe',
       setTheme: (theme: ThemeType) => set({ currentTheme: theme }),
       getTheme: () => themes[get().currentTheme],
     }),

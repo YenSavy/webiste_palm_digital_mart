@@ -1,8 +1,9 @@
 import axios, {type AxiosInstance, AxiosError,type InternalAxiosRequestConfig,type AxiosResponse } from 'axios';
+import { getAuthToken } from '../store/authStore';
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL || 'https://api.example.com',
-  timeout: 10000,
+  timeout: 100000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -10,7 +11,8 @@ const axiosInstance: AxiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('authToken');
+    const token = getAuthToken()
+      
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }

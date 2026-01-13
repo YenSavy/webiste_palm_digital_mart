@@ -75,7 +75,9 @@ const Advertising: React.FC<AdvertisingProps> = ({
   const latestEmbedUrl = latestEmbedId
     ? `https://www.youtube.com/embed/${latestEmbedId}`
     : "";
-
+    const GetTranslatedText = (en: string, km: string, ch: string) => {
+      return useLangSwitch(en, km, ch)
+    }
   return (
     <>
       <style>{`
@@ -104,7 +106,7 @@ const Advertising: React.FC<AdvertisingProps> = ({
         }
       `}</style>
 
-      <section className="mt-7 px-0 flex flex-col items-center justify-center gap-5">
+      <section className="mt-7 px-0 flex flex-col items-center justify-center gap-5" id="advertising">
         <TextTitle
           title={t("common:advertise")}
           icon={<Megaphone size={34} />}
@@ -141,7 +143,7 @@ const Advertising: React.FC<AdvertisingProps> = ({
             <div className="mt-4 space-y-2">
               <h3 className="text-xl font-semibold text-gray-100">
                 {currentVideo &&
-                  useLangSwitch(
+                  GetTranslatedText(
                     currentVideo.title_en,
                     currentVideo.title_kh,
                     currentVideo.title_ch
@@ -177,7 +179,7 @@ const Advertising: React.FC<AdvertisingProps> = ({
                       ? `https://img.youtube.com/vi/${youTubeId}/hqdefault.jpg`
                       : "");
 
-                  const displayTitle = useLangSwitch(
+                  const displayTitle = GetTranslatedText(
                     video.title_en,
                     video.title_kh,
                     video.title_ch
