@@ -8,6 +8,7 @@ import AOS from "aos";
 import MainPageLayout from "./layouts/MainPageLayout";
 import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";
+import SignupForm from "./pages/SignupForm";
 import AuthLayout from "./layouts/AuthLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
@@ -96,7 +97,9 @@ function App() {
 
             <Route element={<AuthLayout />}>
               <Route path="/auth" element={<AuthPage />} />
+             <Route path="/pages/" element={<SignupForm />} />
             </Route>
+            
 
             <Route
               path="/dashboard"

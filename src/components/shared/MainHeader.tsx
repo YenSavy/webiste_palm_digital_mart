@@ -55,7 +55,7 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [isHeaderHidden, setIsHeaderHidden] = useState(false); // Track the visibility of the header
+  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = useCallback(() => setMenuOpen((p) => !p), []);
@@ -90,6 +90,20 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleSignUpClick = () => {
+    // កំណត់ setIsSignInPage false (សម្រាប់ករណីប្រើ AuthPage)
+    setIsSignInPage(false);
+    // ទៅកាន់ទំព័រ SignupForm ដាច់
+    navigate("/pages");
+  };
+
+  const handleSignInClick = () => {
+    // កំណត់ setIsSignInPage true
+    setIsSignInPage(true);
+    // ទៅកាន់ AuthPage
+    navigate("/auth");
+  };
 
   return (
     <header
@@ -153,26 +167,28 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
       </nav>
 
       <div className="hidden md:flex items-center gap-4">
-
-        {isAuthenticated && <Link to={"/dashboard"} className="uppercase text-xs flex items-center justify-center gap-1 px-3 py-2 bg-secondary rounded-full"><LayoutDashboard size={18}/>{t("header:dashboard")}</Link>}
-        {!isAuthenticated && <><button
-          className="bg-secondary text-white text-sm  uppercase px-3 py-2 rounded-3xl shadow-md  transition-colors"
-          onClick={() => {
-            setIsSignInPage(false);
-            navigate("/auth");
-          }}
-        >
-          {t("common:sign_up")}
-        </button>
-        <button
-          className="uppercase text-sm transition-colors"
-          onClick={() => {
-            setIsSignInPage(true);
-            navigate("/auth");
-          }}
-        >
-          {t("common:login")}
-        </button></>}
+        {isAuthenticated && (
+          <Link to={"/dashboard"} className="uppercase text-xs flex items-center justify-center gap-1 px-3 py-2 bg-secondary rounded-full">
+            <LayoutDashboard size={18}/>
+            {t("header:dashboard")}
+          </Link>
+        )}
+        {!isAuthenticated && (
+          <>
+            <button
+              className="bg-secondary text-white text-sm uppercase px-3 py-2 rounded-3xl shadow-md transition-colors"
+              onClick={handleSignUpClick}
+            >
+              {t("common:sign_up")}
+            </button>
+            <button
+              className="uppercase text-sm transition-colors"
+              onClick={handleSignInClick}
+            >
+              {t("common:login")}
+            </button>
+          </>
+        )}
         <LanguageSwitcher />
       </div>
 
