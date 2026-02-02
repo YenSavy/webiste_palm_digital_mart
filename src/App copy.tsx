@@ -96,8 +96,8 @@ function App() {
             </Route>
 
             <Route element={<AuthLayout />}>
-              <Route path="/login" element={<AuthPage />} />
-             <Route path="/signup/" element={<SignupForm />} />
+              <Route path="/auth" element={<AuthPage />} />
+             <Route path="/pages/" element={<SignupForm />} />
             </Route>
             
 

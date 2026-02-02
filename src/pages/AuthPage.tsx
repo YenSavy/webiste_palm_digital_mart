@@ -5,7 +5,7 @@ import { AlertCircle, ArrowLeftIcon, Lock, LogIn, Mail, Phone, User, UserPen } f
 import { Link, useNavigate } from "react-router-dom";
 import TextInput from "../components/TextInput";
 import { useLogin, useSignUp } from "../lib/mutations";
-import CodeVerificationModal from "../components/auth/CodeVerificationModal";
+// import CodeVerificationModal from "../components/auth/CodeVerificationModal";
 import type { SignInData } from "../lib/apis/auth/authApi";
 import FacebookAuth from "../components/auth/FacebookAuth";
 import GoogleAuth from "../components/auth/GoogleAuth";
@@ -244,7 +244,7 @@ const LoginForm: React.FC = () => {
                 <button
                     type="button"
                     className="underline hover:text-secondary"
-                    onClick={() => navigate('/pages')} // ប្ដូរពី setIsSignInPage(false) ទៅ navigate('/signup')
+                    onClick={() => navigate('/signup')} // ប្ដូរពី setIsSignInPage(false) ទៅ navigate('/signup')
                 >
                     {t("sign_up")}
                 </button>
