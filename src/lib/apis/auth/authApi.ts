@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios';
 import type { ApiResponse } from '../../../types';
 import axiosInstance from '../../api';
+import { QueryClient } from '@tanstack/react-query';
 
 export interface SignUpData {
   firstname:string;
@@ -12,7 +13,6 @@ export interface SignUpData {
   password: string;
   c_password: string;
 }
-
 
 export interface SignInData{
     name: string
@@ -102,3 +102,58 @@ export const socialLogin = async (payload: TSocialLoginInput) => {
   })
   return res.data
 }
+
+export interface VerifySignupCodeData {
+  prefix: string;
+  phone: string;
+  code: string; 
+}QueryClient
+
+
+export const verifySignupCode = async (
+  data: VerifySignupCodeData
+): Promise<ApiResponse<TLoginReponse>> => {
+
+  const fullPhoneNumber = (data.prefix + data.phone).replace(/\D/g, '');
+  
+  const phoneWithoutCountryCode = fullPhoneNumber.replace(/^855/, '');
+  
+  const res = await axiosInstance.post('/verify-phone', null, {
+    params: {
+      phone: phoneWithoutCountryCode, 
+      verify_code: data.code.trim(),
+    },
+  });
+
+  return res.data;
+};
+
+export const resendVerificationCode = async (data: { 
+  prefix: string; 
+  phone: string; 
+}): Promise<ApiResponse<{ success: boolean; message?: string }>> => {
+  try {
+    // ដំណើរការលេខទូរសព្ទដូចគ្នានឹង verifySignupCode
+    const fullPhoneNumber = (data.prefix + data.phone).replace(/\D/g, '');
+    const phoneWithoutCountryCode = fullPhoneNumber.replace(/^855/, '');
+
+    // ប្រើ params ជំនួសវិញ ដើម្បីឲ្យត្រូវគ្នានឹង verifySignupCode
+    const response = await axiosInstance.post(
+      '/resend-verification-code', 
+      null, // មិនប្រើ body
+      {
+        params: {
+          phone: phoneWithoutCountryCode,
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+

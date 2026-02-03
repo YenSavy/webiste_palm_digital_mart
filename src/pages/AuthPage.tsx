@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../store/authStore";
-import { AlertCircle, ArrowLeftIcon, Lock, LogIn, Mail, Phone, User, UserPen } from "lucide-react";
+import { AlertCircle, ArrowLeftIcon, Lock, LogIn, User,  } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import TextInput from "../components/TextInput";
-import { useLogin, useSignUp } from "../lib/mutations";
+import { useLogin } from "../lib/mutations";
 // import CodeVerificationModal from "../components/auth/CodeVerificationModal";
 import type { SignInData } from "../lib/apis/auth/authApi";
 import FacebookAuth from "../components/auth/FacebookAuth";
@@ -53,7 +53,7 @@ const AuthPage: React.FC = () => {
                 {/* Right side with form - Full Height */}
                 <div
                     className={`
-                    flex flex-col justify-center p-8 bggradient-to-r from-[#102A43] via-[#0D3C73] to-[#102A43]
+                    flex flex-col justify-center p-8 bg gradient-to-r from-[#102A43] via-[#0D3C73] to-[#102A43]
                     ${isSignInPage ? "md:order-2" : "md:order-1"}
                     h-full 
                 `}
@@ -277,4 +277,3 @@ const LoginForm: React.FC = () => {
     )
 }
 
-// Signp form ----------------------------------------------------

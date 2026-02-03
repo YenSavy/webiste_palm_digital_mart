@@ -9,10 +9,10 @@ import MainPageLayout from "./layouts/MainPageLayout";
 import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";
 import SignupForm from "./pages/SignupForm";
+import PhoneVerifyForm from "./pages/PhoneVerifyForm";
 import AuthLayout from "./layouts/AuthLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
-// import { useAuthStore } from "./store/authStore";
 import "aos/dist/aos.css";
 import UserPage from "./pages/Dashboard/UserPage";
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -98,6 +98,7 @@ function App() {
             <Route element={<AuthLayout />}>
               <Route path="/login" element={<AuthPage />} />
              <Route path="/signup/" element={<SignupForm />} />
+             <Route path="//phone-verification/" element={<PhoneVerifyForm/>} />
             </Route>
             
 

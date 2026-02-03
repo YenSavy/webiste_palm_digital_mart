@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AlertCircle, ArrowLeftIcon, Lock, Mail, Phone, User, UserPen } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { signUp } from "../lib/apis/auth/authApi";
+
+
 
 interface SignUpFormProps {
   setIsSignInPage?: (value: boolean) => void; 
@@ -128,32 +131,43 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ setIsSignInPage }) => {
     
     const hasError = Object.values(validationErrors).some(error => error !== '');
     
-    if (!hasError) {
-      setIsPending(true);
-      
-      // Here you would normally call your signup API
-      console.log('Form submitted:', formData);
-      
-      // Simulate API call
-      setTimeout(() => {
-        setIsPending(false);
-        setIsFailed(false);
-        
-        // Create full phone number with country code
-        const fullPhoneNumber = `+${countryCode}${formData.phoneNumber}`;
-        
-        // Navigate to Phone Verification page with the phone number
-        navigate('/phone-verification', { 
-          state: { 
-            phoneNumber: fullPhoneNumber,
-            // You can also pass other user data if needed
-            email: formData.email,
-            firstName: formData.firstName,
-            lastName: formData.lastName
-          } 
-        });
-      }, 1500);
-    }
+if (!hasError) {
+  setIsPending(true);
+  setIsFailed(false);
+  setMessage('');
+
+  try {
+    await signUp({
+      firstname: formData.firstName,
+      lastname: formData.lastName,
+      name: formData.username,
+      email: formData.email,
+      prefix: countryCode,
+      phone: formData.phoneNumber,
+      password: formData.password,
+      c_password: formData.confirmPassword,
+    });
+
+    const fullPhoneNumber = `+${countryCode}${formData.phoneNumber}`;
+
+    navigate('/phone-verification', {
+      state: {
+        phoneNumber: fullPhoneNumber,
+        prefix: countryCode,
+        phone: formData.phoneNumber,
+        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+      },
+    });
+  } catch (err: any) {
+    setIsFailed(true);
+    setMessage(err.message || 'Signup failed');
+  } finally {
+    setIsPending(false);
+  }
+}
+
   };
 
   const handleSignInClick = () => {
@@ -303,7 +317,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ setIsSignInPage }) => {
               </p>
             )}
           </div>
-
+          
           {/* Phone Number with Country Code */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
@@ -462,7 +476,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ setIsSignInPage }) => {
 
       {/* Footer */}
       <div className="mt-8 text-center text-sm text-gray-500">
-        {/* <p>© 2024 PALM. All rights reserved.</p> */}
+        
       </div>
     </div>
   );
