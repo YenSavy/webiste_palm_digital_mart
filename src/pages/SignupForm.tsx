@@ -455,13 +455,14 @@ if (!hasError) {
               {t('already_have_account') || 'Already have an account?'}{' '}
               <button
                 type="button"
-                onClick={() => navigate('/auth')}
+                onClick={() => navigate('/login')}
                 className="text-blue-600 hover:text-blue-800 font-medium"
               >
                 {t('sign_in') || 'Sign In'}
               </button>
             </span>
           </div>
+   
 
           {/* Message Display */}
           {message && (

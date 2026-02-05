@@ -127,7 +127,6 @@ const PhoneVerifyForm: React.FC = () => {
     navigate("/login");
   };
 
-
   return (
     <div className="min-h-screen flex items-center justify-center bg gradient-to-r from-[#102A43] via-[#0D3C73] to-[#102A43] p-4">
       <div className="w-full max-w-md bg-white/30 backdrop-blur-lg rounded-2xl shadow-xl  p-8 border border-white/40">
@@ -155,11 +154,7 @@ const PhoneVerifyForm: React.FC = () => {
                 value={digit}
                 onChange={(e) => handleChange(e.target.value, index)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
-                className=" w-14 h-14 text-center text-2xl font-bold  text-gray-800  bg-white  border-2 border-gray-300  rounded-xl  focus:outline-none  focus:border-blue-500 focus:ring-2 focus:ring-blue-200  transition-all
-"
-
-                disabled={loading}
-              />
+                className=" w-14 h-14 text-center text-2xl font-bold  text-gray-800  bg-white  border-2 border-gray-300  rounded-xl  focus:outline-none  focus:border-blue-500 focus:ring-2 focus:ring-blue-200  transition-all"  disabled={loading} />
             ))}
           </div>
 
