@@ -4,7 +4,9 @@ import { Save, Trash2 } from 'lucide-react'
 interface FormActionsProps {
   onClear: () => void
   onSave: () => void
-  isSaving : boolean;
+  isSaving: boolean
+  isFormValid: boolean 
+  currentCategory: 'company' | 'branch' | 'warehouse' | 'position' | 'currency'  // បន្ថែម prop ថ្មី
   theme: {
     border: string
     textSecondary: string
@@ -13,7 +15,21 @@ interface FormActionsProps {
   }
 }
 
-export const FormActions: React.FC<FormActionsProps> = ({ onClear, onSave, theme,isSaving }) => {
+export const FormActions: React.FC<FormActionsProps> = ({ 
+  onClear, 
+  onSave, 
+  theme, 
+  isSaving,
+  isFormValid,
+  currentCategory 
+}) => {
+  const getSaveButtonText = () => {
+    if (isSaving) {
+      return `Saving ${currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)}...`
+    }
+    return `Save ${currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)}`
+  }
+
   return (
     <div className="flex flex-col sm:flex-row gap-4 justify-end">
       <button
@@ -35,21 +51,30 @@ export const FormActions: React.FC<FormActionsProps> = ({ onClear, onSave, theme
       </button>
       <button
         type="button"
-        onClick={onSave}
-        className="px-8 py-3 rounded-xl font-medium text-white transition-all shadow-lg flex items-center justify-center gap-2"
+        onClick={isFormValid ? onSave : undefined}
+        disabled={!isFormValid || isSaving}
+        className={`px-8 py-3 rounded-xl font-medium text-white transition-all shadow-lg flex items-center justify-center gap-2 ${
+          !isFormValid ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
+        }`}
         style={{
-          background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
+          background: !isFormValid 
+            ? `linear-gradient(135deg, ${theme.accent}80, ${theme.accent}80)` 
+            : `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.05)'
-          e.currentTarget.style.boxShadow = `0 10px 40px ${theme.accentGlow}`
+          if (isFormValid) {
+            e.currentTarget.style.transform = 'scale(1.05)'
+            e.currentTarget.style.boxShadow = `0 10px 40px ${theme.accentGlow}`
+          }
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)'
+          if (isFormValid) {
+            e.currentTarget.style.transform = 'scale(1)'
+          }
         }}
       >
         <Save size={20} />
-        {isSaving ? "Saving Company": "Save Company"}
+        {getSaveButtonText()}
       </button>
     </div>
   )

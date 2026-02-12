@@ -4,16 +4,13 @@ import {
   Hash,
   Type,
   TrendingUp,
-  Save,
-  Trash2,
-  Loader2,
-  CheckCircle,
   Info,
 } from 'lucide-react'
 import { useThemeStore } from '../../../../store/themeStore'
 import type { TCreateCurrencyInput } from '../../../../lib/apis/dashboard/companyApi'
 import { useCreateCurrencyMutation } from '../../../../lib/mutations'
-
+import useDashboardStore from '../../../../store/dashboardStore' 
+import { FormActions } from './FormActions' 
 
 interface CreateCurrencyProps {
   onComplete?: () => void
@@ -21,6 +18,7 @@ interface CreateCurrencyProps {
 
 const CreateCurrency: React.FC<CreateCurrencyProps> = ({ onComplete }) => {
   const theme = useThemeStore((state) => state.getTheme())
+  const addSavedCategory = useDashboardStore((state) => state.addSavedCategory)
 
   const [formData, setFormData] = useState<TCreateCurrencyInput>({
     crrcode: '',
@@ -30,13 +28,13 @@ const CreateCurrency: React.FC<CreateCurrencyProps> = ({ onComplete }) => {
     rate: 0,
   })
 
-  const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const {mutate: saveCurrency, isPending: isLoading}  = useCreateCurrencyMutation()
+  const { mutate: saveCurrency, isPending: isLoading } = useCreateCurrencyMutation()
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     
-    // Handle numeric fields
+   
     if (name === 'crrbase' || name === 'rate') {
       setFormData({
         ...formData,
@@ -61,42 +59,42 @@ const CreateCurrency: React.FC<CreateCurrencyProps> = ({ onComplete }) => {
       rate: 0,
     })
     setError(null)
-    setIsSuccess(false)
   }
 
-  const validateForm = (): boolean => {
+  // កែសម្រួល validation function
+  const validateForm = (): { isValid: boolean; errorMessage?: string } => {
     if (!formData.crrcode.trim()) {
-      setError('Currency code is required')
-      return false
+      return { isValid: false, errorMessage: 'Currency code is required' }
     }
     if (!formData.crrname.trim()) {
-      setError('Currency name is required')
-      return false
+      return { isValid: false, errorMessage: 'Currency name is required' }
     }
     if (!formData.crrsymbol.trim()) {
-      setError('Currency symbol is required')
-      return false
+      return { isValid: false, errorMessage: 'Currency symbol is required' }
     }
     if (formData.rate <= 0) {
-      setError('Exchange rate must be greater than 0')
-      return false
+      return { isValid: false, errorMessage: 'Exchange rate must be greater than 0' }
     }
-    return true
+    return { isValid: true }
   }
 
-  const handleSave = async () => {
-    if (!validateForm()) return
+  const handleSave = () => {  // លុប async ព្រោះមិនត្រូវការ
+    const validation = validateForm()
+    if (!validation.isValid) {
+      setError(validation.errorMessage || 'Invalid form data')
+      return
+    }
 
     saveCurrency(formData, {
-      onSuccess: (data) => {
-        setError(data.message as string)
-        if(onComplete) onComplete()
+      onSuccess: () => {  // លុប parameter data ព្រោះមិនបានប្រើ
+        setError(null)
+        addSavedCategory('currency')
+        if (onComplete) onComplete()
       },
       onError: (err) => {
-        setError(err.message)
+        setError(err.message || 'មានបញ្ហាក្នុងការបង្កើតរូបិយប័ណ្ណ')
       }
     })
-
   }
 
   // Quick select currency options
@@ -109,7 +107,7 @@ const CreateCurrency: React.FC<CreateCurrencyProps> = ({ onComplete }) => {
   ]
 
   const handleQuickSelect = (currency: typeof quickCurrencies[0]) => {
-    if (!isLoading && !isSuccess) {
+    if (!isLoading) {
       setFormData({
         crrcode: currency.code,
         crrname: currency.name,
@@ -122,27 +120,6 @@ const CreateCurrency: React.FC<CreateCurrencyProps> = ({ onComplete }) => {
 
   return (
     <div className="space-y-6">
-      {/* Success Message */}
-      {isSuccess && (
-        <div
-          className="flex items-center gap-3 p-4 rounded-xl border-2 animate-fadeIn"
-          style={{
-            backgroundColor: '#10B98120',
-            borderColor: '#10B981',
-          }}
-        >
-          <CheckCircle size={24} className="text-green-500 flex-shrink-0" />
-          <div>
-            <p className={`font-semibold ${theme.text}`} style={{ color: '#10B981' }}>
-              Currency created successfully!
-            </p>
-            <p className={`text-sm ${theme.textSecondary}`}>
-              The currency has been added to your system.
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Error Message */}
       {error && (
         <div
@@ -185,18 +162,18 @@ const CreateCurrency: React.FC<CreateCurrencyProps> = ({ onComplete }) => {
               key={idx}
               type="button"
               onClick={() => handleQuickSelect(currency)}
-              disabled={isLoading || isSuccess}
+              disabled={isLoading}
               className={`p-3 rounded-xl text-left transition-all border ${theme.border} disabled:opacity-50 disabled:cursor-not-allowed`}
               style={{ backgroundColor: `${theme.accent}10` }}
               onMouseEnter={(e) => {
-                if (!isLoading && !isSuccess) {
+                if (!isLoading) {
                   e.currentTarget.style.backgroundColor = `${theme.accent}20`
                   e.currentTarget.style.borderColor = theme.accent
                   e.currentTarget.style.transform = 'translateY(-2px)'
                 }
               }}
               onMouseLeave={(e) => {
-                if (!isLoading && !isSuccess) {
+                if (!isLoading) {
                   e.currentTarget.style.backgroundColor = `${theme.accent}10`
                   e.currentTarget.style.borderColor = ''
                   e.currentTarget.style.transform = 'translateY(0)'
@@ -241,11 +218,11 @@ const CreateCurrency: React.FC<CreateCurrencyProps> = ({ onComplete }) => {
                 onChange={handleInputChange}
                 placeholder="USD"
                 maxLength={3}
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all uppercase disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -275,11 +252,11 @@ const CreateCurrency: React.FC<CreateCurrencyProps> = ({ onComplete }) => {
                 value={formData.crrname}
                 onChange={handleInputChange}
                 placeholder="US Dollar"
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -309,11 +286,11 @@ const CreateCurrency: React.FC<CreateCurrencyProps> = ({ onComplete }) => {
                 onChange={handleInputChange}
                 placeholder="$"
                 maxLength={5}
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -345,11 +322,11 @@ const CreateCurrency: React.FC<CreateCurrencyProps> = ({ onComplete }) => {
                 placeholder="1"
                 min="1"
                 step="1"
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -381,11 +358,11 @@ const CreateCurrency: React.FC<CreateCurrencyProps> = ({ onComplete }) => {
                 placeholder="4100"
                 min="0"
                 step="0.01"
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -416,66 +393,15 @@ const CreateCurrency: React.FC<CreateCurrencyProps> = ({ onComplete }) => {
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-end pt-6">
-        <button
-          type="button"
-          onClick={handleClear}
-          disabled={isLoading || isSuccess}
-          className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 border ${theme.border} disabled:opacity-50 disabled:cursor-not-allowed`}
-          style={{ backgroundColor: `${theme.accent}10`, color: theme.textSecondary }}
-          onMouseEnter={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.currentTarget.style.backgroundColor = `${theme.accent}20`
-              e.currentTarget.style.borderColor = theme.accent
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.currentTarget.style.backgroundColor = `${theme.accent}10`
-              e.currentTarget.style.borderColor = ''
-            }
-          }}
-        >
-          <Trash2 size={20} />
-          Clear Form
-        </button>
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={isLoading || isSuccess}
-          className="px-8 py-3 rounded-xl font-medium text-white transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{ background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)` }}
-          onMouseEnter={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.currentTarget.style.transform = 'scale(1.05)'
-              e.currentTarget.style.boxShadow = `0 10px 40px ${theme.accentGlow}`
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.currentTarget.style.transform = 'scale(1)'
-            }
-          }}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 size={20} className="animate-spin" />
-              Creating Currency...
-            </>
-          ) : isSuccess ? (
-            <>
-              <CheckCircle size={20} />
-              Currency Created!
-            </>
-          ) : (
-            <>
-              <Save size={20} />
-              Save Currency
-            </>
-          )}
-        </button>
-      </div>
+      {/* ប្រើ FormActions component */}
+      <FormActions
+        onClear={handleClear}
+        onSave={handleSave}
+        theme={theme}
+        isSaving={isLoading}
+        isFormValid={formData.crrcode.trim() !== '' && formData.crrname.trim() !== '' && formData.crrsymbol.trim() !== '' && formData.rate > 0}
+        currentCategory="currency"
+      />
 
       <style>{`
         @keyframes fadeIn {

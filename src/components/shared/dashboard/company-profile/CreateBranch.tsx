@@ -6,24 +6,23 @@ import {
   Phone,
   MapPin,
   MessageCircle,
-  Save,
-  Trash2,
-  Loader2,
-  CheckCircle,
-  Navigation,
+  Navigation, 
 } from 'lucide-react'
 import { useThemeStore } from '../../../../store/themeStore'
 import type { TCreateBranchInput } from '../../../../lib/apis/dashboard/companyApi'
 import { useCreateBranchMutation } from '../../../../lib/mutations'
+import useDashboardStore from '../../../../store/dashboardStore'
+import { FormActions } from './FormActions'
 
 interface CreateBranchProps {
-  onComplete?: () => void
-  companyId?: string
+  onComplete?: () => void;
+  companyId?: string;
 }
 
 const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C001' }) => {
-  const theme = useThemeStore((state) => state.getTheme())
-  const {mutate: saveBranch, isPending: isLoading}  = useCreateBranchMutation()
+  const theme = useThemeStore((state) => state.getTheme());
+  const addSavedCategory = useDashboardStore((state) => state.addSavedCategory);
+  const { mutate: saveBranch, isPending: isLoading } = useCreateBranchMutation();
   const [formData, setFormData] = useState<TCreateBranchInput>({
     branch_name_km: '',
     branch_name_en: '',
@@ -34,19 +33,18 @@ const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C0
     lat: '',
     lng: '',
     telegram: '',
-  })
+  });
 
-  const [isSuccess, setIsSuccess] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
-    })
-    if (error) setError(null)
-  }
+    });
+    if (error) setError(null);
+  };
 
   const handleClear = () => {
     setFormData({
@@ -59,26 +57,22 @@ const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C0
       lat: '',
       lng: '',
       telegram: '',
-    })
-    setError(null)
-    setIsSuccess(false)
-  }
+    });
+    setError(null);
+  };
 
-  const validateForm = (): boolean => {
+  const validateForm = (): string | null => {
     if (!formData.branch_name_en.trim()) {
-      setError('Branch name (English) is required')
-      return false
+      return 'Branch name (English) is required';
     }
     if (!formData.branch_name_km.trim()) {
-      setError('Branch name (Khmer) is required')
-      return false
+      return 'Branch name (Khmer) is required';
     }
     if (formData.branch_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.branch_email)) {
-      setError('Invalid email format')
-      return false
+      return 'Invalid email format';
     }
-    return true
-  }
+    return null;
+  };
 
   const handleGetCurrentLocation = () => {
     if (navigator.geolocation) {
@@ -88,54 +82,42 @@ const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C0
             ...formData,
             lat: position.coords.latitude.toString(),
             lng: position.coords.longitude.toString(),
-          })
+          });
         },
         (error) => {
-          console.error('Error getting location:', error)
-          setError('Unable to get current location. Please enable location services.')
+          console.error('Error getting location:', error);
+          setError('Unable to get current location. Please enable location services.');
         }
-      )
+      );
     } else {
-      setError('Geolocation is not supported by your browser')
+      setError('Geolocation is not supported by your browser');
     }
-  }
+  };
 
   const handleSave = async () => {
-    if(!validateForm()) return;
+    const errorMessage = validateForm();
+    if (errorMessage) {
+      setError(errorMessage);
+      return;
+    }
+    
     saveBranch(formData, {
-      onSuccess: (data) => {
-        setError(data.message as string)
-        if(onComplete) onComplete()
+      onSuccess: (_data) => {
+        setError(null);
+        // បន្ថែម branch ទៅក្នុង savedCategories
+        addSavedCategory('branch');
+        if (onComplete) onComplete();
       },
       onError: (err) => {
-        setError(err.message)
+        setError(err.message);
       }
-    })
-  }
+    });
+    
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Success Message */}
-      {isSuccess && (
-        <div
-          className="flex items-center gap-3 p-4 rounded-xl border-2 animate-fadeIn"
-          style={{
-            backgroundColor: '#10B98120',
-            borderColor: '#10B981',
-          }}
-        >
-          <CheckCircle size={24} className="text-green-500 flex-shrink-0" />
-          <div>
-            <p className={`font-semibold ${theme.text}`} style={{ color: '#10B981' }}>
-              Branch created successfully!
-            </p>
-            <p className={`text-sm ${theme.textSecondary}`}>
-              The branch has been added to your company.
-            </p>
-          </div>
-        </div>
-      )}
-
+    <div className="space-y-6
+    ">
       {/* Error Message */}
       {error && (
         <div
@@ -178,11 +160,11 @@ const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C0
                 value={formData.branch_name_km}
                 onChange={handleInputChange}
                 placeholder="ឈ្មោះសាខា"
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -211,11 +193,11 @@ const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C0
                 value={formData.branch_name_en}
                 onChange={handleInputChange}
                 placeholder="New Branch"
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -242,11 +224,11 @@ const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C0
                 value={formData.branch_email}
                 onChange={handleInputChange}
                 placeholder="branch@example.com"
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -273,11 +255,11 @@ const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C0
                 value={formData.branch_phone}
                 onChange={handleInputChange}
                 placeholder="0123456789"
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -304,11 +286,11 @@ const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C0
                 value={formData.telegram}
                 onChange={handleInputChange}
                 placeholder="@branchtelegram"
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -334,11 +316,11 @@ const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C0
                 onChange={handleInputChange}
                 placeholder="Street 123"
                 rows={3}
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -363,16 +345,16 @@ const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C0
           <button
             type="button"
             onClick={handleGetCurrentLocation}
-            disabled={isLoading || isSuccess}
+            disabled={isLoading}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border ${theme.border} flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed`}
             style={{ backgroundColor: `${theme.accent}10`, color: theme.accent }}
             onMouseEnter={(e) => {
-              if (!isLoading && !isSuccess) {
+              if (!isLoading) {
                 e.currentTarget.style.backgroundColor = `${theme.accent}20`
               }
             }}
             onMouseLeave={(e) => {
-              if (!isLoading && !isSuccess) {
+              if (!isLoading) {
                 e.currentTarget.style.backgroundColor = `${theme.accent}10`
               }
             }}
@@ -392,11 +374,11 @@ const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C0
               value={formData.lat}
               onChange={handleInputChange}
               placeholder="11.562108"
-              disabled={isLoading || isSuccess}
+              disabled={isLoading}
               className={`w-full px-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
               style={{ backgroundColor: `${theme.accent}05` }}
               onFocus={(e) => {
-                if (!isLoading && !isSuccess) {
+                if (!isLoading) {
                   e.currentTarget.style.borderColor = theme.accent
                   e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                 }
@@ -417,11 +399,11 @@ const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C0
               value={formData.lng}
               onChange={handleInputChange}
               placeholder="104.888535"
-              disabled={isLoading || isSuccess}
+              disabled={isLoading}
               className={`w-full px-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
               style={{ backgroundColor: `${theme.accent}05` }}
               onFocus={(e) => {
-                if (!isLoading && !isSuccess) {
+                if (!isLoading) {
                   e.currentTarget.style.borderColor = theme.accent
                   e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                 }
@@ -453,66 +435,15 @@ const CreateBranch: React.FC<CreateBranchProps> = ({ onComplete, companyId = 'C0
         )}
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-end pt-6">
-        <button
-          type="button"
-          onClick={handleClear}
-          disabled={isLoading || isSuccess}
-          className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 border ${theme.border} disabled:opacity-50 disabled:cursor-not-allowed`}
-          style={{ backgroundColor: `${theme.accent}10`, color: theme.textSecondary }}
-          onMouseEnter={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.currentTarget.style.backgroundColor = `${theme.accent}20`
-              e.currentTarget.style.borderColor = theme.accent
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.currentTarget.style.backgroundColor = `${theme.accent}10`
-              e.currentTarget.style.borderColor = ''
-            }
-          }}
-        >
-          <Trash2 size={20} />
-          Clear Form
-        </button>
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={isLoading || isSuccess}
-          className="px-8 py-3 rounded-xl font-medium text-white transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{ background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)` }}
-          onMouseEnter={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.currentTarget.style.transform = 'scale(1.05)'
-              e.currentTarget.style.boxShadow = `0 10px 40px ${theme.accentGlow}`
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.currentTarget.style.transform = 'scale(1)'
-            }
-          }}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 size={20} className="animate-spin" />
-              Creating Branch...
-            </>
-          ) : isSuccess ? (
-            <>
-              <CheckCircle size={20} />
-              Branch Created!
-            </>
-          ) : (
-            <>
-              <Save size={20} />
-              Save Branch
-            </>
-          )}
-        </button>
-      </div>
+      {/* ប្រើ FormActions component ថ្មី */}
+      <FormActions
+        onClear={handleClear}
+        onSave={handleSave}
+        theme={theme}
+        isSaving={isLoading}
+        isFormValid={formData.branch_name_en.trim() !== '' && formData.branch_name_km.trim() !== ''}
+        currentCategory="branch"
+      />
     </div>
   )
 }

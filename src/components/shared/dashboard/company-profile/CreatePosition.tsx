@@ -3,47 +3,43 @@ import {
   Briefcase,
   Building2,
   FileText,
-  Save,
-  Trash2,
-  Loader2,
-  CheckCircle,
 } from 'lucide-react'
 import { useThemeStore } from '../../../../store/themeStore'
 import { useCreatePositionMutation } from '../../../../lib/mutations'
 import type { TCreatePositionInput } from '../../../../lib/apis/dashboard/companyApi'
-
-
+import useDashboardStore from '../../../../store/dashboardStore' 
+import { FormActions } from './FormActions' 
 
 interface CreatePositionProps {
-  onComplete?: () => void
+  onComplete?: () => void;
   companyId?: string;
 }
 
 const CreatePosition: React.FC<CreatePositionProps> = ({ 
   onComplete, 
-  companyId = "1"
+  companyId = "1" 
 }) => {
-  const theme = useThemeStore((state) => state.getTheme())
+  const theme = useThemeStore((state) => state.getTheme());
+  const addSavedCategory = useDashboardStore((state) => state.addSavedCategory);
 
   const [formData, setFormData] = useState<TCreatePositionInput>({
     company_id: companyId,
     position_km: '',
     position_en: '',
     description: '',
-  })
-  const {mutate: savePosition, isPending: isLoading} = useCreatePositionMutation()
+  });
 
-  const [isSuccess, setIsSuccess] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { mutate: savePosition, isPending: isLoading } = useCreatePositionMutation();
+  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
-    })
-    if (error) setError(null)
-  }
+    });
+    if (error) setError(null);
+  };
 
   const handleClear = () => {
     setFormData({
@@ -51,60 +47,42 @@ const CreatePosition: React.FC<CreatePositionProps> = ({
       position_km: '',
       position_en: '',
       description: '',
-    })
-    setError(null)
-    setIsSuccess(false)
-  }
+    });
+    setError(null);
+  };
 
-  const validateForm = (): boolean => {
+  // Validation function
+  const validateForm = (): { isValid: boolean; errorMessage?: string } => {
     if (!formData.position_en.trim()) {
-      setError('Position name (English) is required')
-      return false
+      return { isValid: false, errorMessage: 'Position name (English) is required' };
     }
     if (!formData.position_km.trim()) {
-      setError('Position name (Khmer) is required')
-      return false
+      return { isValid: false, errorMessage: 'Position name (Khmer) is required' };
     }
-    return true
-  }
+    return { isValid: true };
+  };
 
-  const handleSave = async () => {
-    if (!validateForm()) return
+  const handleSave = () => {
+    const validation = validateForm();
+    if (!validation.isValid) {
+      setError(validation.errorMessage || 'Invalid form data');
+      return;
+    }
+
     savePosition(formData, {
-      onSuccess: (data) => {
-        setError(data.message as string)
-        if(onComplete) onComplete()
+      onSuccess: () => {
+        setError(null);
+        addSavedCategory('position');
+        if (onComplete) onComplete();
       },
       onError: (err) => {
-        setError(err.message)
+        setError(err.message || 'មានបញ្ហាក្នុងការបង្កើតតួនាទី');
       }
-    })
-
-  }
+    });
+  };
 
   return (
     <div className="space-y-6">
-      {/* Success Message */}
-      {isSuccess && (
-        <div
-          className="flex items-center gap-3 p-4 rounded-xl border-2 animate-fadeIn"
-          style={{
-            backgroundColor: '#10B98120',
-            borderColor: '#10B981',
-          }}
-        >
-          <CheckCircle size={24} className="text-green-500 flex-shrink-0" />
-          <div>
-            <p className={`font-semibold ${theme.text}`} style={{ color: '#10B981' }}>
-              Position created successfully!
-            </p>
-            <p className={`text-sm ${theme.textSecondary}`}>
-              The position has been added to your company.
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Error Message */}
       {error && (
         <div
@@ -157,11 +135,11 @@ const CreatePosition: React.FC<CreatePositionProps> = ({
                 value={formData.position_km}
                 onChange={handleInputChange}
                 placeholder="ប្រធានផ្នែក"
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -174,7 +152,7 @@ const CreatePosition: React.FC<CreatePositionProps> = ({
             </div>
           </div>
 
-          {/* Position Name English */}
+         
           <div>
             <label className={`block text-sm font-medium ${theme.text} mb-2`}>
               Position Name (English) <span className="text-red-400">*</span>
@@ -190,11 +168,11 @@ const CreatePosition: React.FC<CreatePositionProps> = ({
                 value={formData.position_en}
                 onChange={handleInputChange}
                 placeholder="Department Head"
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -223,11 +201,11 @@ const CreatePosition: React.FC<CreatePositionProps> = ({
                 onChange={handleInputChange}
                 placeholder="Main manager"
                 rows={4}
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -242,7 +220,7 @@ const CreatePosition: React.FC<CreatePositionProps> = ({
         </div>
       </div>
 
-      {/* Common Positions Helper */}
+     
       <div className={`p-4 rounded-xl border ${theme.border}`} style={{ backgroundColor: `${theme.accent}05` }}>
         <h4 className={`text-sm font-semibold ${theme.text} mb-3 flex items-center gap-2`}>
           <Briefcase size={16} style={{ color: theme.accent }} />
@@ -263,7 +241,7 @@ const CreatePosition: React.FC<CreatePositionProps> = ({
               key={idx}
               type="button"
               onClick={() => {
-                if (!isLoading && !isSuccess) {
+                if (!isLoading) {
                   setFormData({
                     ...formData,
                     position_km: pos.km,
@@ -271,17 +249,17 @@ const CreatePosition: React.FC<CreatePositionProps> = ({
                   })
                 }
               }}
-              disabled={isLoading || isSuccess}
+              disabled={isLoading}
               className={`px-3 py-2 rounded-lg text-xs transition-all border ${theme.border} disabled:opacity-50 disabled:cursor-not-allowed`}
               style={{ backgroundColor: `${theme.accent}10`, color: theme.textSecondary }}
               onMouseEnter={(e) => {
-                if (!isLoading && !isSuccess) {
+                if (!isLoading) {
                   e.currentTarget.style.backgroundColor = `${theme.accent}20`
                   e.currentTarget.style.borderColor = theme.accent
                 }
               }}
               onMouseLeave={(e) => {
-                if (!isLoading && !isSuccess) {
+                if (!isLoading) {
                   e.currentTarget.style.backgroundColor = `${theme.accent}10`
                   e.currentTarget.style.borderColor = ''
                 }
@@ -294,66 +272,15 @@ const CreatePosition: React.FC<CreatePositionProps> = ({
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-end pt-6">
-        <button
-          type="button"
-          onClick={handleClear}
-          disabled={isLoading || isSuccess}
-          className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 border ${theme.border} disabled:opacity-50 disabled:cursor-not-allowed`}
-          style={{ backgroundColor: `${theme.accent}10`, color: theme.textSecondary }}
-          onMouseEnter={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.currentTarget.style.backgroundColor = `${theme.accent}20`
-              e.currentTarget.style.borderColor = theme.accent
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.currentTarget.style.backgroundColor = `${theme.accent}10`
-              e.currentTarget.style.borderColor = ''
-            }
-          }}
-        >
-          <Trash2 size={20} />
-          Clear Form
-        </button>
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={isLoading || isSuccess}
-          className="px-8 py-3 rounded-xl font-medium text-white transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{ background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)` }}
-          onMouseEnter={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.currentTarget.style.transform = 'scale(1.05)'
-              e.currentTarget.style.boxShadow = `0 10px 40px ${theme.accentGlow}`
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.currentTarget.style.transform = 'scale(1)'
-            }
-          }}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 size={20} className="animate-spin" />
-              Creating Position...
-            </>
-          ) : isSuccess ? (
-            <>
-              <CheckCircle size={20} />
-              Position Created!
-            </>
-          ) : (
-            <>
-              <Save size={20} />
-              Save Position
-            </>
-          )}
-        </button>
-      </div>
+     
+      <FormActions
+        onClear={handleClear}
+        onSave={handleSave}
+        theme={theme}
+        isSaving={isLoading}
+        isFormValid={formData.position_en.trim() !== '' && formData.position_km.trim() !== ''}
+        currentCategory="position"
+      />
 
       <style>{`
         @keyframes fadeIn {

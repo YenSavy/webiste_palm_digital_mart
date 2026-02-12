@@ -4,21 +4,18 @@ import {
   Building2,
   MapPin,
   FileText,
-  Save,
-  Trash2,
-  Loader2,
-  CheckCircle,
   GitBranch,
 } from 'lucide-react'
 import { useThemeStore } from '../../../../store/themeStore'
 import { useCreateWarehouseMutation } from '../../../../lib/mutations'
 import type { TCreateWarehouseInput } from '../../../../lib/apis/dashboard/companyApi'
-
+import useDashboardStore from '../../../../store/dashboardStore' 
+import { FormActions } from './FormActions' 
 
 interface CreateWarehouseProps {
-  onComplete?: () => void
-  companyId?: number
-  branchId?: number
+  onComplete?: () => void;
+  companyId?: number;
+  branchId?: number;
 }
 
 const CreateWarehouse: React.FC<CreateWarehouseProps> = ({ 
@@ -26,7 +23,8 @@ const CreateWarehouse: React.FC<CreateWarehouseProps> = ({
   companyId = 1,
   branchId = 1 
 }) => {
-  const theme = useThemeStore((state) => state.getTheme())
+  const theme = useThemeStore((state) => state.getTheme());
+  const addSavedCategory = useDashboardStore((state) => state.addSavedCategory);
 
   const [formData, setFormData] = useState<TCreateWarehouseInput>({
     company: companyId,
@@ -35,19 +33,19 @@ const CreateWarehouse: React.FC<CreateWarehouseProps> = ({
     warehouse_en: '',
     address: '',
     description: '',
-  })
+  });
 
-  const [isSuccess, setIsSuccess] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const {mutate: saveWarehouse, isPending: isLoading} = useCreateWarehouseMutation()
+  const [error, setError] = useState<string | null>(null);
+  const { mutate: saveWarehouse, isPending: isLoading } = useCreateWarehouseMutation();
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
-    })
-    if (error) setError(null)
-  }
+    });
+    if (error) setError(null);
+  };
 
   const handleClear = () => {
     setFormData({
@@ -57,64 +55,45 @@ const CreateWarehouse: React.FC<CreateWarehouseProps> = ({
       warehouse_en: '',
       address: '',
       description: '',
-    })
-    setError(null)
-    setIsSuccess(false)
-  }
+    });
+    setError(null);
+  };
 
-  const validateForm = (): boolean => {
+  // Validation function
+  const validateForm = (): { isValid: boolean; errorMessage?: string } => {
     if (!formData.warehouse_en.trim()) {
-      setError('Warehouse name (English) is required')
-      return false
+      return { isValid: false, errorMessage: 'Warehouse name (English) is required' };
     }
     if (!formData.warehouse_km.trim()) {
-      setError('Warehouse name (Khmer) is required')
-      return false
+      return { isValid: false, errorMessage: 'Warehouse name (Khmer) is required' };
     }
     if (!formData.address.trim()) {
-      setError('Address is required')
-      return false
+      return { isValid: false, errorMessage: 'Address is required' };
     }
-    return true
-  }
+    return { isValid: true };
+  };
 
-  const handleSave = async () => {
-    if (!validateForm()) return
+  const handleSave = () => {
+    const validation = validateForm();
+    if (!validation.isValid) {
+      setError(validation.errorMessage || 'Invalid form data');
+      return;
+    }
 
     saveWarehouse(formData, {
-        onSuccess: (data) => {
-          setError(data.message as string)
-          if(onComplete) onComplete()
-        },
-        onError: (err) => {
-          setError(err.message)
-        }
-    })
-
-  }
+      onSuccess: () => {
+        setError(null);
+        addSavedCategory('warehouse');
+        if (onComplete) onComplete();
+      },
+      onError: (err) => {
+        setError(err.message || 'មានបញ្ហាក្នុងការបង្កើតឃ្លាំង');
+      }
+    });
+  };
 
   return (
     <div className="space-y-6">
-      {isSuccess && (
-        <div
-          className="flex items-center gap-3 p-4 rounded-xl border-2 animate-fadeIn"
-          style={{
-            backgroundColor: '#10B98120',
-            borderColor: '#10B981',
-          }}
-        >
-          <CheckCircle size={24} className="text-green-500 flex-shrink-0" />
-          <div>
-            <p className={`font-semibold ${theme.text}`} style={{ color: '#10B981' }}>
-              Warehouse created successfully!
-            </p>
-            <p className={`text-sm ${theme.textSecondary}`}>
-              The warehouse has been added to your branch.
-            </p>
-          </div>
-        </div>
-      )}
-
       {error && (
         <div
           className="flex items-center gap-3 p-4 rounded-xl border-2 animate-fadeIn"
@@ -170,11 +149,11 @@ const CreateWarehouse: React.FC<CreateWarehouseProps> = ({
                 value={formData.warehouse_km}
                 onChange={handleInputChange}
                 placeholder="ឃ្លាំងថ្មី"
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -202,11 +181,11 @@ const CreateWarehouse: React.FC<CreateWarehouseProps> = ({
                 value={formData.warehouse_en}
                 onChange={handleInputChange}
                 placeholder="New Warehouse"
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -234,11 +213,11 @@ const CreateWarehouse: React.FC<CreateWarehouseProps> = ({
                 onChange={handleInputChange}
                 placeholder="Phnom Penh"
                 rows={3}
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -251,7 +230,7 @@ const CreateWarehouse: React.FC<CreateWarehouseProps> = ({
             </div>
           </div>
 
-          {/* Description - Full Width */}
+         
           <div className="md:col-span-2">
             <label className={`block text-sm font-medium ${theme.text} mb-2`}>
               Description
@@ -267,11 +246,11 @@ const CreateWarehouse: React.FC<CreateWarehouseProps> = ({
                 onChange={handleInputChange}
                 placeholder="Enter warehouse description..."
                 rows={4}
-                disabled={isLoading || isSuccess}
+                disabled={isLoading}
                 className={`w-full pl-10 pr-4 py-3 rounded-xl border ${theme.border} ${theme.text} placeholder-gray-500 focus:outline-none transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={{ backgroundColor: `${theme.accent}05` }}
                 onFocus={(e) => {
-                  if (!isLoading && !isSuccess) {
+                  if (!isLoading) {
                     e.currentTarget.style.borderColor = theme.accent
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${theme.accentGlow}`
                   }
@@ -286,66 +265,15 @@ const CreateWarehouse: React.FC<CreateWarehouseProps> = ({
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-end pt-6">
-        <button
-          type="button"
-          onClick={handleClear}
-          disabled={isLoading || isSuccess}
-          className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 border ${theme.border} disabled:opacity-50 disabled:cursor-not-allowed`}
-          style={{ backgroundColor: `${theme.accent}10`, color: theme.textSecondary }}
-          onMouseEnter={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.currentTarget.style.backgroundColor = `${theme.accent}20`
-              e.currentTarget.style.borderColor = theme.accent
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.currentTarget.style.backgroundColor = `${theme.accent}10`
-              e.currentTarget.style.borderColor = ''
-            }
-          }}
-        >
-          <Trash2 size={20} />
-          Clear Form
-        </button>
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={isLoading || isSuccess}
-          className="px-8 py-3 rounded-xl font-medium text-white transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{ background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)` }}
-          onMouseEnter={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.currentTarget.style.transform = 'scale(1.05)'
-              e.currentTarget.style.boxShadow = `0 10px 40px ${theme.accentGlow}`
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.currentTarget.style.transform = 'scale(1)'
-            }
-          }}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 size={20} className="animate-spin" />
-              Creating Warehouse...
-            </>
-          ) : isSuccess ? (
-            <>
-              <CheckCircle size={20} />
-              Warehouse Created!
-            </>
-          ) : (
-            <>
-              <Save size={20} />
-              Save Warehouse
-            </>
-          )}
-        </button>
-      </div>
+     
+      <FormActions
+        onClear={handleClear}
+        onSave={handleSave}
+        theme={theme}
+        isSaving={isLoading}
+        isFormValid={formData.warehouse_en.trim() !== '' && formData.warehouse_km.trim() !== '' && formData.address.trim() !== ''}
+        currentCategory="warehouse"
+      />
 
       <style>{`
         @keyframes fadeIn {

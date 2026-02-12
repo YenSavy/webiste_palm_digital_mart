@@ -1,21 +1,41 @@
-import { create } from "zustand"
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-type DashboardStoreType = {
-    activeCategory: "company" | "branch" | "warehouse" | "position" | "currency"
-    setActiveCategory: (cat: "company" | "branch" | "warehouse" | "position" | "currency") => void
-
-    isMinimized: boolean
-    toggleMinimize: () => void;
+interface DashboardStore {
+  activeCategory: string;
+  savedCategories: string[];
+  isMinimized: boolean; 
+  setActiveCategory: (category: string) => void;
+  addSavedCategory: (category: string) => void;
+  removeSavedCategory: (category: string) => void;
+  toggleMinimize: () => void; 
 }
 
-const useDashboardStore = create<DashboardStoreType>((set) => ({
-    activeCategory: "company",
-    setActiveCategory: (cat: "company" | "branch" | "warehouse" | "position" | "currency") => set({activeCategory: cat}),
-
-
-    isMinimized: true,
-    toggleMinimize: () => set((state) => ({isMinimized: !state.isMinimized}))
-}))
-
+const useDashboardStore = create<DashboardStore>()(
+  persist(
+    (set) => ({
+      activeCategory: 'company',
+      savedCategories: [],
+      isMinimized: false, 
+      setActiveCategory: (category) => set({ activeCategory: category }),
+      addSavedCategory: (category) =>
+        set((state) => ({
+          savedCategories: state.savedCategories.includes(category)
+            ? state.savedCategories
+            : [...state.savedCategories, category],
+        })),
+      removeSavedCategory: (category) =>
+        set((state) => ({
+          savedCategories: state.savedCategories.filter((c) => c !== category),
+        })),
+      toggleMinimize: () => set((state) => ({ 
+        isMinimized: !state.isMinimized 
+      })), 
+    }),
+    {
+      name: 'dashboard-storage',
+    }
+  )
+);
 
 export default useDashboardStore;

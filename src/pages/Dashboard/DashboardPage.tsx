@@ -1,14 +1,14 @@
-import React, { type JSX } from 'react'
-import StepsToUseSystem from '../../components/shared/dashboard/StepsToUseSystem'
-import { useThemeStore } from '../../store/themeStore'
-import { Building2, GitBranch, Warehouse, Briefcase, DollarSign } from 'lucide-react'
-import useDashboardStore from '../../store/dashboardStore'
+import React, { type JSX, useState, useEffect } from 'react';
+import StepsToUseSystem from '../../components/shared/dashboard/StepsToUseSystem';
+import { useThemeStore } from '../../store/themeStore';
+import { Building2, GitBranch, Warehouse, Briefcase, DollarSign, Lock, CheckCircle2 } from 'lucide-react';
+import useDashboardStore from '../../store/dashboardStore';
 
 const DashboardPage: React.FC = () => {
-  const theme = useThemeStore((state) => state.getTheme())
+  const theme = useThemeStore((state) => state.getTheme());
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${theme.gradient} p-4 sm:p-6 lg:p-8`}>
+    <div>
       <div className="max-w-7xl mx-auto space-y-6">
         <div
           className={`bg-gradient-to-br ${theme.cardBg} backdrop-blur-sm border ${theme.border} rounded-2xl p-6`}
@@ -20,18 +20,18 @@ const DashboardPage: React.FC = () => {
         <StepsToUseSystem />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DashboardPage
+export default DashboardPage;
 
 type TCatBtn = {
-  id: string
-  label: string
-  value: 'company' | 'branch' | 'warehouse' | 'position' | 'currency'
-  icon: JSX.Element
-  description: string
-}
+  id: string;
+  label: string;
+  value: 'company' | 'branch' | 'warehouse' | 'position' | 'currency';
+  icon: JSX.Element;
+  description: string;
+};
 
 const categoryButtonData: TCatBtn[] = [
   {
@@ -69,48 +69,98 @@ const categoryButtonData: TCatBtn[] = [
     icon: <DollarSign size={20} />,
     description: 'Manage currency settings',
   },
-]
+];
 
 const CategoryButton = () => {
-  const theme = useThemeStore((state) => state.getTheme())
-  const activeBtn = useDashboardStore((state) => state.activeCategory)
-  const setActiveBtn = useDashboardStore((state) => state.setActiveCategory)
+  const theme = useThemeStore((state) => state.getTheme());
+  const activeBtn = useDashboardStore((state) => state.activeCategory);
+  const setActiveBtn = useDashboardStore((state) => state.setActiveCategory);
+  const savedCategories = useDashboardStore((state) => state.savedCategories || []);
+
+  const categorySequence: TCatBtn['value'][] = ['company', 'branch', 'warehouse', 'position', 'currency'];
+  const [lockedCategories, setLockedCategories] = useState<Record<string, boolean>>({});
+  const [isSaved, setIsSaved] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const newLockedStatus: Record<string, boolean> = {};
+    const newIsSaved: Record<string, boolean> = {};
+
+    categorySequence.forEach((category, index) => {
+      const isCategorySaved = savedCategories.includes(category);
+      newIsSaved[category] = isCategorySaved;
+
+      if (index === 0) {
+        // First category (Company) is never locked
+        newLockedStatus[category] = false;
+      } else {
+        // Check if the previous category has been saved
+        const previousCategory = categorySequence[index - 1];
+        const isPreviousSaved = savedCategories.includes(previousCategory);
+        newLockedStatus[category] = !isPreviousSaved;
+      }
+    });
+
+    setLockedCategories(newLockedStatus);
+    setIsSaved(newIsSaved);
+  }, [savedCategories]);
+
+  const handleCategoryClick = (value: TCatBtn['value'], isLocked: boolean) => {
+    if (isLocked) {
+      const currentIndex = categorySequence.indexOf(value);
+      const previousCategory = categorySequence[currentIndex - 1];
+      const previousCategoryName = previousCategory.charAt(0).toUpperCase() + previousCategory.slice(1);
+
+      alert(`សូមបំពេញព័ត៌មាន ${previousCategoryName} និងចុច SAVE ជាមុនសិន`);
+      return;
+    }
+
+    setActiveBtn(value);
+  };
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
       {categoryButtonData.map((cat) => {
-        const isActive = activeBtn === cat.value
+        const isActive = activeBtn === cat.value;
+        const isLocked = lockedCategories[cat.value] || false;
+        const isCategorySaved = isSaved[cat.value] || false;
+
         return (
           <button
             key={cat.id}
-            onClick={() => setActiveBtn(cat.value)}
+            onClick={() => handleCategoryClick(cat.value, isLocked)}
+            disabled={isLocked}
             className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
               isActive ? '' : theme.border
-            }`}
+            } ${isLocked ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}
             style={
               isActive
                 ? {
                     borderColor: theme.accent,
                     backgroundColor: `${theme.accent}15`,
                   }
+                : isLocked
+                ? {
+                    backgroundColor: `${theme.textSecondary}10`,
+                    borderColor: `${theme.textSecondary}30`,
+                  }
                 : {
                     backgroundColor: `${theme.accent}05`,
                   }
             }
             onMouseEnter={(e) => {
-              if (!isActive) {
-                e.currentTarget.style.borderColor = `${theme.accent}80`
-                e.currentTarget.style.backgroundColor = `${theme.accent}10`
-                e.currentTarget.style.transform = 'translateY(-4px)'
-                e.currentTarget.style.boxShadow = `0 8px 20px ${theme.accentGlow}`
+              if (!isActive && !isLocked) {
+                e.currentTarget.style.borderColor = `${theme.accent}80`;
+                e.currentTarget.style.backgroundColor = `${theme.accent}10`;
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.boxShadow = `0 8px 20px ${theme.accentGlow}`;
               }
             }}
             onMouseLeave={(e) => {
-              if (!isActive) {
-                e.currentTarget.style.borderColor = ''
-                e.currentTarget.style.backgroundColor = `${theme.accent}05`
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = ''
+              if (!isActive && !isLocked) {
+                e.currentTarget.style.borderColor = '';
+                e.currentTarget.style.backgroundColor = `${theme.accent}05`;
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '';
               }
             }}
           >
@@ -122,21 +172,45 @@ const CategoryButton = () => {
               />
             )}
 
-            <div className="p-5">
-                <div className="flex items-center justify-between mb-3">
+            {/* Lock Overlay */}
+            {isLocked && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-[1px] rounded-2xl z-10">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: `${theme.accent}40` }}
+                >
+                  <Lock size={20} className={theme.text} />
+                </div>
+              </div>
+            )}
+
+            {/* Saved Indicator */}
+            {isCategorySaved && !isActive && (
+              <div className="absolute top-3 right-3 z-10">
+                <CheckCircle2 size={20} className="text-green-500" />
+              </div>
+            )}
+
+            <div className="p-5 relative z-0">
+              <div className="flex items-center justify-between mb-3">
                 <div
                   className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
                     isActive ? 'scale-110' : 'group-hover:scale-110'
-                  }`}
+                  } ${isLocked ? 'opacity-60' : ''}`}
                   style={
                     isActive
                       ? { background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)` }
+                      : isLocked
+                      ? { backgroundColor: `${theme.textSecondary}20` }
+                      
                       : { backgroundColor: `${theme.accent}20` }
                   }
                 >
                   <span
-                    className={`transition-colors ${isActive ? 'text-white' : ''}`}
-                    style={!isActive ? { color: theme.accent } : {}}
+                    className={`transition-colors ${isActive ? 'text-white' : ''} ${
+                      isLocked ? theme.textSecondary : ''
+                    }`}
+                    style={!isActive && !isLocked ? { color: theme.accent } : {}}
                   >
                     {cat.icon}
                   </span>
@@ -166,24 +240,40 @@ const CategoryButton = () => {
                 <h3
                   className={`text-base font-bold mb-1 transition-colors ${
                     isActive ? theme.text : theme.text
-                  }`}
+                  } ${isLocked ? theme.textSecondary : ''}`}
                   style={isActive ? { color: theme.accent } : {}}
                 >
                   {cat.label}
+                  {isLocked && <span className="ml-1 text-xs">(Locked)</span>}
                 </h3>
-                <p className={`text-xs ${theme.textSecondary} line-clamp-2`}>{cat.description}</p>
+                <p className={`text-xs ${isLocked ? theme.textSecondary : theme.textSecondary} line-clamp-2`}>
+                  {cat.description}
+                </p>
               </div>
 
+              {isCategorySaved && (
+                <div className="mt-2">
+                  <span
+                    className="text-xs px-2 py-1 rounded-full"
+                    style={{ backgroundColor: `${theme.accent}20`, color: theme.accent }}
+                  >
+                    Saved ✓
+                  </span>
+                </div>
+              )}
+
               <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                className={`absolute inset-0 opacity-0 transition-opacity pointer-events-none ${
+                  !isLocked ? 'group-hover:opacity-100' : ''
+                }`}
                 style={{
                   background: `radial-gradient(circle at center, ${theme.accentGlow}, transparent 70%)`,
                 }}
               />
             </div>
           </button>
-        )
+        );
       })}
     </div>
-  )
-}
+  );
+};
