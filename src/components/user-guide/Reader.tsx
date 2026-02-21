@@ -2,19 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useReaderStore } from "../store/readerStore";
-import {
-  ChevronLeft,
-  ChevronRight,
-  RefreshCcw,
-  VideoIcon,
-} from "lucide-react";
-import { toKhmerNumber } from "../utils/toKhmerNumber";
-import type { TBook, TTopics, TContents } from "../lib/api";
-import { getChapterContentsFromBook } from "../lib/api";
-import cover from "/book-cover.jpg";
+
 import LoadingModal from "./shared/LoadingModal";
 import ReaderContent from "./ReaderContent";
+import { getChapterContentsFromBook, type TBook, type TContents, type TTopics } from "../../lib/api";
+import { useReaderStore } from "../../store/readerStore";
+import { ChevronLeft, ChevronRight, RefreshCcw, VideoIcon } from "lucide-react";
+import { toKhmerNumber } from "../../utils/toKhmerNumber";
 
 type Props = {
   book: TBook;
@@ -118,8 +112,6 @@ export default function Reader({
   refetch,
   isRefetching,
 }: Props) {
-  console.log("Reader Component - Book:", book);
-  console.log("Reader Component - Chapter ID:", chapterId);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -605,7 +597,7 @@ export default function Reader({
                       onFocus={(e) => e.currentTarget.select()}
                       className="w-16 rounded-md border border-slate-300 px-2 py-1 text-sm text-slate-900"
                       aria-label="Go to page"
-                      title={`Enter a page number (1–${totalPages})`}
+                      title={`Enter a page number (1-${totalPages})`}
                     />
                     <button
                       type="submit"
@@ -622,11 +614,6 @@ export default function Reader({
       </header>
       {!displayChapter && !chapterId && (
         <main className="mx-auto no-scrollbar py-4 max-w-3xl overflow-y-auto">
-          <img
-            src={cover}
-            alt="Book Cover"
-            className="w-full h-auto rounded-lg"
-          />
           <div className="text-center mt-4 text-muted-foreground">
             Select a chapter from the table of contents to begin reading
           </div>
@@ -647,7 +634,7 @@ export default function Reader({
             !isRefetching ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center text-muted-foreground">
-                  <p>No content available for this chapter.</p>
+                  <p className="">No content available for this chapter.</p>
                   <p className="text-sm mt-2">Please select another chapter.</p>
                 </div>
               </div>

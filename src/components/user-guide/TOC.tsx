@@ -1,11 +1,12 @@
 import { useSearchParams } from "react-router-dom";
-import type { TBook, TTopics } from "../lib/api";
-import { toKhmerNumber } from "../utils/toKhmerNumber";
+
 import FontSizeController from "./FontSizeController";
 import ThemeSwitcher from "./ThemeSwitcher";
-import { useReaderStore } from "../store/readerStore";
 import { useState, useMemo, useEffect } from "react";
 import { Search, ChevronRight, ChevronDown } from "lucide-react";
+import type { TBook, TTopics } from "../../lib/api";
+import { toKhmerNumber } from "../../utils/toKhmerNumber";
+import { useReaderStore } from "../../store/readerStore";
 
 type Props = {
   book: TBook;

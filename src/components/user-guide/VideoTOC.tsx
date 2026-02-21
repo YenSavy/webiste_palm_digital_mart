@@ -2,10 +2,11 @@ import { useSearchParams } from "react-router-dom";
 import { useState, useMemo, useCallback, type JSX } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, ChevronRight, ChevronDown, Home, Video as VideoIcon } from "lucide-react";
-import { useReaderStore } from "../store/readerStore";
-import { toKhmerNumber } from "../utils/toKhmerNumber";
+
 import LoadingModal from "./shared/LoadingModal";
-import { videoUtils, type VideoTreeItem, videoQueries } from "../lib/video_queries";
+import { toKhmerNumber } from "../../utils/toKhmerNumber";
+import { useReaderStore } from "../../store/readerStore";
+import videoQueries, { videoUtils, type VideoTreeItem } from "../../lib/video_queries";
 
 type Props = {
   currentVideoId: string | null;

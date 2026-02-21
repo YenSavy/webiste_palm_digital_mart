@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { useReaderStore } from "../store/readerStore";
 import {
   ChevronLeft,
   ChevronRight,
@@ -13,10 +12,12 @@ import {
   Video as VideoIcon,
   AlertCircle,
 } from "lucide-react";
-import { toKhmerNumber } from "../utils/toKhmerNumber";
 import LoadingModal from "./shared/LoadingModal";
-import { videoApi, type VideoItem } from "../lib/api";
-import { videoUtils, videoQueries } from "../lib/video_queries";
+import { useReaderStore } from "../../store/readerStore";
+import videoQueries, { videoUtils } from "../../lib/video_queries";
+import { videoApi, type VideoItem } from "../../lib/api";
+import { toKhmerNumber } from "../../utils/toKhmerNumber";
+
 
 type Props = {
   videoId: string;

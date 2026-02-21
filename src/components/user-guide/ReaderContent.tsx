@@ -11,7 +11,6 @@ export default function ReaderContent({
   fontSize = 16,
   isRefetching = false,
 }: ReaderContentProps) {
-  console.log("ReaderContent - Content length:", content.length, "Font size:", fontSize);
   
   if (isRefetching) {
     return <LoadingModal isLoading={isRefetching} />;
@@ -53,7 +52,7 @@ export default function ReaderContent({
   return (
 
     // No Convet Html to text and Image and There is a starting line
-      <article className="mx-auto max-w-4xl prose prose-img:max-w-full prose-img:h-auto max-w-none"style={{
+      <article className="mx-auto max-w-4xl prose prose-img:max-w-full prose-img:h-auto"style={{
          fontSize: `${fontSize}px`,
          wordBreak: "break-word",
          textIndent: "2rem", // បន្ថែម indentation សម្រាប់ paragraph

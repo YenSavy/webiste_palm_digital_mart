@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useReaderStore } from "../store/readerStore";
+import { useReaderStore } from "../../store/readerStore";
 
 export const FontSizeController = () => {
   const MIN_SIZE = 12;

@@ -1,7 +1,8 @@
 "use client";
 import { useEffect } from "react";
-import { useThemeStore } from "../store/themeStore";
-import { applyTheme } from "../utils/themeUtils";
+import { useThemeStore } from "../../store/userGuideThemeStore";
+import { applyTheme } from "../../utils/themeUtils";
+
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const theme = useThemeStore((s) => s.theme);

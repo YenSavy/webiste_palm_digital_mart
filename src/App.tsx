@@ -24,6 +24,7 @@ import ErrorPage from "./pages/ErrorPage";
 import VideoPage from "./pages/Dashboard/VideoPage";
 import MainBackground from "./components/shared/MainBackground";
 import MainHeader, { type THeaderProps } from "./components/shared/MainHeader";
+import { ThemeProvider } from "./components/user-guide/ThemeProvider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -79,51 +80,54 @@ function App() {
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <Routes>
-            <Route element={<MainPageLayout />}>
-              <Route path="/" element={<HomePage />} />
-            </Route>
-            <Route element={
-              <MainBackground>
-                <MainHeader company={Company.company} />
-                <main className="px-5 md:px-16 lg:px-32 translate-y-[6rem]">
-                  <Outlet />
-                </main>
-              </MainBackground>
-            }>
-              <Route path="/videos" element={<VideoPage />} />
-            </Route>
-
-            <Route element={<AuthLayout />}>
-              <Route path="/login" element={<AuthPage />} />
-              <Route path="/signup" element={<SignupForm />} />
-              <Route path="/phone-verification" element={<PhoneVerifyForm />} />
-              <Route path="/forgot-password" element={<ForgotPasswordForm />} />
-              <Route path="/verify-otp" element={<VerifyOTPForm />} />
-               <Route path="/reset-password" element={< ResetpasswordFrom/>} />
-            </Route>
-            
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <DashboardLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<DashboardPage />} />
-              <Route path="user" element={<UserPage />} />
-              <Route path="subscription" element={<h1 className="text-black">Subscription step</h1>} />
+        <ThemeProvider>
+          <BrowserRouter>
+            <Routes>
               <Route path="user-guide" element={<UserGuidePage />} />
-            </Route>
-            
-            <Route path="*" element={<ErrorPage />} />
-          </Routes>
+              <Route element={<MainPageLayout />}>
+                <Route path="/" element={<HomePage />} />
+              </Route>
+              <Route element={
+                <MainBackground>
+                  <MainHeader company={Company.company} />
+                  <main className="px-5 md:px-16 lg:px-32 translate-y-[6rem]">
+                    <Outlet />
+                  </main>
+                </MainBackground>
+              }>
+                <Route path="/videos" element={<VideoPage />} />
+              </Route>
 
-          <ReactQueryDevtools initialIsOpen={false} />
-        </BrowserRouter>
+              <Route element={<AuthLayout />}>
+                <Route path="/login" element={<AuthPage />} />
+                <Route path="/signup" element={<SignupForm />} />
+                <Route path="/phone-verification" element={<PhoneVerifyForm />} />
+                <Route path="/forgot-password" element={<ForgotPasswordForm />} />
+                <Route path="/verify-otp" element={<VerifyOTPForm />} />
+                <Route path="/reset-password" element={< ResetpasswordFrom />} />
+              </Route>
+
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <DashboardLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<DashboardPage />} />
+                <Route path="user" element={<UserPage />} />
+                <Route path="subscription" element={<h1 className="text-black">Subscription step</h1>} />
+              </Route>
+
+              <Route path="*" element={<ErrorPage />} />
+            </Routes>
+
+            <ReactQueryDevtools initialIsOpen={false} />
+          </BrowserRouter>
+        </ThemeProvider>
       </QueryClientProvider>
+
     </GoogleOAuthProvider>
   );
 }
