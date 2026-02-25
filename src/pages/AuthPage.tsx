@@ -177,7 +177,7 @@ const LoginForm: React.FC = () => {
   return (
     <form className="flex flex-col gap-3" onSubmit={onLogin}>
       <div className="flex flex-col gap-1">
-        <label className="flex gap-1 items-center">
+        <label className="flex gap-1 items-center text-white">
           <User size={20} />
           {t("username")}
         </label>
@@ -198,7 +198,7 @@ const LoginForm: React.FC = () => {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="flex gap-1 items-center">
+        <label className="flex gap-1 items-center  text-white">
           <Lock size={20} />
           {t("password")}
         </label>
@@ -219,7 +219,7 @@ const LoginForm: React.FC = () => {
       </div>
 
       <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2 text-sm cursor-pointer">
+        <label className="flex items-center gap-2 text-sm cursor-pointer  text-white">
           <input
             type="checkbox"
             className="w-4 h-4 cursor-pointer"
