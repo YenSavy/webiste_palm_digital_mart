@@ -92,22 +92,22 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
   }, []);
 
   const handleSignUpClick = () => {
-    // កំណត់ setIsSignInPage false (សម្រាប់ករណីប្រើ AuthPage)
+
     setIsSignInPage(false);
-    // ទៅកាន់ទំព័រ SignupForm ដាច់
+
     navigate("/signup");
   };
 
   const handleSignInClick = () => {
-    // កំណត់ setIsSignInPage true
+
     setIsSignInPage(true);
-    // ទៅកាន់ AuthPage
+  
     navigate("/login");
   };
 
   return (
     <header
-      className={`px-5 md:px-16 lg:px-32 py-4 flex items-center justify-between fixed z-50 bg-gradient-primary left-0 right-0 shadow-md shadow-lime-200/30 transition-transform duration-300 ${
+      className={`px-5 md:px-16 lg:px-32 py-4 flex items-center justify-between fixed z-50 bg-gradient-primary left-0 right-0 shadow-md shadow-lime-200/30 transition-transform duration-300 text-white ${
         isHeaderHidden ? "-translate-y-full" : "translate-y-0"
       }`}
     >
@@ -182,7 +182,7 @@ const MainHeader: React.FC<THeaderProps> = ({ company, navContent }) => {
               {t("common:sign_up")}
             </button>
             <button
-              className="uppercase text-sm transition-colors"
+              className="uppercase text-sm transition-colors text-white"
               onClick={handleSignInClick}
             >
               {t("common:login")}

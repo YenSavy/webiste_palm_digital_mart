@@ -71,7 +71,7 @@ const Hero: React.FC = () => {
                 </span>
                 <ul className='ml-6 md:ml-10 space-y-4'>
                     {features?.data.map((f) => (
-                        <li key={f.id} className='flex items-start gap-3 text-sm md:text-base'>
+                        <li key={f.id} className='flex items-start gap-3 text-sm md:text-base text-white'>
                             <CirclePlay
                                 className='text-secondary flex-shrink-0 w-5 h-5 md:w-6 md:h-6'
                             />
