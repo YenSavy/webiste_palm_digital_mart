@@ -22,6 +22,7 @@ const MobileMenu: React.FC<{ navContent: NavItem[]; onClose: () => void }> = ({
   const scrollTo = useScrollTo()
   const navigate = useNavigate()
   const { setIsSignInPage } = useAuthStore()
+  
   return (
     <div className="absolute top-full text-white left-0 w-full shadow-md flex flex-col items-center py-4 gap-4 md:hidden z-40 bg-gradient-secondary">
       <nav className="w-full px-5" aria-label="Mobile navigation">
@@ -72,19 +73,42 @@ const MobileMenu: React.FC<{ navContent: NavItem[]; onClose: () => void }> = ({
       </nav>
 
       <div className="border-t w-3/4 my-2"></div>
-        {}
+        
       <div className="flex flex-col gap-3 items-center">
-        {isAuthenticated && <Link to={"/dashboard"} className="uppercase text-xs flex items-center justify-center gap-1 px-3 py-2 bg-secondary rounded-full"><LayoutDashboard size={18}/>{t("header:dashboard")}</Link>}
-        {!isAuthenticated && <> <button className="bg-[#8f7c15] text-white text-xs uppercase px-4 py-2 rounded-2xl font-bold shadow-md hover:bg-[#a98f25] transition-colors" onClick={() => { navigate('/auth'); setIsSignInPage(false) }}>
-          {t("common:sign_up")}
-        </button>
-          <button className="uppercase text-xs font-medium hover:text-[#8f7c15] transition-colors" onClick={() => { navigate('/auth'); setIsSignInPage(true) }}>
-            {t("common:login")}
-          </button> </>}
+        {isAuthenticated && (
+          <Link to={"/dashboard"} className="uppercase text-xs flex items-center justify-center gap-1 px-3 py-2 bg-secondary rounded-full">
+            <LayoutDashboard size={18}/>
+            {t("header:dashboard")}
+          </Link>
+        )}
+        {!isAuthenticated && (
+          <> 
+            <button 
+              className="bg-[#8f7c15] text-white text-xs uppercase px-4 py-2 rounded-2xl font-bold shadow-md hover:bg-[#a98f25] transition-colors" 
+              onClick={() => { 
+                navigate('/signup'); // Direct navigation to signup
+                setIsSignInPage(false); 
+                onClose();
+              }}
+            >
+              {t("common:sign_up")}
+            </button>
+            <button 
+              className="uppercase text-xs font-medium hover:text-[#8f7c15] transition-colors" 
+              onClick={() => { 
+                navigate('/login'); // Direct navigation to login
+                setIsSignInPage(true); 
+                onClose();
+              }}
+            >
+              {t("common:login")}
+            </button> 
+          </>
+        )}
         <LanguageSwitcher />
       </div>
     </div>
   );
 };
 
-export default MobileMenu
+export default MobileMenu;

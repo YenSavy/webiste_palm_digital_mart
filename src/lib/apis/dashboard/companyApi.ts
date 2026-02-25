@@ -106,6 +106,7 @@ export const createWarehouse = async (payload: TCreateWarehouseInput) => {
 };
 
 
+
 export type TCreatePositionInput = {
   company_id: string;
   position_km: string;
@@ -150,7 +151,7 @@ export type TCreateCurrencyResponse = {
 }
 
 export const createCurrency = async (payload: TCreateCurrencyInput) => {
-  const res = await axiosInstance.post<ApiResponse<TCreateCurrencyResponse>>("/currency", payload)
+  const res = await axiosInstance.post<ApiResponse<TCreateCurrencyResponse>>("/createCurrency", payload)
   return res.data
 }
 

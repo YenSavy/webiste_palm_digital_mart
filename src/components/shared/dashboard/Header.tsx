@@ -5,10 +5,11 @@ import { useAuthStore } from '../../../store/authStore'
 import useMainStore from '../../../store/mainStore'
 import useDashboardStore from '../../../store/dashboardStore'
 import LanguageSwitcher from '../MainHeader/LanguageSwitcher'
+import { useNavigate } from 'react-router-dom'
 
 interface HeaderProps {
   toggleSidebar: () => void
-  onLogout: () => void
+  onLogout?: () => void
 }
 
 const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
@@ -20,6 +21,39 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
   const user = useAuthStore(state => state.user)
   const setSearch = useMainStore(state => state.setSearch)
   const toggleMinimize = useDashboardStore().toggleMinimize
+  const logout = useAuthStore(state => state.logout)
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    try {
+      // Close profile dropdown immediately for better UX
+      setIsProfileOpen(false)
+      
+      // Clear auth state
+      logout()
+      
+      // Call custom onLogout if provided
+      if (onLogout) {
+        onLogout()
+      }
+      
+      // Clear any auth tokens from storage
+      localStorage.removeItem('auth_token')
+      localStorage.removeItem('user')
+      localStorage.removeItem('token')
+      sessionStorage.clear()
+      
+      // Navigate to home page immediately
+      // Use replace to prevent going back to dashboard
+      navigate('/', { replace: true })
+      
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Force hard reload to home page if navigation fails
+      window.location.href = '/'
+    }
+  }
+
   return (
     <header
       className={`h-16 w-full lg:h-20 bg-gradient-to-br ${theme?.primary} backdrop-blur-sm border-b ${theme?.border} sticky top-0 z-20`}
@@ -195,25 +229,9 @@ const Header = ({ toggleSidebar, onLogout }: HeaderProps) => {
                   <p className={`text-sm font-medium ${theme?.text}`}>{user?.full_name || user?.name}</p>
                   <p className={`text-xs ${theme?.textSecondary}`}>{user?.email}</p>
                 </div>
-                {/* <div className='py-2'>
-                  <button 
-                    className={`w-full flex items-center gap-3 px-4 py-2 ${theme?.textSecondary} ${theme?.primaryHover} transition-colors`}
-                    onMouseEnter={(e) => e.currentTarget.style.color = theme?.text}
-                  >
-                    <User size={18} />
-                    <span className='text-sm'>Profile</span>
-                  </button>
-                  <button 
-                    className={`w-full flex items-center gap-3 px-4 py-2 ${theme?.textSecondary} ${theme?.primaryHover} transition-colors`}
-                    onMouseEnter={(e) => e.currentTarget.style.color = theme?.text}
-                  >
-                    <Settings size={18} />
-                    <span className='text-sm'>Settings</span>
-                  </button>
-                </div> */}
                 <div className={`border-t ${theme?.border} py-2`}>
                   <button
-                    onClick={onLogout}
+                    onClick={handleLogout}
                     className='w-full flex items-center gap-3 px-4 py-2 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors'
                   >
                     <LogOut size={18} />

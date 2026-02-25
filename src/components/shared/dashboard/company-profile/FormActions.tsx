@@ -5,8 +5,8 @@ interface FormActionsProps {
   onClear: () => void
   onSave: () => void
   isSaving: boolean
-  isFormValid: boolean 
-  currentCategory: 'company' | 'branch' | 'warehouse' | 'position' | 'currency'  // បន្ថែម prop ថ្មី
+  isFormValid: boolean
+  currentCategory: 'company' | 'branch' | 'warehouse' | 'position' | 'currency'
   theme: {
     border: string
     textSecondary: string
@@ -15,23 +15,24 @@ interface FormActionsProps {
   }
 }
 
-export const FormActions: React.FC<FormActionsProps> = ({ 
-  onClear, 
-  onSave, 
-  theme, 
+export const FormActions: React.FC<FormActionsProps> = ({
+  onClear,
+  onSave,
+  theme,
   isSaving,
   isFormValid,
-  currentCategory 
+  currentCategory
 }) => {
   const getSaveButtonText = () => {
     if (isSaving) {
-      return `Saving ${currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)}...`
+      return `Completing ${currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)}...`
     }
-    return `Save ${currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)}`
+    return `Complete ${currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)}`
   }
 
   return (
     <div className="flex flex-col sm:flex-row gap-4 justify-end">
+      {/* ប៊ូតុង Clear Form នៅដដែលសម្រាប់គ្រប់ទម្រង់ */}
       <button
         type="button"
         onClick={onClear}
@@ -49,6 +50,8 @@ export const FormActions: React.FC<FormActionsProps> = ({
         <Trash2 size={20} />
         Clear Form
       </button>
+
+      {/* ប៊ូតុង Save ប្ដូរឈ្មោះជា Complete */}
       <button
         type="button"
         onClick={isFormValid ? onSave : undefined}
@@ -57,8 +60,8 @@ export const FormActions: React.FC<FormActionsProps> = ({
           !isFormValid ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
         }`}
         style={{
-          background: !isFormValid 
-            ? `linear-gradient(135deg, ${theme.accent}80, ${theme.accent}80)` 
+          background: !isFormValid
+            ? `linear-gradient(135deg, ${theme.accent}80, ${theme.accent}80)`
             : `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
         }}
         onMouseEnter={(e) => {
