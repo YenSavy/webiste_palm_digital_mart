@@ -138,7 +138,7 @@ export const resendVerificationCode = async (data: {
   prefix: string; 
   phone: string; 
 }): Promise<ApiResponse<{ success: boolean; message?: string }>> => {
-  try {
+
     const fullPhoneNumber = (data.prefix + data.phone).replace(/\D/g, '');
     const phoneWithoutCountryCode = fullPhoneNumber.replace(/^855/, '');
 
@@ -156,9 +156,6 @@ export const resendVerificationCode = async (data: {
       }
     );
     return response.data;
-  } catch (error) {
-    throw error;
-  }
 };
 
 export const forgotPasswordSendOTP = async (

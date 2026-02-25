@@ -166,7 +166,7 @@ const CreateCompany: React.FC = () => {
           setMessage(`បានបង្កើតក្រុមហ៊ុន "${data.data.company_name_en}" ដោយជោគជ័យ`)
           addSavedCategory('company')
         },
-        onError: (data: any) => {
+        onError: (data) => {
           setIsError(true)
           setMessage(data.message || 'មានបញ្ហាក្នុងការបង្កើតក្រុមហ៊ុន')
         }

@@ -8,6 +8,13 @@ export default {
         secondary: "var(--secondary-color)",
         background: "var(--background-color)",
         appText: "var(--text-color)", // name it how you like
+
+        bg: "rgb(var(--bg) / <alpha-value>)",
+        card: "rgb(var(--card) / <alpha-value>)",
+        text: "rgb(var(--text) / <alpha-value>)",
+        muted: "rgb(var(--muted) / <alpha-value>)",
+        border: "rgb(var(--border) / <alpha-value>)",
+        accent: "rgb(var(--accent) / <alpha-value>)",
       },
     },
   },
