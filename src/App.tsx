@@ -25,6 +25,7 @@ import VideoPage from "./pages/Dashboard/VideoPage";
 import MainBackground from "./components/shared/MainBackground";
 import MainHeader, { type THeaderProps } from "./components/shared/MainHeader";
 import { ThemeProvider } from "./components/user-guide/ThemeProvider";
+// import Video from "./components/user-guide/Video";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -118,6 +119,8 @@ function App() {
                 <Route index element={<DashboardPage />} />
                 <Route path="user" element={<UserPage />} />
                 <Route path="subscription" element={<h1 className="text-black">Subscription step</h1>} />
+                <Route path="user-guide" element={<UserGuidePage />} />
+    
               </Route>
 
               <Route path="*" element={<ErrorPage />} />
