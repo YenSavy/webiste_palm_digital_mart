@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const LANGUAGES = [
-  { code: "km", flag: "./flags/cam-flag.webp", alt: "Khmer" },
-  { code: "en", flag: "./flags/uk-flag.jpg", alt: "English" },
-  { code: "ch", flag: "./flags/china-flag.png", alt: "China" }
+  { code: "km", flag: "/flags/cam-flag.webp", alt: "Khmer" },
+  { code: "en", flag: "/flags/uk-flag.jpg", alt: "English" },
+  { code: "ch", flag: "/flags/china-flag.png", alt: "China" }
 ] as const;
 
 const LanguageSwitcher: React.FC = () => {

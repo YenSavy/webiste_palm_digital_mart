@@ -42,6 +42,7 @@ const StepsToUseSystem: React.FC = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const activeCategory = useDashboardStore((state) => state.activeCategory)
   const setActiveCategory = useDashboardStore((state) => state.setActiveCategory)
+  const setSubscriptionCompleted = useDashboardStore((state) => state.setSubscriptionCompleted)
 
   const [steps, setSteps] = useState<Step[]>([
     {
@@ -146,6 +147,9 @@ const StepsToUseSystem: React.FC = () => {
     const newSteps = [...steps]
     newSteps[index].completed = true
     setSteps(newSteps)
+    if (newSteps[index].id === 'subscription') {
+      setSubscriptionCompleted(true)
+    }
 
     if (index < steps.length - 1) {
       setCurrentStep(index + 1)

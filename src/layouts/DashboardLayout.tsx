@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useThemeStore } from '../store/themeStore'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
-import Sidebar from '../components/shared/dashboard/Sidebar'
+import StepsToUseSidebar from '../components/shared/dashboard/StepsToUseSidebar'
 import Header from '../components/shared/dashboard/Header'
 import useDashboardStore from '../store/dashboardStore'
 import type { navItems } from '../constants/dashboard'
@@ -29,7 +29,7 @@ const DashboardLayout: React.FC = () => {
   
   return (
     <div className={`min-h-screen bg-gradient-to-br ${theme.gradient}`}>
-      <Sidebar 
+      <StepsToUseSidebar 
         isSidebarOpen={isSidebarOpen} 
         activeNav={activeNav} 
         onNavClick={handleNavClick} 

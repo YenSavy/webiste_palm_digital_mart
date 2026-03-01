@@ -11,7 +11,7 @@ export const navItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { id: 'subscription', label: 'Subscription', icon: BadgeDollarSign , path: '/dashboard/subscription' },
   { id: 'users', label: 'Users', icon: Users, path: '/dashboard/user' },
-  { id: 'reports', label: 'Reports', icon: FileText },
+  { id: 'reports', label: 'Reports', icon: FileText, path: '/dashboard/reports' },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'calendar', label: 'Calendar', icon: Calendar },
   { id: 'messages', label: 'Messages', icon: MessageSquare },

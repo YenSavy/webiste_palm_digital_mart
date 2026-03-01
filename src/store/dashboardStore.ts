@@ -5,10 +5,12 @@ interface DashboardStore {
   activeCategory: string;
   savedCategories: string[];
   isMinimized: boolean; 
+  subscriptionCompleted: boolean;
   setActiveCategory: (category: string) => void;
   addSavedCategory: (category: string) => void;
   removeSavedCategory: (category: string) => void;
   toggleMinimize: () => void; 
+  setSubscriptionCompleted: (completed: boolean) => void;
 }
 
 const useDashboardStore = create<DashboardStore>()(
@@ -17,6 +19,7 @@ const useDashboardStore = create<DashboardStore>()(
       activeCategory: 'company',
       savedCategories: [],
       isMinimized: false, 
+      subscriptionCompleted: false,
       setActiveCategory: (category) => set({ activeCategory: category }),
       addSavedCategory: (category) =>
         set((state) => ({
@@ -31,6 +34,7 @@ const useDashboardStore = create<DashboardStore>()(
       toggleMinimize: () => set((state) => ({ 
         isMinimized: !state.isMinimized 
       })), 
+      setSubscriptionCompleted: (completed) => set({ subscriptionCompleted: completed }),
     }),
     {
       name: 'dashboard-storage',
