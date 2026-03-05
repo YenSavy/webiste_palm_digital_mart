@@ -24,10 +24,10 @@ import ErrorPage from "./pages/ErrorPage";
 import VideoPage from "./pages/Dashboard/VideoPage";
 import Subcription from "./pages/Dashboard/Subcription";
 import Reports from "./pages/Dashboard/Reports";
+import Settingpage from "./pages/Dashboard/Settingpage";
 import MainBackground from "./components/shared/MainBackground";
 import MainHeader, { type THeaderProps } from "./components/shared/MainHeader";
 import { ThemeProvider } from "./components/user-guide/ThemeProvider";
-// import Video from "./components/user-guide/Video";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -68,7 +68,7 @@ function App() {
       once: true,
       mirror: false,
       offset: 100,
-      easing: 'ease-in-out',
+      easing: "ease-in-out",
     });
   }, []);
 
@@ -87,18 +87,23 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="user-guide" element={<UserGuidePage />} />
+              <Route path="/video" element={<VideoPage />} />
+
               <Route element={<MainPageLayout />}>
                 <Route path="/" element={<HomePage />} />
               </Route>
-              <Route element={
-                <MainBackground>
-                  <MainHeader company={Company.company} />
-                  <main className="px-5 md:px-16 lg:px-32 translate-y-[6rem]">
-                    <Outlet />
-                  </main>
-                </MainBackground>
-              }>
-                <Route path="/videos" element={<VideoPage />} />
+
+              <Route
+                element={
+                  <MainBackground>
+                    <MainHeader company={Company.company} />
+                    <main className="px-5 md:px-16 lg:px-32 translate-y-[6rem]">
+                      <Outlet />
+                    </main>
+                  </MainBackground>
+                }
+              >
+                <Route path="/Videos" element={<VideoPage />} />
               </Route>
 
               <Route element={<AuthLayout />}>
@@ -107,7 +112,7 @@ function App() {
                 <Route path="/phone-verification" element={<PhoneVerifyForm />} />
                 <Route path="/forgot-password" element={<ForgotPasswordForm />} />
                 <Route path="/verify-otp" element={<VerifyOTPForm />} />
-                <Route path="/reset-password" element={< ResetpasswordFrom />} />
+                <Route path="/reset-password" element={<ResetpasswordFrom />} />
               </Route>
 
               <Route
@@ -123,7 +128,7 @@ function App() {
                 <Route path="subscription" element={<Subcription />} />
                 <Route path="reports" element={<Reports />} />
                 <Route path="user-guide" element={<UserGuidePage />} />
-    
+                <Route path="settings" element={<Settingpage />} />
               </Route>
 
               <Route path="*" element={<ErrorPage />} />
@@ -133,18 +138,8 @@ function App() {
           </BrowserRouter>
         </ThemeProvider>
       </QueryClientProvider>
-
     </GoogleOAuthProvider>
   );
 }
 
 export default App;
-
-
-// import Subscription from './pages/Dashboard/Subcription';
-
-// function App() {
-//   return <Subscription />;
-// }
-
-// export default App;

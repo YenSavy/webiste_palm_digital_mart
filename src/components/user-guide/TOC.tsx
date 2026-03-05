@@ -1,5 +1,4 @@
 import { useSearchParams } from "react-router-dom";
-
 import FontSizeController from "./FontSizeController";
 import ThemeSwitcher from "./ThemeSwitcher";
 import { useState, useMemo, useEffect } from "react";
@@ -18,9 +17,9 @@ type Props = {
 type Language = "kh" | "eng" | "ch";
 
 const languageOptions: { value: Language; label: string; flag: string }[] = [
-  { value: "kh", label: "ខ្មែរ", flag: "/flags/kh.png" },
-  { value: "eng", label: "English", flag: "/flags/gb.png" },
-  { value: "ch", label: "中文", flag: "/flags/cn.png" },
+  { value: "kh", label: "ខ្មែរ", flag: "/flags/cam-flag.webp" },
+  { value: "eng", label: "English", flag: "/flags/uk-flag.png" },
+  { value: "ch", label: "中文", flag: "/flags/china-flag.jpg" },
 ];
 
 const translations = {

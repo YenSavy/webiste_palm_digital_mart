@@ -97,7 +97,7 @@ export default function VideoTOC({
   const onBackHome = () => {
     setParams(new URLSearchParams(), { replace: true });
     setCurrent("", "");
-    window.location.href = "/";
+    window.location.href = "/dashboard/user-guide";
   };
 
   const filteredTree = useMemo(() => {

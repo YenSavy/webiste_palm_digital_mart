@@ -1,5 +1,17 @@
 import React, { useMemo, useState } from "react";
-import { Check, CheckCircle2, CreditCard, Landmark, Loader2, QrCode, Sparkles } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  CheckCircle2,
+  CreditCard,
+  Landmark,
+  Loader2,
+  QrCode,
+  Sparkles,
+  Star,
+  X,
+  Zap,
+} from "lucide-react";
 import { getLangSwitch } from "../../hooks/useLangSwitch";
 import { getCurrentLang } from "../../hooks/useCurrentLang";
 import { useSubscribePlanMutation, useUnsubscribePlanMutation } from "../../lib/mutations";
@@ -24,7 +36,6 @@ const Subcription: React.FC = () => {
   const [invoiceType, setInvoiceType] = useState<string>("Tax Invoice");
   const [vatTin, setVatTin] = useState<string>("");
   const [promotionCode, setPromotionCode] = useState<string>("");
-  const [trialChecked, setTrialChecked] = useState<boolean>(false);
   const [paymentMethod, setPaymentMethod] = useState<"bank_transfer" | "credit_card" | "kh_qr">("bank_transfer");
   const [cardHolderName] = useState<string>("");
   const [cardNumber, setCardNumber] = useState<string>("");
@@ -36,6 +47,13 @@ const Subcription: React.FC = () => {
   const [khQrTxnId, setKhQrTxnId] = useState<string>("");
   const [khQrConfirmed, setKhQrConfirmed] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
+
+  // Trial dialog states
+  const [trialDialogOpen, setTrialDialogOpen] = useState(false);
+  const [trialStep, setTrialStep] = useState<"progress" | "success">("progress");
+  const [progress, setProgress] = useState(0);
+  const businessName = displayName || "yuhong";
+
   const lang = getCurrentLang();
 
   const selectedPlan = useMemo(
@@ -65,14 +83,12 @@ const Subcription: React.FC = () => {
       }
       return "";
     }
-
     if (paymentMethod === "bank_transfer") {
       if (!bankName.trim() || !bankAccountName.trim() || !transferReference.trim()) {
         return "Please complete bank transfer information.";
       }
       return "";
     }
-
     if (!khQrTxnId.trim() || !khQrConfirmed) {
       return "Please enter KH QR transaction ID and confirm payment.";
     }
@@ -89,12 +105,8 @@ const Subcription: React.FC = () => {
       setMessage(validationMessage);
       return;
     }
-
     subscribePlan(
-      {
-        company_id: companyId.trim(),
-        pricing_plan_id: selectedPlanId,
-      },
+      { company_id: companyId.trim(), pricing_plan_id: selectedPlanId },
       {
         onSuccess: (res) => {
           setSubscriptionCompleted(true);
@@ -113,12 +125,8 @@ const Subcription: React.FC = () => {
       setMessage("Please select a plan and provide company ID.");
       return;
     }
-
     unsubscribePlan(
-      {
-        company_id: companyId.trim(),
-        pricing_plan_id: selectedPlanId,
-      },
+      { company_id: companyId.trim(), pricing_plan_id: selectedPlanId },
       {
         onSuccess: (res) => {
           setSubscriptionCompleted(false);
@@ -128,6 +136,74 @@ const Subcription: React.FC = () => {
           setMessage(error.message || "Unsubscribe failed.");
         },
       }
+    );
+  };
+
+  const handleTryFreeClick = () => {
+    setTrialDialogOpen(true);
+    setTrialStep("progress");
+    setProgress(0);
+
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setTrialStep("success");
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 300);
+
+    return () => clearInterval(interval);
+  };
+
+  const closeTrialDialog = () => {
+    setTrialDialogOpen(false);
+    setTrialStep("progress");
+    setProgress(0);
+  };
+
+  const handleAccessNow = () => {
+    console.log("Access business now");
+    closeTrialDialog();
+  };
+
+  const handleNotNow = () => {
+    closeTrialDialog();
+  };
+
+  // Derive subscribe button icon & label
+  const subscribeButtonContent = () => {
+    if (isSubscribing) {
+      return (
+        <span className="inline-flex items-center gap-2">
+          <Loader2 size={14} className="animate-spin" />
+          Subscribing...
+        </span>
+      );
+    }
+    if (paymentMethod === "credit_card") {
+      return (
+        <span className="inline-flex items-center gap-2">
+          <CreditCard size={14} />
+          Pay by Card &amp; Subscribe
+        </span>
+      );
+    }
+    if (paymentMethod === "bank_transfer") {
+      return (
+        <span className="inline-flex items-center gap-2">
+          <Landmark size={14} />
+          Submit Transfer &amp; Subscribe
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-2">
+        <QrCode size={14} />
+        I've Paid via KH QR
+      </span>
     );
   };
 
@@ -313,16 +389,6 @@ const Subcription: React.FC = () => {
                 {paymentMethod === "credit_card" && (
                   <div className={`rounded-xl border p-3 space-y-3 ${theme.border}`} style={{ backgroundColor: `${theme.accent}06` }}>
                     <p className={cn("text-sm font-semibold", theme.text)}>Credit Card Form</p>
-                    {/* <div>
-                      <label className={cn("text-sm", theme.textSecondary)}>Card Holder Name</label>
-                      <input
-                        value={cardHolderName}
-                        onChange={(e) => setCardHolderName(e.target.value)}
-                        placeholder="Enter your name"
-                        className={cn(`w-full mt-1 px-3 py-2 rounded-lg border ${theme.border} ${theme.text}`)}
-                        style={{ backgroundColor: `${theme.accent}08` }}
-                      />
-                    </div> */}
                     <div>
                       <label className={cn("text-sm", theme.textSecondary)}>Card Number</label>
                       <input
@@ -419,6 +485,7 @@ const Subcription: React.FC = () => {
                     </label>
                   </div>
                 )}
+
                 <div>
                   <label className={cn("text-sm", theme.textSecondary)}>Display Name on Invoice</label>
                   <input
@@ -488,7 +555,9 @@ const Subcription: React.FC = () => {
                   / {billingMode === "yearly" ? "year" : "month"}
                 </span>
               </p>
-              <p className={cn("text-xs mt-1", theme.textSecondary)}>{getLangSwitch(selectedPlan?.best_for_en || "", selectedPlan?.best_for_kh || "", selectedPlan?.best_for_ch || "")}</p>
+              <p className={cn("text-xs mt-1", theme.textSecondary)}>
+                {getLangSwitch(selectedPlan?.best_for_en || "", selectedPlan?.best_for_kh || "", selectedPlan?.best_for_ch || "")}
+              </p>
               <p className={cn("text-sm mt-2", theme.textSecondary)}>
                 Payment method:{" "}
                 <span className={cn("font-semibold", theme.text)}>
@@ -516,50 +585,52 @@ const Subcription: React.FC = () => {
                 </div>
               </div>
 
-              <label className={cn("mt-4 inline-flex items-center gap-2 text-sm", theme.textSecondary)}>
-                <input type="checkbox" checked={trialChecked} onChange={(e) => setTrialChecked(e.target.checked)} />
+             
+              <button
+                onClick={handleTryFreeClick}
+                className="mt-4 w-full px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90 inline-flex items-center justify-center gap-2"
+                style={{ backgroundColor: theme.accent }}
+              >
+                <Star size={14} />
                 Try free for 30 days
-              </label>
+              </button>
 
               <div className="mt-5 flex flex-wrap gap-2">
+                
                 <button
                   onClick={() => setStep(1)}
-                  className={cn(`px-4 py-2 rounded-lg text-sm font-semibold border ${theme.border}`, theme.text)}
+                  className={cn(`px-4 py-2 rounded-lg text-sm font-semibold border ${theme.border} inline-flex items-center gap-2`, theme.text)}
                   style={{ backgroundColor: `${theme.accent}0f` }}
                 >
+                  <ArrowLeft size={14} />
                   Back To Choose Plan
                 </button>
+
+               
                 <button
                   onClick={handleSubscribe}
                   disabled={isActionLoading}
-                  className="px-4 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-60"
+                  className="px-4 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-60 inline-flex items-center gap-2"
                   style={{ backgroundColor: theme.accent }}
                 >
-                  {isSubscribing ? (
-                    <span className="inline-flex items-center gap-2">
-                      <Loader2 size={14} className="animate-spin" />
-                      Subscribing...
-                    </span>
-                  ) : (
-                    paymentMethod === "credit_card"
-                      ? "Pay by Card & Subscribe"
-                      : paymentMethod === "bank_transfer"
-                      ? "Submit Transfer & Subscribe"
-                      : "I've Paid via KH QR"
-                  )}
+                  {subscribeButtonContent()}
                 </button>
+
                 <button
                   onClick={handleUnsubscribe}
                   disabled={isActionLoading}
-                  className={cn(`px-4 py-2 rounded-lg text-sm font-semibold border ${theme.border} ${theme.text} disabled:opacity-60`)}
+                  className={cn(`px-4 py-2 rounded-lg text-sm font-semibold border ${theme.border} ${theme.text} disabled:opacity-60 inline-flex items-center gap-2`)}
                 >
                   {isUnsubscribing ? (
-                    <span className="inline-flex items-center gap-2">
+                    <>
                       <Loader2 size={14} className="animate-spin" />
                       Unsubscribing...
-                    </span>
+                    </>
                   ) : (
-                    "Unsubscribe"
+                    <>
+                      <X size={14} />
+                      Unsubscribe
+                    </>
                   )}
                 </button>
               </div>
@@ -573,6 +644,70 @@ const Subcription: React.FC = () => {
             </div>
           </div>
         </section>
+      )}
+
+     
+      {trialDialogOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="relative w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-2xl">
+            <button
+              onClick={closeTrialDialog}
+              className="absolute right-4 top-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              <X size={20} />
+            </button>
+
+            {trialStep === "progress" ? (
+              <div className="text-center">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                  Please wait while creating business
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                  Preparing your business data ...
+                </p>
+                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-blue-600 transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+                <p className="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {progress}%
+                </p>
+              </div>
+            ) : (
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
+                  <CheckCircle2 size={32} className="text-green-600" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                  Your business is ready
+                </h2>
+                <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-6">
+                  "{businessName}"
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                  You can access to this business now
+                </p>
+                <div className="flex gap-3 justify-center">
+                  <button
+                    onClick={handleAccessNow}
+                    className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 inline-flex items-center gap-2"
+                  >
+                    <Zap size={14} />
+                    Access Now
+                  </button>
+                  <button
+                    onClick={handleNotNow}
+                    className="px-5 py-2.5 rounded-lg text-sm font-semibold border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
+                    Not now
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
