@@ -38,7 +38,7 @@ const AuthPage: React.FC = () => {
       <main
         className={` grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-0 w-full h-screen`}
       >
-        {/* Left side with background image */}
+      
         <div
           className={`  hidden md:flex flex-col items-center justify-center p-8  relative bg-cover bg-center `}
           style={{ backgroundImage: "url('./bg-signin.png')" }}

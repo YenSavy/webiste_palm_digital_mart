@@ -15,6 +15,6 @@ export const navItems: NavItem[] = [
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'calendar', label: 'Calendar', icon: Calendar },
   { id: 'messages', label: 'Messages', icon: MessageSquare },
-  { id: 'settings', label: 'Settings', icon: Settings },
+  { id: 'settings', label: 'Settings', icon: Settings, path: '/dashboard/settings' },
   { id: 'user-guide', label: "User Guide", icon: FileText, path: '/dashboard/user-guide'}
 ]
