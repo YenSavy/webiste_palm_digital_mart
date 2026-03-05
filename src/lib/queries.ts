@@ -5,7 +5,7 @@ import { fetchFooter, fetchWhyUs } from "./apis/home-page/whyUsApi";
 import { fetchPlans } from "./apis/home-page/planApi";
 import { fetchVideo, fetchVideoPodcast } from "./apis/home-page/advertsApi";
 import { fetchClientSay } from "./apis/home-page/clientSayApi";
-import { getUserList } from "./apis/dashboard/userApi";
+// import { getUserList } from "./apis/dashboard/userApi";
 import { fetchBookData, getChapterContentsFromBook, type TBook, type TContents, type TTopics } from "./api";
 
 export const useHeroContent = () => {
