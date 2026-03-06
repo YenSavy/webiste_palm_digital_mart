@@ -106,33 +106,33 @@ export const useUnsubscribePlanMutation = () => {
 
 
 
-//user page -dashboard
+// //user page -dashboard
 
-export const useCreateUserMutation = () => {
-  return useMutation({
-    mutationKey: ["company", "user", "system-user"],
-    mutationFn: (payload: TCreateUserInput) => createUser(payload),
-  });
-};
+// export const useCreateUserMutation = () => {
+//   return useMutation({
+//     mutationKey: ["company", "user", "system-user"],
+//     mutationFn: (payload: TCreateUserInput) => createUser(payload),
+//   });
+// };
 
-export const useDeleteUserMutation = () => {
-  return useMutation({
-    mutationKey: ["company", "user", "system-user"],
-    mutationFn: (id: string) => deleteUser(id),
-  });
-};
+// export const useDeleteUserMutation = () => {
+//   return useMutation({
+//     mutationKey: ["company", "user", "system-user"],
+//     mutationFn: (id: string) => deleteUser(id),
+//   });
+// };
 
-export const useCreateUserProfileMutation = () => {
-  return useMutation({
-    mutationKey: ["company", "user", "system-user", "profile-user"],
-    mutationFn: (payload: TCreateUserProfileInput) =>
-      createUserProfile(payload),
-  });
-};
+// export const useCreateUserProfileMutation = () => {
+//   return useMutation({
+//     mutationKey: ["company", "user", "system-user", "profile-user"],
+//     mutationFn: (payload: TCreateUserProfileInput) =>
+//       createUserProfile(payload),
+//   });
+// };
 
-export const useDeleteUserProfileMutation = () => {
-  return useMutation({
-    mutationKey: ["company", "user", "system-user", "profile-user"],
-    mutationFn: (id: string) => deleteUserProfile(id),
-  });
-};
+// export const useDeleteUserProfileMutation = () => {
+//   return useMutation({
+//     mutationKey: ["company", "user", "system-user", "profile-user"],
+//     mutationFn: (id: string) => deleteUserProfile(id),
+//   });
+// };

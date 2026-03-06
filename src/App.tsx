@@ -17,7 +17,7 @@ import AuthLayout from "./layouts/AuthLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 import "aos/dist/aos.css";
-import UserPage from "./pages/Dashboard/UserPage";
+// import UserPage from "./pages/Dashboard/UserPage";
 import DashboardLayout from "./layouts/DashboardLayout";
 import UserGuidePage from "./pages/Dashboard/UserGuidePage";
 import ErrorPage from "./pages/ErrorPage";
@@ -124,7 +124,7 @@ function App() {
                 }
               >
                 <Route index element={<DashboardPage />} />
-                <Route path="user" element={<UserPage />} />
+                {/* <Route path="user" element={<UserPage />} /> */}
                 <Route path="subscription" element={<Subcription />} />
                 <Route path="reports" element={<Reports />} />
                 <Route path="user-guide" element={<UserGuidePage />} />

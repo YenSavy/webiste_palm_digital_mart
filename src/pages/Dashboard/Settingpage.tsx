@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { User, Receipt, ShieldCheck } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useThemeStore } from "../../store/themeStore";
-import ProfileInfor from "../../components/settings/Billing";
-import Billing from "../../components/settings/Profileinfor";
+import ProfileInfor from "../../components/settings/Profileinfor"; 
+import Billing from "../../components/settings/Billing";
 import Security from "../../components/settings/Security";
 
 type TabKey = "profile" | "billing" | "security";
@@ -60,7 +60,10 @@ const SettingPage: React.FC = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="mt-5 flex items-center gap-1 border-b" style={{ borderColor: `${theme.accent}22` }}>
+        <div
+          className="mt-5 flex items-center gap-1 border-b"
+          style={{ borderColor: `${theme.accent}22` }}
+        >
           {tabs.map((tab) => {
             const isActive = activeTab === tab.key;
             return (
