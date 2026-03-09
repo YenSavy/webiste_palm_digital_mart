@@ -18,3 +18,4 @@ export const navItems: NavItem[] = [
   { id: 'messages', label: 'Messages', icon: MessageSquare },
   { id: 'settings', label: 'Settings', icon: Settings, path: '/dashboard/settings' },
 ]
+

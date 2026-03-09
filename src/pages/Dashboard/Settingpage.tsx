@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { User, Receipt, ShieldCheck } from "lucide-react";
+import { User, Receipt, ShieldCheck, CalendarClock } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useThemeStore } from "../../store/themeStore";
-import ProfileInfor from "../../components/settings/Profileinfor"; 
+import ProfileInfor from "../../components/settings/Profileinfor";
 import Billing from "../../components/settings/Billing";
 import Security from "../../components/settings/Security";
+import Timesandcondition from "../../components/settings/Timesandcondition";
 
-type TabKey = "profile" | "billing" | "security";
+type TabKey = "profile" | "billing" | "security" | "timesandcondition";
 
 interface Tab {
   key: TabKey;
@@ -37,6 +38,12 @@ const SettingPage: React.FC = () => {
       label: "Security",
       icon: <ShieldCheck size={15} />,
       component: <Security />,
+    },
+    {
+      key: "timesandcondition",
+      label: "Times & Conditions",
+      icon: <CalendarClock size={15} />,
+      component: <Timesandcondition />,
     },
   ];
 
@@ -91,7 +98,6 @@ const SettingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Tab Content */}
       <section>{activeTabData?.component}</section>
     </div>
   );
