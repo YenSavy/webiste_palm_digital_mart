@@ -17,9 +17,9 @@ type Props = {
 type Language = "kh" | "eng" | "ch";
 
 const languageOptions: { value: Language; label: string; flag: string }[] = [
-  { value: "kh", label: "ខ្មែរ", flag: "/flags/kh.png" },
-  { value: "eng", label: "English", flag: "/flags/gb.png" },
-  { value: "ch", label: "中文", flag: "/flags/cn.png" },
+  { value: "kh", label: "ខ្មែរ", flag: "/flags/cam-flag.webp" },
+  { value: "eng", label: "English", flag: "/flags/uk-flag.jpg" },
+  { value: "ch", label: "中文", flag: "/flags/china-flag.png" },
 ];
 
 const translations = {
@@ -63,8 +63,6 @@ export default function VideoTOC({
   onOpenVideo,
   onClose,
 }: Props) {
-  console.log("VideoTOC Component - Current Video ID:", currentVideoId);
-
   const setParams = useSearchParams()[1];
   const setCurrent = useReaderStore((s) => s.setCurrent);
   const language = useReaderStore((s) => s.language);
@@ -76,23 +74,23 @@ export default function VideoTOC({
   const currentLanguage: Language = (language as Language) || "eng";
   const t = translations[currentLanguage];
 
-  const { 
-    data: videosResponse, 
+  // Fetch tree directly from API (API returns children_recursive already)
+  const {
+    data: videosResponse,
     isLoading,
-    error 
-  } = useQuery(videoQueries.getVideos({ status: 1 }));
+    error,
+  } = useQuery(videoQueries.getVideoTree({ endpoint: "help_center_video" }));
 
-  const videos = useMemo(() => {
-    if (videosResponse?.success) {
-      return videosResponse.data || [];
-    }
-    return [];
+  // Tree with levels added
+  const videoTree = useMemo((): VideoTreeItem[] => {
+    if (!videosResponse?.success || !videosResponse.data) return [];
+    return videoUtils.addLevels(videosResponse.data);
   }, [videosResponse]);
 
-  const videoTree = useMemo(() => {
-    console.log("Building tree from videos:", videos.length);
-    return videoUtils.buildTree(videos);
-  }, [videos]);
+  // Flat list for counting and search
+  const flatVideos = useMemo(() => {
+    return videoUtils.flattenTree(videoTree);
+  }, [videoTree]);
 
   const onBackHome = () => {
     setParams(new URLSearchParams(), { replace: true });
@@ -100,67 +98,80 @@ export default function VideoTOC({
     window.location.href = "/dashboard/user-guide";
   };
 
-  const filteredTree = useMemo(() => {
-    console.log("Filtering videos with query:", query);
-
-    if (!query.trim()) {
-      return videoTree;
-    }
+  // Search: filter flat list then rebuild levels from matching items
+  const filteredTree = useMemo((): VideoTreeItem[] => {
+    if (!query.trim()) return videoTree;
 
     const searchLower = query.toLowerCase();
-    
-    const filteredVideos = videos.filter((video) => {
-      const nameEn = video.name_en?.toLowerCase() || '';
-      const nameKh = video.name_kh?.toLowerCase() || '';
-      const nameCh = video.name_ch?.toLowerCase() || '';
-      const titleEn = video.video_title_en?.toLowerCase() || '';
-      const titleKh = video.video_title_kh?.toLowerCase() || '';
-      const titleCh = video.video_title_ch?.toLowerCase() || '';
-      
-      return nameEn.includes(searchLower) || 
-             nameKh.includes(searchLower) || 
-             nameCh.includes(searchLower) ||
-             titleEn.includes(searchLower) ||
-             titleKh.includes(searchLower) ||
-             titleCh.includes(searchLower);
-    });
 
-    return videoUtils.buildTree(filteredVideos);
-  }, [query, videoTree, videos]);
+    const filterTree = (items: VideoTreeItem[]): VideoTreeItem[] => {
+      return items.reduce<VideoTreeItem[]>((acc, item) => {
+        const nameEn = item.name_en?.toLowerCase() || "";
+        const nameKh = item.name_kh?.toLowerCase() || "";
+        const nameCh = item.name_ch?.toLowerCase() || "";
+        const titleEn = item.video_title_en?.toLowerCase() || "";
+        const titleKh = item.video_title_kh?.toLowerCase() || "";
+        const titleCh = item.video_title_ch?.toLowerCase() || "";
+
+        const matches =
+          nameEn.includes(searchLower) ||
+          nameKh.includes(searchLower) ||
+          nameCh.includes(searchLower) ||
+          titleEn.includes(searchLower) ||
+          titleKh.includes(searchLower) ||
+          titleCh.includes(searchLower);
+
+        const filteredChildren = item.children_recursive
+          ? filterTree(item.children_recursive as VideoTreeItem[])
+          : [];
+
+        if (matches || filteredChildren.length > 0) {
+          acc.push({ ...item, children_recursive: filteredChildren });
+        }
+
+        return acc;
+      }, []);
+    };
+
+    return filterTree(videoTree);
+  }, [query, videoTree]);
 
   const toggleSection = useCallback((videoId: number) => {
     setExpandedSections((prev) => {
-      const newExpanded = new Set(prev);
-      if (newExpanded.has(videoId)) {
-        newExpanded.delete(videoId);
+      const next = new Set(prev);
+      if (next.has(videoId)) {
+        next.delete(videoId);
       } else {
-        newExpanded.add(videoId);
+        next.add(videoId);
       }
-      return newExpanded;
+      return next;
     });
   }, []);
 
+  // children_recursive replaces children
   const hasChildren = useCallback((video: VideoTreeItem): boolean => {
-    return Array.isArray(video.children) && video.children.length > 0;
+    return Array.isArray(video.children_recursive) && video.children_recursive.length > 0;
   }, []);
 
   const isVideoItem = useCallback((video: VideoTreeItem): boolean => {
     return !!video.video_url && video.video_url.trim() !== "";
   }, []);
 
-  const getVideoName = useCallback((video: VideoTreeItem): string => {
-    const lang = currentLanguage === 'eng' ? 'en' : currentLanguage;
-    return videoUtils.getLocalizedName(video, lang);
-  }, [currentLanguage]);
+  const getVideoName = useCallback(
+    (video: VideoTreeItem): string => {
+      const lang = currentLanguage === "eng" ? "en" : currentLanguage;
+      return videoUtils.getLocalizedName(video, lang);
+    },
+    [currentLanguage]
+  );
 
   const renderVideoTree = useCallback(
     (treeItems: VideoTreeItem[], level = 0): JSX.Element[] => {
-      if (!treeItems || treeItems.length === 0) {
-        return [];
-      }
+      if (!treeItems || treeItems.length === 0) return [];
 
       return treeItems.map((video) => {
-        const children = video.children || [];
+        // Use children_recursive instead of children
+        const children = (video.children_recursive as VideoTreeItem[]) || [];
         const itemHasChildren = hasChildren(video);
         const isExpanded = expandedSections.has(video.id);
         const isCurrent = String(video.id) === currentVideoId;
@@ -170,7 +181,6 @@ export default function VideoTOC({
           if (itemHasChildren) {
             toggleSection(video.id);
           } else if (itemIsVideo) {
-            console.log(`Opening video ${video.id}`);
             onOpenVideo(String(video.id));
           }
         };
@@ -200,7 +210,7 @@ export default function VideoTOC({
               <span className="flex-1 truncate text-sm font-medium">
                 {getVideoName(video)}
                 {itemIsVideo && (
-                  <span className="ml-2">
+                  <span className="ml-2 inline-flex items-center">
                     <VideoIcon size={12} className="text-muted-foreground" />
                   </span>
                 )}
@@ -208,7 +218,7 @@ export default function VideoTOC({
             </div>
 
             {isExpanded && itemHasChildren && children.length > 0 && (
-              <div className="ml-4">{renderVideoTree(children, level + 1)}</div>
+              <div>{renderVideoTree(children, level + 1)}</div>
             )}
           </div>
         );
@@ -218,14 +228,14 @@ export default function VideoTOC({
   );
 
   const handleLanguageChange = (value: Language) => {
-    console.log("Changing language to:", value);
     useReaderStore.getState().setLanguage(value);
     setIsLanguageDropdownOpen(false);
   };
 
+  // Count only items that have video_url
   const videoCount = useMemo(() => {
-    return videos.filter(v => v.video_url && v.video_url.trim() !== "").length;
-  }, [videos]);
+    return flatVideos.filter((v) => v.video_url && v.video_url.trim() !== "").length;
+  }, [flatVideos]);
 
   if (isLoading) {
     return (
@@ -334,11 +344,7 @@ export default function VideoTOC({
                       value === currentLanguage ? "bg-accent" : ""
                     }`}
                   >
-                    <img
-                      src={flag}
-                      alt={value}
-                      className="w-5 h-4 flex-shrink-0"
-                    />
+                    <img src={flag} alt={value} className="w-5 h-4 flex-shrink-0" />
                     <span className="truncate">{label}</span>
                   </button>
                 ))}
@@ -358,7 +364,7 @@ export default function VideoTOC({
         <div className="space-y-0.5">
           {filteredTree.length > 0 ? (
             renderVideoTree(filteredTree)
-          ) : videos.length === 0 ? (
+          ) : flatVideos.length === 0 ? (
             <div className="px-3 py-8 text-center text-muted-foreground">
               {t.noVideos}
             </div>

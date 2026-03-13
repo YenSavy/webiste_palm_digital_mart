@@ -18,9 +18,10 @@ type Language = "kh" | "eng" | "ch";
 
 const languageOptions: { value: Language; label: string; flag: string }[] = [
   { value: "kh", label: "ខ្មែរ", flag: "/flags/cam-flag.webp" },
-  { value: "eng", label: "English", flag: "/flags/uk-flag.png" },
-  { value: "ch", label: "中文", flag: "/flags/china-flag.jpg" },
+  { value: "eng", label: "English", flag: "/flags/uk-flag.jpg" },
+  { value: "ch", label: "中文", flag: "/flags/china-flag.png" },
 ];
+
 
 const translations = {
   kh: {
