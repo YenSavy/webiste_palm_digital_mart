@@ -69,12 +69,12 @@ export const usePodcast = () => {
 }
 
 
-export const useGetUserQuery = () => {
-  return useQuery({
-    queryKey: ["company", "user", "system-user"],
-    queryFn: () => getUserList()
-  })
-}
+// export const useGetUserQuery = () => {
+//   return useQuery({
+//     queryKey: ["company", "user", "system-user"],
+//     queryFn: () => getUserList()
+//   })
+// }
 
 
 

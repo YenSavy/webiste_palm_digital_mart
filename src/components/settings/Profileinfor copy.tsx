@@ -2,17 +2,19 @@ import React, { useState } from "react";
 import { Edit2, Save, X, User, Mail, Phone, MapPin, CreditCard, RefreshCw } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useThemeStore } from "../../store/themeStore";
+import { useAuthStore } from "../../store/authStore";
 
 const ProfileInfor: React.FC = () => {
   const theme = useThemeStore((state) => state.getTheme());
+  const user = useAuthStore((state) => state.user);
 
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState("Van Sochan");
-  const [address, setAddress] = useState("#9G, Plov Lum, Trapeng Lvea, Sangkat Kakab Khan Por Senchey");
-  const [city, setCity] = useState("Phnom Penh, Cambodia 12406");
-  const [country, setCountry] = useState("KH");
-  const [email, setEmail] = useState("ngogiz99@gmail.com");
-  const [phone, setPhone] = useState("855.017900051");
+  const [name, setName] = useState(user?.full_name || user?.name || "");
+  // const [address, setAddress] = useState(user?.address || "");
+  // const [city, setCity] = useState(user?.city || "");
+  // const [country, setCountry] = useState(user?.country || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [phone, setPhone] = useState(user?.phone || "");
 
   // Payment method (read-only display)
   const paymentLast4 = "3805";
@@ -24,6 +26,13 @@ const ProfileInfor: React.FC = () => {
   };
 
   const handleCancel = () => {
+    // Reset to original user values on cancel
+    setName(user?.full_name || user?.name || "");
+    // setAddress(user?.address || "");
+    // setCity(user?.city || "");
+    // setCountry(user?.country || "");
+    setEmail(user?.email || "");
+    setPhone(user?.phone || "");
     setIsEditing(false);
   };
 
@@ -87,18 +96,18 @@ const ProfileInfor: React.FC = () => {
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className={cn(
-                  `w-full px-3 py-2 rounded-lg border text-sm ${theme.border} ${theme.text}`
-                )}
+                className={cn(`w-full px-3 py-2 rounded-lg border text-sm ${theme.border} ${theme.text}`)}
                 style={{ backgroundColor: `${theme.accent}08` }}
               />
             ) : (
-              <p className={cn("text-sm font-medium", theme.text)}>{name}</p>
+              <p className={cn("text-sm font-medium", theme.text)}>
+                {user?.full_name || user?.name || "—"}
+              </p>
             )}
           </div>
 
           {/* Address */}
-          <div>
+          {/* <div>
             <label
               className={cn(
                 "text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5 mb-1.5",
@@ -113,36 +122,33 @@ const ProfileInfor: React.FC = () => {
                 <input
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className={cn(
-                    `w-full px-3 py-2 rounded-lg border text-sm ${theme.border} ${theme.text}`
-                  )}
+                  placeholder="Street address"
+                  className={cn(`w-full px-3 py-2 rounded-lg border text-sm ${theme.border} ${theme.text}`)}
                   style={{ backgroundColor: `${theme.accent}08` }}
                 />
                 <input
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className={cn(
-                    `w-full px-3 py-2 rounded-lg border text-sm ${theme.border} ${theme.text}`
-                  )}
+                  placeholder="City"
+                  className={cn(`w-full px-3 py-2 rounded-lg border text-sm ${theme.border} ${theme.text}`)}
                   style={{ backgroundColor: `${theme.accent}08` }}
                 />
                 <input
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
-                  className={cn(
-                    `w-full px-3 py-2 rounded-lg border text-sm ${theme.border} ${theme.text}`
-                  )}
+                  placeholder="Country"
+                  className={cn(`w-full px-3 py-2 rounded-lg border text-sm ${theme.border} ${theme.text}`)}
                   style={{ backgroundColor: `${theme.accent}08` }}
                 />
               </div>
             ) : (
-              <div className={cn("text-sm", theme.text)}>
-                <p>{address}</p>
-                <p>{city}</p>
-                <p>{country}</p>
-              </div>
+              // <div className={cn("text-sm", theme.text)}>
+              //   <p>{user?.address || "—"}</p>
+              //   {user?.city && <p>{user.city}</p>}
+              //   {user?.country && <p>{user.country}</p>}
+              // </div>
             )}
-          </div>
+          </div> */}
 
           {/* Email */}
           <div>
@@ -160,13 +166,13 @@ const ProfileInfor: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 type="email"
-                className={cn(
-                  `w-full px-3 py-2 rounded-lg border text-sm ${theme.border} ${theme.text}`
-                )}
+                className={cn(`w-full px-3 py-2 rounded-lg border text-sm ${theme.border} ${theme.text}`)}
                 style={{ backgroundColor: `${theme.accent}08` }}
               />
             ) : (
-              <p className={cn("text-sm font-medium", theme.text)}>{email}</p>
+              <p className={cn("text-sm font-medium", theme.text)}>
+                {user?.email || "—"}
+              </p>
             )}
           </div>
 
@@ -185,13 +191,13 @@ const ProfileInfor: React.FC = () => {
               <input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className={cn(
-                  `w-full px-3 py-2 rounded-lg border text-sm ${theme.border} ${theme.text}`
-                )}
+                className={cn(`w-full px-3 py-2 rounded-lg border text-sm ${theme.border} ${theme.text}`)}
                 style={{ backgroundColor: `${theme.accent}08` }}
               />
             ) : (
-              <p className={cn("text-sm font-medium", theme.text)}>{phone}</p>
+              <p className={cn("text-sm font-medium", theme.text)}>
+                {user?.phone || "—"}
+              </p>
             )}
           </div>
         </div>

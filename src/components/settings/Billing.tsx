@@ -1,44 +1,67 @@
 import React, { useState } from "react";
-import { FileText, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
+import { CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useThemeStore } from "../../store/themeStore";
+import InvoiceDetail from "./InvoiceDetail";
 
 interface Invoice {
   id: string;
-  total: string;
+  total: number;
   status: "Paid" | "Unpaid" | "Overdue";
   invoiceDate: string;
   dueDate: string;
 }
 
-const MOCK_INVOICES: Invoice[] = [
-  { id: "#4424458", total: "$26.95", status: "Paid", invoiceDate: "02/21/2026", dueDate: "03/07/2026" },
-  { id: "#4393436", total: "$26.95", status: "Paid", invoiceDate: "01/24/2026", dueDate: "02/07/2026" },
-  { id: "#4360254", total: "$26.95", status: "Paid", invoiceDate: "12/24/2025", dueDate: "01/07/2026" },
-  { id: "#4329564", total: "$26.95", status: "Paid", invoiceDate: "11/23/2025", dueDate: "12/07/2025" },
-  { id: "#4299510", total: "$26.95", status: "Paid", invoiceDate: "10/24/2025", dueDate: "11/07/2025" },
-  { id: "#4268740", total: "$26.95", status: "Paid", invoiceDate: "09/23/2025", dueDate: "10/07/2025" },
-  { id: "#4238653", total: "$26.95", status: "Paid", invoiceDate: "08/24/2025", dueDate: "09/07/2025" },
-  { id: "#4208120", total: "$26.95", status: "Paid", invoiceDate: "07/24/2025", dueDate: "08/07/2025" },
+const invoices: Invoice[] = [
+  { id: "#4424458", total: 26.95, status: "Paid", invoiceDate: "02/21/2026", dueDate: "03/07/2026" },
+  { id: "#4393436", total: 26.95, status: "Paid", invoiceDate: "01/24/2026", dueDate: "02/07/2026" },
+  { id: "#4360254", total: 26.95, status: "Paid", invoiceDate: "12/24/2025", dueDate: "01/07/2026" },
+  { id: "#4329564", total: 26.95, status: "Paid", invoiceDate: "11/23/2025", dueDate: "12/07/2025" },
+  { id: "#4299510", total: 26.95, status: "Paid", invoiceDate: "10/24/2025", dueDate: "11/07/2025" },
+  { id: "#4268740", total: 26.95, status: "Paid", invoiceDate: "09/23/2025", dueDate: "10/07/2025" },
+  { id: "#4238653", total: 26.95, status: "Paid", invoiceDate: "08/24/2025", dueDate: "09/07/2025" },
 ];
 
-const PAGE_SIZE = 5;
-
-const statusColor = (status: Invoice["status"]) => {
-  if (status === "Paid") return { dot: "#22c55e", text: "#16a34a" };
-  if (status === "Unpaid") return { dot: "#f59e0b", text: "#d97706" };
-  return { dot: "#ef4444", text: "#dc2626" };
+const statusConfig = {
+  Paid: {
+    icon: <CheckCircle2 size={13} />,
+    label: "Paid",
+    color: "#22c55e",
+    bg: "#22c55e18",
+  },
+  Unpaid: {
+    icon: <Clock size={13} />,
+    label: "Unpaid",
+    color: "#f59e0b",
+    bg: "#f59e0b18",
+  },
+  Overdue: {
+    icon: <AlertCircle size={13} />,
+    label: "Overdue",
+    color: "#ef4444",
+    bg: "#ef444418",
+  },
 };
 
 const Billing: React.FC = () => {
   const theme = useThemeStore((state) => state.getTheme());
-  const [page, setPage] = useState(1);
-  const totalPages = Math.ceil(MOCK_INVOICES.length / PAGE_SIZE);
-  const paginated = MOCK_INVOICES.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+
+  if (selectedInvoice) {
+    return (
+      <InvoiceDetail
+        invoiceId={selectedInvoice.id}
+        status={selectedInvoice.status}
+        dateGenerated={selectedInvoice.invoiceDate}
+        dueDate={selectedInvoice.dueDate}
+        onBack={() => setSelectedInvoice(null)}
+      />
+    );
+  }
 
   return (
     <div
-      className={cn(`rounded-2xl border overflow-hidden`, theme.border)}
+      className={cn("rounded-2xl border overflow-hidden", theme.border)}
       style={{ backgroundColor: `${theme.accent}06` }}
     >
       {/* Table */}
@@ -46,63 +69,77 @@ const Billing: React.FC = () => {
         <table className="w-full text-sm">
           <thead>
             <tr
-              className={cn("border-b text-xs font-semibold uppercase tracking-wide", theme.border)}
-              style={{ backgroundColor: `${theme.accent}0f` }}
+              className={cn("border-b", theme.border)}
+              style={{ backgroundColor: `${theme.accent}0c` }}
             >
-              <th className={cn("px-5 py-3 text-left", theme.textSecondary)}>Invoice #</th>
-              <th className={cn("px-5 py-3 text-left", theme.textSecondary)}>Total</th>
-              <th className={cn("px-5 py-3 text-left", theme.textSecondary)}>Status</th>
-              <th className={cn("px-5 py-3 text-left", theme.textSecondary)}>Invoice Date</th>
-              <th className={cn("px-5 py-3 text-left", theme.textSecondary)}>Due Date</th>
-              <th className={cn("px-5 py-3 text-left", theme.textSecondary)}>Details</th>
+              {["Invoice #", "Total", "Status", "Invoice Date", "Due Date", "Details"].map(
+                (col, i) => (
+                  <th
+                    key={col}
+                    className={cn(
+                      "px-6 py-4 text-xs font-bold uppercase tracking-wide",
+                      theme.textSecondary,
+                      i === 0 || i === 5 ? "text-left" : i === 1 ? "text-right" : "text-left"
+                    )}
+                  >
+                    {col}
+                  </th>
+                )
+              )}
             </tr>
           </thead>
           <tbody>
-            {paginated.map((inv, i) => {
-              const sc = statusColor(inv.status);
+            {invoices.map((inv, i) => {
+              const sc = statusConfig[inv.status];
               return (
                 <tr
                   key={inv.id}
                   className={cn("border-b transition-colors", theme.border)}
                   style={{
-                    backgroundColor: i % 2 === 0 ? `${theme.accent}03` : "transparent",
+                    backgroundColor:
+                      i % 2 === 0 ? `${theme.accent}03` : "transparent",
                   }}
                 >
-                  <td className="px-5 py-3">
+                  {/* Invoice # */}
+                  <td className="px-6 py-4">
                     <span
-                      className="font-semibold text-sm"
+                      className="font-semibold text-sm cursor-pointer hover:underline"
                       style={{ color: theme.accent }}
                     >
                       {inv.id}
                     </span>
                   </td>
-                  <td className={cn("px-5 py-3 font-medium", theme.text)}>{inv.total}</td>
-                  <td className="px-5 py-3">
+
+                  {/* Total */}
+                  <td className={cn("px-6 py-4 text-right font-medium", theme.text)}>
+                    ${inv.total.toFixed(2)}
+                  </td>
+
+                  {/* Status */}
+                  <td className="px-6 py-4">
                     <span
                       className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
-                      style={{
-                        backgroundColor: `${sc.dot}18`,
-                        color: sc.text,
-                      }}
+                      style={{ color: sc.color, backgroundColor: sc.bg }}
                     >
-                      <span
-                        className="w-1.5 h-1.5 rounded-full"
-                        style={{ backgroundColor: sc.dot }}
-                      />
-                      {inv.status}
+                      {sc.icon}
+                      {sc.label}
                     </span>
                   </td>
-                  <td className={cn("px-5 py-3", theme.textSecondary)}>{inv.invoiceDate}</td>
-                  <td className={cn("px-5 py-3", theme.textSecondary)}>{inv.dueDate}</td>
-                  <td className="px-5 py-3">
+
+                  {/* Invoice Date */}
+                  <td className={cn("px-6 py-4", theme.text)}>{inv.invoiceDate}</td>
+
+                  {/* Due Date */}
+                  <td className={cn("px-6 py-4", theme.text)}>{inv.dueDate}</td>
+
+                  {/* View Invoice */}
+                  <td className="px-6 py-4">
                     <button
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-opacity hover:opacity-90"
+                      onClick={() => setSelectedInvoice(inv)}
+                      className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
                       style={{ backgroundColor: theme.accent }}
-                      onClick={() => console.log("View invoice", inv.id)}
                     >
-                      <FileText size={12} />
                       View Invoice
-                      <ExternalLink size={10} />
                     </button>
                   </td>
                 </tr>
@@ -110,34 +147,6 @@ const Billing: React.FC = () => {
             })}
           </tbody>
         </table>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between px-5 py-3">
-        <p className={cn("text-xs", theme.textSecondary)}>
-          Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, MOCK_INVOICES.length)} of {MOCK_INVOICES.length} invoices
-        </p>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className={cn(`p-1.5 rounded-lg border disabled:opacity-40 transition-colors ${theme.border}`, theme.text)}
-            style={{ backgroundColor: `${theme.accent}0f` }}
-          >
-            <ChevronLeft size={14} />
-          </button>
-          <span className={cn("text-xs font-medium px-2", theme.text)}>
-            {page} / {totalPages}
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            className={cn(`p-1.5 rounded-lg border disabled:opacity-40 transition-colors ${theme.border}`, theme.text)}
-            style={{ backgroundColor: `${theme.accent}0f` }}
-          >
-            <ChevronRight size={14} />
-          </button>
-        </div>
       </div>
     </div>
   );
