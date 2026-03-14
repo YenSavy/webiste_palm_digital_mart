@@ -105,22 +105,22 @@ const Reports: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 px-3 py-4 sm:px-6 sm:py-6">
       <section
         className={cn(
-          `bg-gradient-to-br ${theme.cardBg} backdrop-blur-sm border ${theme.border} rounded-2xl p-6`,
+          `bg-gradient-to-br ${theme.cardBg} backdrop-blur-sm border ${theme.border} rounded-2xl p-4 sm:p-6`,
         )}
       >
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className={cn("text-2xl font-bold", theme.text)}>Reports</h1>
+            <h1 className={cn("text-xl sm:text-2xl font-bold", theme.text)}>Reports</h1>
             <p className={cn("mt-1 text-sm", theme.textSecondary)}>
               Track performance and export detailed insights.
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
             <div
-              className="flex items-center gap-2 px-3 py-2 rounded-xl border h-10"
+              className="flex items-center gap-2 px-3 py-2 rounded-xl border h-10 w-full sm:w-auto"
               style={{
                 borderColor: `${theme.accent}55`,
                 backgroundColor: `${theme.accent}12`,
@@ -130,7 +130,7 @@ const Reports: React.FC = () => {
               <select
                 value={range}
                 onChange={(event) => setRange(event.target.value as TRange)}
-                className={cn("text-sm font-medium outline-none min-w-[140px] rounded-lg border px-2 py-1", theme.text)}
+                className={cn("text-sm font-medium outline-none rounded-lg border px-2 py-1 min-w-0 flex-1 sm:flex-none sm:min-w-[140px]", theme.text)}
                 style={{
                   borderColor: `${theme.accent}33`,
                   backgroundColor: `${theme.accent}08`,
@@ -142,7 +142,7 @@ const Reports: React.FC = () => {
               </select>
             </div>
             <button
-              className="px-4 py-2 rounded-xl text-sm font-semibold text-white"
+              className="px-4 py-2 rounded-xl text-sm font-semibold text-white w-full sm:w-auto"
               style={{ backgroundColor: theme.accent }}
             >
               <span className="inline-flex items-center gap-2">
@@ -189,10 +189,10 @@ const Reports: React.FC = () => {
               ))}
             </select>
           </div>
-          <div className="flex items-end gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-2">
             <button
               onClick={clearFilters}
-              className={cn("px-4 py-2 rounded-lg text-sm font-semibold border h-10 min-w-[140px]", theme.text)}
+              className={cn("px-4 py-2 rounded-lg text-sm font-semibold border h-10 min-w-[140px] w-full sm:w-auto", theme.text)}
               style={{
                 borderColor: `${theme.accent}55`,
                 backgroundColor: `${theme.accent}10`,
@@ -201,7 +201,7 @@ const Reports: React.FC = () => {
               Clear Filters
             </button>
             <div
-              className="px-3 py-2 rounded-lg text-sm font-semibold border h-10 min-w-[140px] flex items-center justify-center"
+              className="px-3 py-2 rounded-lg text-sm font-semibold border h-10 min-w-[140px] w-full sm:w-auto flex items-center justify-center"
               style={{
                 borderColor: `${theme.accent}33`,
                 backgroundColor: `${theme.accent}08`,
@@ -248,7 +248,7 @@ const Reports: React.FC = () => {
           <div
             key={card.title}
             className={cn(
-              `bg-gradient-to-br ${theme.cardBg} border ${theme.border} rounded-2xl p-5`,
+              `bg-gradient-to-br ${theme.cardBg} border ${theme.border} rounded-2xl p-4 sm:p-5`,
             )}
           >
             <div className="flex items-center justify-between">
@@ -292,7 +292,7 @@ const Reports: React.FC = () => {
 
       <section
         className={cn(
-          `bg-gradient-to-br ${theme.cardBg} backdrop-blur-sm border ${theme.border} rounded-2xl p-6`,
+          `bg-gradient-to-br ${theme.cardBg} backdrop-blur-sm border ${theme.border} rounded-2xl p-4 sm:p-6`,
         )}
       >
         <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -307,7 +307,7 @@ const Reports: React.FC = () => {
           </div>
           <button
             className={cn(
-              "px-4 py-2 rounded-lg text-sm font-semibold border",
+              "px-4 py-2 rounded-lg text-sm font-semibold border w-full sm:w-auto",
               theme.text,
             )}
             style={{
@@ -322,7 +322,72 @@ const Reports: React.FC = () => {
           </button>
         </div>
 
-        <div className="mt-5 overflow-x-auto">
+        <div className="mt-5 space-y-3 md:hidden">
+          {filteredReports.map((report) => (
+            <article
+              key={report.id}
+              className={cn("rounded-xl border p-4 space-y-3", theme.border)}
+              style={{ backgroundColor: `${theme.accent}08` }}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className={cn("text-sm font-semibold break-words", theme.text)}>{report.name}</p>
+                  <p className={cn("text-xs mt-1", theme.textSecondary)}>{report.period}</p>
+                </div>
+                <span
+                  className={cn(
+                    "px-2 py-1 text-xs rounded-full font-semibold inline-flex items-center gap-1 shrink-0",
+                    report.status === "Ready"
+                      ? "text-green-600"
+                      : report.status === "Processing"
+                        ? "text-amber-600"
+                        : "text-blue-600",
+                  )}
+                  style={{
+                    backgroundColor:
+                      report.status === "Ready"
+                        ? "rgba(34,197,94,0.12)"
+                        : report.status === "Processing"
+                          ? "rgba(251,191,36,0.16)"
+                          : "rgba(59,130,246,0.12)",
+                  }}
+                >
+                  {report.status === "Ready" ? <CheckCircle2 size={12} /> : <Clock size={12} />}
+                  {report.status}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <p className={cn("font-medium", theme.textSecondary)}>Owner</p>
+                  <p className={cn("mt-1 break-words", theme.text)}>{report.owner}</p>
+                </div>
+                <div>
+                  <p className={cn("font-medium", theme.textSecondary)}>Size</p>
+                  <p className={cn("mt-1", theme.text)}>{report.size}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className={cn("font-medium", theme.textSecondary)}>Generated</p>
+                  <p className={cn("mt-1 break-words", theme.text)}>{report.generatedAt}</p>
+                </div>
+              </div>
+              <button
+                className={cn("px-3 py-2 rounded-lg text-xs font-semibold border w-full", theme.text)}
+                style={{
+                  borderColor: `${theme.accent}55`,
+                  backgroundColor: `${theme.accent}10`,
+                }}
+                onClick={() => handleViewReport(report)}
+              >
+                View
+              </button>
+            </article>
+          ))}
+          {filteredReports.length === 0 && (
+            <p className={cn("py-6 text-center text-sm", theme.textSecondary)}>No reports match your search.</p>
+          )}
+        </div>
+
+        <div className="mt-5 hidden md:block overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className={cn("border-b", theme.border, theme.text)}>
@@ -416,14 +481,14 @@ const Reports: React.FC = () => {
       </section>
 
       {activeReport && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-3 sm:px-4 py-4">
           <div
             className={cn(
-              `w-full max-w-xl rounded-2xl border bg-gradient-to-br ${theme.cardBg} p-6`,
+              `w-full max-w-xl rounded-2xl border bg-gradient-to-br ${theme.cardBg} p-4 sm:p-6 max-h-[92vh] overflow-y-auto`,
               theme.border,
             )}
           >
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start justify-between gap-3 flex-wrap">
               <div>
                 <p className={cn("text-xs uppercase tracking-wide", theme.textSecondary)}>
                   Report Preview
@@ -433,14 +498,14 @@ const Reports: React.FC = () => {
               </div>
               <button
                 onClick={closeReport}
-                className={cn("px-3 py-1.5 rounded-lg text-xs font-semibold border", theme.text)}
+                className={cn("px-3 py-1.5 rounded-lg text-xs font-semibold border w-full sm:w-auto", theme.text)}
                 style={{ borderColor: `${theme.accent}55`, backgroundColor: `${theme.accent}10` }}
               >
                 Close
               </button>
             </div>
 
-            <div className="mt-5 grid grid-cols-2 gap-4 text-sm">
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className={cn("text-xs uppercase tracking-wide", theme.textSecondary)}>Owner</p>
                 <p className={cn("mt-1 font-medium", theme.text)}>{activeReport.owner}</p>
@@ -459,15 +524,15 @@ const Reports: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-2">
+            <div className="mt-6 flex flex-col sm:flex-row gap-2">
               <button
-                className={cn("px-4 py-2 rounded-lg text-sm font-semibold border", theme.text)}
+                className={cn("px-4 py-2 rounded-lg text-sm font-semibold border w-full sm:w-auto", theme.text)}
                 style={{ borderColor: `${theme.accent}55`, backgroundColor: `${theme.accent}10` }}
               >
                 Download PDF
               </button>
               <button
-                className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
+                className="px-4 py-2 rounded-lg text-sm font-semibold text-white w-full sm:w-auto"
                 style={{ backgroundColor: theme.accent }}
               >
                 Open Full Report

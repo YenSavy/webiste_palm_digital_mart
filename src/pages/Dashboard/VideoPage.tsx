@@ -49,6 +49,12 @@ const VideoPage: React.FC = () => {
     setIsSidebarOpen(false);
   }, []);
 
+  const getEmbedUrl = useCallback(
+    (url?: string | null) =>
+      videoUtils.getYouTubeEmbedUrl(url || null, { rel: 0 }) ?? url ?? "",
+    [],
+  );
+
   const noVideoUI = {
     kh: {
       title: "ជ្រើសរើសវីដេអូ",
@@ -63,6 +69,9 @@ const VideoPage: React.FC = () => {
       subtitle: "从侧边栏选择视频开始观看",
     },
   }[currentLang];
+
+  const embedSrc = currentVideo ? getEmbedUrl(currentVideo.video_url) : "";
+  const isYouTubeEmbed = embedSrc.startsWith("https://www.youtube.com/embed/");
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
@@ -115,16 +124,34 @@ const VideoPage: React.FC = () => {
               </h2>
 
               {/* Video player */}
-              <div className="relative w-full rounded-xl overflow-hidden bg-black shadow-2xl"
-                   style={{ aspectRatio: "16/9" }}>
-                <iframe
-                  key={currentVideo.id}
-                  src={currentVideo.video_url}
-                  title={getTitle(currentVideo)}
-                  className="w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
+              <div
+                className="relative w-full rounded-xl overflow-hidden bg-black shadow-2xl"
+                style={{ aspectRatio: "16/9" }}
+              >
+                {isYouTubeEmbed ? (
+                  <iframe
+                    key={currentVideo.id}
+                    src={embedSrc}
+                    title={getTitle(currentVideo)}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black">
+                    <p className="text-white mb-3 font-semibold">Video cannot be embedded</p>
+                    <a
+                      href={currentVideo.video_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                    >
+                      Watch externally
+                    </a>
+                  </div>
+                )}
               </div>
 
               {/* Description / meta */}

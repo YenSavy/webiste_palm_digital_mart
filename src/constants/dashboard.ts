@@ -14,7 +14,7 @@ export const navItems: NavItem[] = [
   { id: 'reports', label: 'Reports', icon: FileText, path: '/dashboard/reports' },
   // { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   // { id: 'calendar', label: 'Calendar', icon: Calendar },
-  { id: 'messages', label: 'Messages', icon: MessageSquare },
+  { id: 'messages', label: 'Messages', icon: MessageSquare, path: '/dashboard/messages' },
   { id: 'settings', label: 'Settings', icon: Settings, path: '/dashboard/settings' },
   { id: 'user-guide', label: "User Guide", icon: FileText, path: '/dashboard/user-guide'}
 ]

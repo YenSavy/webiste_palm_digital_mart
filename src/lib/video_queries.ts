@@ -223,6 +223,30 @@ export const videoUtils = {
     return qualities[quality];
   },
 
+  /**
+   * Normalize any YouTube URL (or raw video id) into an embeddable URL.
+   * Returns null when the input cannot be parsed.
+   */
+  getYouTubeEmbedUrl: (
+    urlOrId: string | null,
+    options?: { autoplay?: boolean; rel?: 0 | 1 },
+  ): string | null => {
+    if (!urlOrId) return null;
+
+    const isIdOnly = /^[a-zA-Z0-9_-]{11}$/.test(urlOrId);
+    const id = isIdOnly ? urlOrId : videoUtils.extractYouTubeId(urlOrId);
+    if (!id) return null;
+
+    const params = new URLSearchParams();
+    params.set("rel", options?.rel === 1 ? "1" : "0");
+    if (options?.autoplay) {
+      params.set("autoplay", "1");
+    }
+
+    const query = params.toString();
+    return `https://www.youtube.com/embed/${id}${query ? `?${query}` : ""}`;
+  },
+
   isValidYouTubeUrl: (url: string | null): boolean => {
     if (!url) return false;
 

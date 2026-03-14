@@ -132,12 +132,33 @@ export interface VideoItem {
   children_recursive?: VideoItem[] | null;
 }
 
+// Raw shape coming from the API where some numeric fields may arrive as strings
+type RawVideoItem = Partial<VideoItem> & {
+  id: number | string;
+  parent_id?: number | string | null;
+  sort_order?: number | string | null;
+  status?: number | string | null;
+  children_recursive?: RawVideoItem[] | null;
+};
+
 
 export class UnifiedApi {
   private baseUrl: string;
+  private helpCenterEndpoint: string;
+  private videoEndpoint: string;
+  private defaultCompanyId: string;
   
   constructor(baseUrl?: string) {
-    this.baseUrl = baseUrl || import.meta.env.VITE_BASE_URL;
+    this.baseUrl = baseUrl || import.meta.env.VITE_BASE_URL || "";
+    this.defaultCompanyId = import.meta.env.VITE_COMPANY_ID || "PALM-01";
+    this.helpCenterEndpoint = (import.meta.env.VITE_HELP_CENTER_ENDPOINT || "get-help_center").replace(/^\/+|\/+$/g, "");
+    this.videoEndpoint = (import.meta.env.VITE_VIDEO_ENDPOINT || "get-help_center_video").replace(/^\/+|\/+$/g, "");
+  }
+  
+  private buildApiUrl(path: string, companyId?: string): string {
+    const cleanedBase = this.baseUrl.replace(/\/+$/, "");
+    const cleanedPath = path.replace(/^\/+/, "");
+    return companyId ? `${cleanedBase}/${cleanedPath}/${companyId}` : `${cleanedBase}/${cleanedPath}`;
   }
   
   private async makeRequest<T>(url: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
@@ -339,17 +360,72 @@ export class UnifiedApi {
     };
   }
 
+  /**
+   * Convert raw API video items (which may contain string numbers) into
+   * a normalized, flat VideoItem[] with numeric ids/parents/status.
+   */
+  private normalizeVideoList(
+    items?: RawVideoItem[] | null,
+    parentId: number | null = null,
+    acc: VideoItem[] = [],
+  ): VideoItem[] {
+    if (!items || items.length === 0) {
+      return acc;
+    }
+
+    items.forEach((item) => {
+      const resolvedParentId =
+        item.parent_id === undefined || item.parent_id === null
+          ? parentId
+          : Number(item.parent_id);
+
+      const normalized: VideoItem = {
+        id: Number(item.id),
+        name_en: item.name_en ?? item.video_title_en ?? "",
+        name_kh: item.name_kh ?? item.video_title_kh ?? "",
+        name_ch: item.name_ch ?? item.video_title_ch ?? "",
+        parent_id: resolvedParentId ?? null,
+        sort_order:
+          item.sort_order !== undefined && item.sort_order !== null
+            ? Number(item.sort_order) || 0
+            : 0,
+        video_title_en: item.video_title_en ?? null,
+        video_title_kh: item.video_title_kh ?? null,
+        video_title_ch: item.video_title_ch ?? null,
+        video_url: item.video_url ?? "",
+        video_thumb: item.video_thumb ?? "",
+        company_id: item.company_id ?? this.defaultCompanyId,
+        status:
+          item.status !== undefined && item.status !== null
+            ? Number(item.status)
+            : 0,
+        created_at: item.created_at ?? "",
+        updated_at: item.updated_at ?? "",
+      };
+
+      acc.push(normalized);
+
+      if (item.children_recursive && item.children_recursive.length > 0) {
+        this.normalizeVideoList(item.children_recursive, normalized.id, acc);
+      }
+    });
+
+    return acc;
+  }
+
   // ==================== BOOK/HELP CENTER API ====================
-  async getHelpCenter(companyId: string = 'PALM-01'): Promise<ApiResponse<TBook[]>> {
-    const url = `${this.baseUrl}/get-help_center/${companyId}`;
+  async getHelpCenter(companyId?: string): Promise<ApiResponse<TBook[]>> {
+    const cid = companyId || this.defaultCompanyId;
+    const url = this.buildApiUrl(this.helpCenterEndpoint, cid);
     console.log("getHelpCenter - Calling:", url);
     const response = await this.makeRequest<TBook[]>(url);
     console.log("getHelpCenter - Response:", response);
     return response;
   }
 
-  async getHelpCenterVideos(companyId: string = 'PALM-01'): Promise<ApiResponse<VideoItem[]>> {
-    const url = `${this.baseUrl}/get-help_center_video/${companyId}`;
+  async getHelpCenterVideos(companyId?: string): Promise<ApiResponse<VideoItem[]>> {
+    const cid = companyId || this.defaultCompanyId;
+    const url = this.buildApiUrl(this.videoEndpoint, cid);
     console.log("getHelpCenterVideos - Calling:", url);
     const response = await this.makeRequest<VideoItem[]>(url);
     console.log("getHelpCenterVideos - Response:", response);
@@ -444,7 +520,7 @@ export class UnifiedApi {
     search?: string;
     endpoint?: 'help_center' | 'help_center_video' | 'auto';
   }): Promise<ApiResponse<VideoItem[]>> {
-    const companyId = params?.company_id || 'PALM-01';
+    const companyId = params?.company_id || this.defaultCompanyId;
     const endpoint = params?.endpoint || 'auto';
     
     console.log("getVideos called with params:", params);
@@ -499,33 +575,60 @@ export class UnifiedApi {
       }
       
       console.log("getVideos final response:", response);
-      
-      if (response.success && response.data && params) {
+
+      // Normalize data so numeric fields become numbers and nested menus are flattened
+      if (response.success) {
+        const rawArray = Array.isArray(response.data)
+          ? response.data
+          : response.data
+            ? [response.data]
+            : [];
+        const normalized = this.normalizeVideoList(rawArray as RawVideoItem[]);
+        response = {
+          ...response,
+          data: normalized,
+        };
+      }
+
+      if (response.success && response.data) {
         let filteredData = response.data;
         
         console.log("Before filtering:", filteredData.length, "videos");
         
-        if (params.status !== undefined) {
-          filteredData = filteredData.filter(video => video.status === params.status);
+        if (params?.status !== undefined) {
+          const targetStatus = Number(params.status);
+          filteredData = filteredData.filter(
+            (video) => Number(video.status) === targetStatus,
+          );
           console.log("After status filter:", filteredData.length, "videos");
         }
         
-        if (params.parent_id !== undefined) {
-          filteredData = filteredData.filter(video => 
-            params.parent_id === null ? video.parent_id === null : video.parent_id === params.parent_id
-          );
+        if (params?.parent_id !== undefined) {
+          const targetParent =
+            params.parent_id === null
+              ? null
+              : Number(params.parent_id);
+          filteredData = filteredData.filter((video) => {
+            const videoParent =
+              video.parent_id === null || video.parent_id === undefined
+                ? null
+                : Number(video.parent_id);
+            return targetParent === null
+              ? videoParent === null
+              : videoParent === targetParent;
+          });
           console.log("After parent_id filter:", filteredData.length, "videos");
         }
         
-        if (params.search) {
+        if (params?.search) {
           const searchLower = params.search.toLowerCase();
-          filteredData = filteredData.filter(video => 
-            video.name_en?.toLowerCase().includes(searchLower) ||
-            video.name_kh?.toLowerCase().includes(searchLower) ||
-            video.name_ch?.toLowerCase().includes(searchLower) ||
-            video.video_title_en?.toLowerCase().includes(searchLower) ||
-            video.video_title_kh?.toLowerCase().includes(searchLower) ||
-            video.video_title_ch?.toLowerCase().includes(searchLower)
+          filteredData = filteredData.filter((video) =>
+            (video.name_en?.toLowerCase().includes(searchLower)) ||
+            (video.name_kh?.toLowerCase().includes(searchLower)) ||
+            (video.name_ch?.toLowerCase().includes(searchLower)) ||
+            (video.video_title_en?.toLowerCase().includes(searchLower)) ||
+            (video.video_title_kh?.toLowerCase().includes(searchLower)) ||
+            (video.video_title_ch?.toLowerCase().includes(searchLower))
           );
           console.log("After search filter:", filteredData.length, "videos");
         }
@@ -596,42 +699,14 @@ export class UnifiedApi {
   
   async getVideoById(id: number, endpoint?: 'help_center' | 'help_center_video'): Promise<ApiResponse<VideoItem>> {
     try {
-      if (endpoint === 'help_center') {
-        const bookResponse = await this.getHelpCenter();
-        if (bookResponse.success && bookResponse.data) {
-          const videos = this.extractVideosFromBooks(bookResponse.data);
-          const video = videos.find(v => v.id === id);
-          if (video) {
-            return { success: true, data: video };
-          }
-        }
-      } else if (endpoint === 'help_center_video') {
-        const videoResponse = await this.getHelpCenterVideos();
-        if (videoResponse.success && videoResponse.data) {
-          const video = videoResponse.data.find(v => v.id === id);
-          if (video) {
-            return { success: true, data: video };
-          }
-        }
-      } else {
-        const [videoResponse, bookResponse] = await Promise.all([
-          this.getHelpCenterVideos(),
-          this.getHelpCenter()
-        ]);
-        
-        if (videoResponse.success && videoResponse.data) {
-          const video = videoResponse.data.find(v => v.id === id);
-          if (video) {
-            return { success: true, data: video };
-          }
-        }
-        
-        if (bookResponse.success && bookResponse.data) {
-          const videos = this.extractVideosFromBooks(bookResponse.data);
-          const video = videos.find(v => v.id === id);
-          if (video) {
-            return { success: true, data: video };
-          }
+      const response = await this.getVideos({ endpoint });
+
+      if (response.success && response.data) {
+        const video = response.data.find(
+          (v) => Number(v.id) === Number(id),
+        );
+        if (video) {
+          return { success: true, data: video };
         }
       }
       
@@ -665,16 +740,18 @@ export class UnifiedApi {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000); 
+      const helpCenterUrl = this.buildApiUrl(this.helpCenterEndpoint, this.defaultCompanyId);
+      const videoUrl = this.buildApiUrl(this.videoEndpoint, this.defaultCompanyId);
       
       const [response1, response2] = await Promise.all([
-        fetch(`${this.baseUrl}/get-help_center/PALM-01`, {
+        fetch(helpCenterUrl, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
           },
           signal: controller.signal,
         }).catch(() => ({ ok: false })),
-        fetch(`${this.baseUrl}/get-help_center_video/PALM-01`, {
+        fetch(videoUrl, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,

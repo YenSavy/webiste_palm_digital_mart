@@ -17,7 +17,6 @@ import AuthLayout from "./layouts/AuthLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 import "aos/dist/aos.css";
-import UserPage from "./pages/Dashboard/UserPage";
 import DashboardLayout from "./layouts/DashboardLayout";
 import UserGuidePage from "./pages/Dashboard/UserGuidePage";
 import ErrorPage from "./pages/ErrorPage";
@@ -25,6 +24,7 @@ import VideoPage from "./pages/Dashboard/VideoPage";
 import Subcription from "./pages/Dashboard/Subcription";
 import Reports from "./pages/Dashboard/Reports";
 import Settingpage from "./pages/Dashboard/Settingpage";
+import Messages from "./pages/Dashboard/Messages";
 import MainBackground from "./components/shared/MainBackground";
 import MainHeader, { type THeaderProps } from "./components/shared/MainHeader";
 import { ThemeProvider } from "./components/user-guide/ThemeProvider";
@@ -124,9 +124,9 @@ function App() {
                 }
               >
                 <Route index element={<DashboardPage />} />
-                <Route path="user" element={<UserPage />} />
                 <Route path="subscription" element={<Subcription />} />
                 <Route path="reports" element={<Reports />} />
+                <Route path="messages" element={<Messages />} />
                 <Route path="user-guide" element={<UserGuidePage />} />
                 <Route path="settings" element={<Settingpage />} />
               </Route>

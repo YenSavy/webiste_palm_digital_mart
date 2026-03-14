@@ -179,6 +179,13 @@ export default function VideoContent({
     return id;
   }, [videoData]);
 
+  const embedUrl = useMemo(() => {
+    return videoUtils.getYouTubeEmbedUrl(
+      videoData?.video_url || youtubeId || null,
+      { autoplay: true, rel: 0 }
+    );
+  }, [videoData?.video_url, youtubeId]);
+
   const thumbnailUrl = useMemo(() => {
     if (videoData?.video_thumb) {
       return videoData.video_thumb;
@@ -393,14 +400,15 @@ export default function VideoContent({
           {/* Video Player */}
           <div className="mb-8">
             <div className="aspect-video bg-black rounded-xl overflow-hidden mb-6 shadow-lg">
-              {youtubeId ? (
+              {embedUrl ? (
                 <iframe
-                  src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
+                  src={embedUrl}
                   title={getVideoTitle()}
                   className="w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
                   loading="lazy"
+                  referrerPolicy="strict-origin-when-cross-origin"
                 />
               ) : videoData && videoData.video_url ? (
                 <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black">
