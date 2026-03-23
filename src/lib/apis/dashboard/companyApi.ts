@@ -162,6 +162,10 @@ export type TPlanSubscriptionInput = {
   
   
 }
+export type TPlanSubscriptionResponse = {
+  status: number;
+  message: string;
+};
 
 export const subscribePlan = async (payload: TPlanSubscriptionInput) => {
   const res = await axiosInstance.post<{status: number; message: string;}>("/company/subscribe", null, {
