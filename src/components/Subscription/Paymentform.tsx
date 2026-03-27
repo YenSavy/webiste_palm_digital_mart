@@ -7,7 +7,7 @@ import type { PaymentMethod } from "../../types/subscription";
 interface PaymentFormProps {
   paymentMethod: PaymentMethod;
   cardNumber: string;
-  cardExpiry: string;
+  cardExpiry: string; 
   cardCvc: string;
   bankName: string;
   bankAccountName: string;
@@ -203,6 +203,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         </div>
       ))}
     </div>
+    
   );
 };
 

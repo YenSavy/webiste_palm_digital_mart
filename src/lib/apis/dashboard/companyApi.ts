@@ -79,12 +79,7 @@ export const saveCompanyInfo = async (
   const res = await axiosInstance.post<ApiResponse<TSaveCompanyResponse>>(
     "/company/create",
     null,
-    {
-      params: {
-        company_name_en,
-        village,
-      },
-    }
+    { params: { company_name_en, village } }
   );
   return res.data;
 };
@@ -105,39 +100,40 @@ export const createWarehouse = async (payload: TCreateWarehouseInput) => {
   return res.data;
 };
 
-
-
 export type TCreatePositionInput = {
   company_id: string;
   position_km: string;
   position_en: string;
   description: string;
-}
+};
 
 export type TCreatePositionResponse = {
   id: string;
   company_id: 1;
   position_km: string;
-  position_en:  string;
+  position_en: string;
   description: string;
-  created_by: string | number
-  updated_at: string
+  created_by: string | number;
+  updated_at: string;
   created_at: string;
-}
+};
 
 export const createPosition = async (payload: TCreatePositionInput) => {
-  const res = await axiosInstance.post<ApiResponse<TCreatePositionResponse>>("/position", payload)
-  return res.data
-}
-
+  const res = await axiosInstance.post<ApiResponse<TCreatePositionResponse>>(
+    "/position",
+    payload
+  );
+  return res.data;
+};
 
 export type TCreateCurrencyInput = {
   crrcode: string;
   crrname: string;
   crrbase: number;
   crrsymbol: string;
-  rate: number
-}
+  rate: number;
+};
+
 export type TCreateCurrencyResponse = {
   company_id: string;
   currency_id: string;
@@ -145,37 +141,88 @@ export type TCreateCurrencyResponse = {
   currencyname: string;
   default: number;
   currency: string;
-  rate: number
+  rate: number;
   updated_at: string;
   created_at: string;
-}
+};
 
 export const createCurrency = async (payload: TCreateCurrencyInput) => {
-  const res = await axiosInstance.post<ApiResponse<TCreateCurrencyResponse>>("/createCurrency", payload)
-  return res.data
-}
+  const res = await axiosInstance.post<ApiResponse<TCreateCurrencyResponse>>(
+    "/createCurrency",
+    payload
+  );
+  return res.data;
+};
 
 export type TPlanSubscriptionInput = {
   company_id: string;
   pricing_plan_id: string;
+  amount: number;
+};
 
-  
-  
-}
+
 export type TPlanSubscriptionResponse = {
   status: number;
   message: string;
+  sale: {
+    original: {
+      status: string;
+      id: string;
+    };
+  };
 };
 
 export const subscribePlan = async (payload: TPlanSubscriptionInput) => {
-  const res = await axiosInstance.post<{status: number; message: string;}>("/company/subscribe", null, {
-      params: payload
-  })  
-  return res.data
-}
+  const res = await axiosInstance.post<TPlanSubscriptionResponse>(
+    "/company/subscribe",
+    null,
+    { params: payload }
+  );
+
+  // normalize response
+  return {
+    ...res.data,
+    sale_id: res.data.sale?.original?.id,
+  };
+};
+
 export const unsubscribePlan = async (payload: TPlanSubscriptionInput) => {
-  const res = await axiosInstance.post<{status: number; message: string;}>("/company/unsubscribe", null, {
-      params: payload
-  })  
-  return res.data
-}
+  const res = await axiosInstance.post<{ status: number; message: string }>(
+    "/company/unsubscribe",
+    null,
+    { params: payload }
+  );
+  return res.data;
+};
+
+
+
+export type TKHQRStatus = {
+  code: string;
+  message: string;
+  tran_id: string;
+};
+
+export type TKHQRData = {
+  status: TKHQRStatus;
+  description: string;
+  qr_string: string;
+  abapay_deeplink: string;
+  checkout_qr_url: string;
+  lifetime: number;
+};
+
+export type TKHQRDeeplinkResponse = {
+  data: TKHQRData;
+  message: string;
+  currency: string;
+};
+
+
+export const getKHQRDeeplinkPalm = async (sale_id: number) => {
+  const res = await axiosInstance.get<TKHQRDeeplinkResponse>(
+    "/get-khqr-deeplink-palm",
+    { params: { sale_id } }
+  );
+  return res.data;
+};

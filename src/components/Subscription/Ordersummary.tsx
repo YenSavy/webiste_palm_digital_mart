@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -13,6 +13,10 @@ import { cn } from "../../lib/utils";
 import { getLangSwitch } from "../../hooks/useLangSwitch";
 import { useThemeStore } from "../../store/themeStore";
 import type { BillingMode, PaymentMethod } from "../../types/subscription";
+import {
+  getKHQRDeeplinkPalm,
+  subscribePlan,
+} from "../../lib/apis/dashboard/companyApi";
 
 interface Plan {
   id: string;
@@ -33,10 +37,13 @@ interface OrderSummaryProps {
   isSubscribing: boolean;
   isUnsubscribing: boolean;
   message: string;
+  companyId: string;       // needed to subscribe before KHQR
+  selectedPlanId: string;  // needed to subscribe before KHQR
   onBack: () => void;
   onSubscribe: () => void;
   onUnsubscribe: () => void;
   onTryFree: () => void;
+  onMessage: (msg: string) => void; // set message in parent
 }
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({
@@ -49,13 +56,19 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   isSubscribing,
   isUnsubscribing,
   message,
+  companyId,
+  selectedPlanId,
   onBack,
-  onSubscribe,
+  // onSubscribe,
   onUnsubscribe,
   onTryFree,
+  onMessage,
 }) => {
   const theme = useThemeStore((state) => state.getTheme());
-  const isActionLoading = isSubscribing || isUnsubscribing;
+  const [isLoadingKHQR, setIsLoadingKHQR] = useState<boolean>(false);
+  const [khqrError, setKhqrError] = useState<string>("");
+
+  const isActionLoading = isSubscribing || isUnsubscribing || isLoadingKHQR;
 
   const paymentLabel =
     paymentMethod === "bank_transfer"
@@ -64,28 +77,86 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       ? "Credit Card"
       : "KH QR Code";
 
-  const subscribeButtonContent = () => {
-    if (isSubscribing)
+
+  const handleKHQRPay = async (): Promise<void> => {
+    if (!selectedPlanId || !companyId.trim()) {
+      setKhqrError("Please select a plan and provide company ID.");
+      return;
+    }
+    try {
+      setIsLoadingKHQR(true);
+      setKhqrError("");
+      onMessage("");
+
+      const subRes = await subscribePlan({
+        company_id: companyId.trim(),
+        pricing_plan_id: selectedPlanId,
+         amount: grandTotal,
+      });
+
+      const saleId =
+  (subRes as any)?.sale_id ||
+  (subRes as any)?.sale?.original?.id;
+
+if (!saleId) {
+  setKhqrError(`sale_id missing. Response: ${JSON.stringify(subRes)}`);
+  return;
+}
+
+      const khqrRes = await getKHQRDeeplinkPalm(saleId);
+      const url = khqrRes?.data?.checkout_qr_url;
+
+      if (url) {
+        window.location.href = url; 
+      } else {
+        setKhqrError("Could not retrieve KHQR checkout URL. Please try again.");
+      }
+    } catch (err: any) {
+      setKhqrError(
+        err?.response?.data?.message || "KHQR payment failed. Please try again."
+      );
+    } finally {
+      setIsLoadingKHQR(false);
+    }
+  };
+
+  const handleSubscribeClick = (): void => {
+    handleKHQRPay();
+  };
+
+  const subscribeButtonContent = (): React.ReactNode => {
+    if (isLoadingKHQR) {
+      return (
+        <span className="inline-flex items-center gap-2">
+          <Loader2 size={14} className="animate-spin" /> Loading KHQR...
+        </span>
+      );
+    }
+    if (isSubscribing) {
       return (
         <span className="inline-flex items-center gap-2">
           <Loader2 size={14} className="animate-spin" /> Subscribing...
         </span>
       );
-    if (paymentMethod === "credit_card")
+    }
+    if (paymentMethod === "credit_card") {
       return (
         <span className="inline-flex items-center gap-2">
           <CreditCard size={14} /> Pay by Card &amp; Subscribe
         </span>
       );
-    if (paymentMethod === "bank_transfer")
+    }
+    if (paymentMethod === "bank_transfer") {
       return (
         <span className="inline-flex items-center gap-2">
           <Landmark size={14} /> Submit Transfer &amp; Subscribe
         </span>
       );
+    }
+    // kh_qr
     return (
       <span className="inline-flex items-center gap-2">
-        <QrCode size={14} /> I've Paid via KH QR
+        <QrCode size={14} /> Pay via KH QR
       </span>
     );
   };
@@ -158,7 +229,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         </button>
 
         <button
-          onClick={onSubscribe}
+          onClick={handleSubscribeClick}
           disabled={isActionLoading}
           className="px-4 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-60 inline-flex items-center gap-2"
           style={{ backgroundColor: theme.accent }}
@@ -185,6 +256,15 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         </button>
       </div>
 
+      {/* KHQR error */}
+      {khqrError && (
+        <p className="mt-3 text-sm text-red-500 flex items-center gap-2">
+          <X size={14} />
+          {khqrError}
+        </p>
+      )}
+
+      {/* Success / info message */}
       {message && (
         <p className={cn("mt-4 text-sm flex items-center gap-2", theme.textSecondary)}>
           <CheckCircle2 size={14} />

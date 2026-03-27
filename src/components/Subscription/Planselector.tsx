@@ -3,7 +3,6 @@ import { Check } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { getCurrentLang } from "../../hooks/useCurrentLang";
 import { fetchPlans } from "../../lib/apis/home-page/planApi";
-import { subscribePlan } from "../../lib/apis/dashboard/companyApi";
 import { useThemeStore } from "../../store/themeStore";
 import type { BillingMode } from "../../types/subscription";
 import type { TPricingProps } from "../../components/shared/home/Pricing";
@@ -12,7 +11,6 @@ import TermsConditionDialog from "./Termsconditiondialog";
 interface PlanSelectorProps {
   billingMode: BillingMode;
   selectedPlanId: string;
-  companyId: string;       
   message: string;
   onBillingModeChange: (mode: BillingMode) => void;
   onSelectPlan: (id: string) => void;
@@ -22,7 +20,6 @@ interface PlanSelectorProps {
 const PlanSelector: React.FC<PlanSelectorProps> = ({
   billingMode,
   selectedPlanId,
-  companyId,             
   message,
   onBillingModeChange,
   onSelectPlan,
@@ -34,13 +31,11 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({
   const [plans, setPlans] = useState<TPricingProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [subscribing, setSubscribing] = useState(false); 
 
   const [termsOpen, setTermsOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-
     const load = async () => {
       try {
         setLoading(true);
@@ -53,7 +48,6 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({
         if (!cancelled) setLoading(false);
       }
     };
-
     load();
     return () => { cancelled = true; };
   }, []);
@@ -65,22 +59,9 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({
     setTermsOpen(true);
   };
 
-
-  const handleAcceptTerms = async () => {
+  const handleAcceptTerms = () => {
     setTermsOpen(false);
-    try {
-      setSubscribing(true);
-      await subscribePlan({
-        company_id: companyId,
-        pricing_plan_id: selectedPlanId,
-      });
-      onContinue(); 
-    } catch (err) {
-      console.error("Subscription failed:", err);
-      setError("Subscription failed. Please try again.");
-    } finally {
-      setSubscribing(false);
-    }
+    onContinue();
   };
 
   const handleDeclineTerms = () => {
@@ -125,7 +106,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({
           </div>
         </div>
 
-        {/* Loading / error states */}
+        {/* Loading / error */}
         {loading && (
           <p className={cn("text-center text-sm py-8", theme.textSecondary)}>
             Loading plans…
@@ -216,11 +197,11 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({
           </div>
           <button
             onClick={handleContinueClick}
-            disabled={!selectedPlanId || loading || subscribing}
+            disabled={!selectedPlanId || loading}
             className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60"
             style={{ backgroundColor: theme.accent }}
           >
-            {subscribing ? "Processing…" : "Continue to Payment"}
+            Continue to Payment
           </button>
         </div>
       </section>

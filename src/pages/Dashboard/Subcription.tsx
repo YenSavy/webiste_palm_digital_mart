@@ -1,23 +1,34 @@
 import React, { useMemo, useState } from "react";
-import { useSubscribePlanMutation, useUnsubscribePlanMutation } from "../../lib/mutations";
+import {
+  useSubscribePlanMutation,
+  useUnsubscribePlanMutation,
+} from "../../lib/mutations";
 import { usePlan } from "../../lib/queries";
 import useDashboardStore from "../../store/dashboardStore";
 
-import StepHeader   from "../../components/Subscription/Stepheader";
+import StepHeader from "../../components/Subscription/Stepheader";
 import PlanSelector from "../../components/Subscription/Planselector";
-import PaymentForm  from "../../components/Subscription/Paymentform";
+import PaymentForm from "../../components/Subscription/Paymentform";
 import OrderSummary from "../../components/Subscription/Ordersummary";
-import TrialDialog  from "../../components/Subscription/Trialdialog";
-import type { BillingMode, PaymentMethod, TrialStep } from "../../types/subscription";
+import TrialDialog from "../../components/Subscription/Trialdialog";
+import type {
+  BillingMode,
+  PaymentMethod,
+  TrialStep,
+} from "../../types/subscription";
 import { cn } from "../../lib/utils";
 import { useThemeStore } from "../../store/themeStore";
 
 const SubscriptionPage: React.FC = () => {
   const theme = useThemeStore((state) => state.getTheme());
   const { data } = usePlan();
-  const setSubscriptionCompleted = useDashboardStore((state) => state.setSubscriptionCompleted);
-  const { mutate: subscribePlan, isPending: isSubscribing } = useSubscribePlanMutation();
-  const { mutate: unsubscribePlan, isPending: isUnsubscribing } = useUnsubscribePlanMutation();
+  const setSubscriptionCompleted = useDashboardStore(
+    (state) => state.setSubscriptionCompleted,
+  );
+  const { mutate: subscribePlan, isPending: isSubscribing } =
+    useSubscribePlanMutation();
+  const { mutate: unsubscribePlan, isPending: isUnsubscribing } =
+    useUnsubscribePlanMutation();
 
   // ── Step & plan
   const [step, setStep] = useState<1 | 2>(1);
@@ -25,7 +36,8 @@ const SubscriptionPage: React.FC = () => {
   const [selectedPlanId, setSelectedPlanId] = useState<string>("");
 
   // ── Payment
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("bank_transfer");
+  const [paymentMethod, setPaymentMethod] =
+    useState<PaymentMethod>("bank_transfer");
   const [cardNumber, setCardNumber] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvc, setCardCvc] = useState("");
@@ -40,7 +52,9 @@ const SubscriptionPage: React.FC = () => {
   const [billingAddress, setBillingAddress] = useState("");
   const [invoiceType, setInvoiceType] = useState("Tax Invoice");
   const [vatTin, setVatTin] = useState("");
-  const [companyId, setCompanyId] = useState<string>(import.meta.env.VITE_COMPANY_ID || "");
+  const [companyId, setCompanyId] = useState<string>(
+    import.meta.env.VITE_COMPANY_ID || "",
+  );
   const [promotionCode, setPromotionCode] = useState("");
 
   // ── Feedback
@@ -54,10 +68,11 @@ const SubscriptionPage: React.FC = () => {
   // ── Derived
   const selectedPlan = useMemo(
     () => data?.data?.find((p) => p.id === selectedPlanId),
-    [data?.data, selectedPlanId]
+    [data?.data, selectedPlanId],
   );
   const planPrice = Number.parseFloat(selectedPlan?.price || "0") || 0;
-  const effectivePlanPrice = billingMode === "yearly" ? planPrice * 12 * 0.85 : planPrice;
+  const effectivePlanPrice =
+    billingMode === "yearly" ? planPrice * 12 * 0.85 : planPrice;
   const vatAmount = effectivePlanPrice * 0.1;
   const grandTotal = effectivePlanPrice + vatAmount;
   const businessName = displayName || "yuhong";
@@ -79,12 +94,15 @@ const SubscriptionPage: React.FC = () => {
       return "";
     }
     if (paymentMethod === "bank_transfer") {
-      if (!bankName.trim() || !bankAccountName.trim() || !transferReference.trim())
+      if (
+        !bankName.trim() ||
+        !bankAccountName.trim() ||
+        !transferReference.trim()
+      )
         return "Please complete bank transfer information.";
       return "";
     }
-    if (!khQrTxnId.trim() || !khQrConfirmed)
-      return "Please enter KH QR transaction ID and confirm payment.";
+    // kh_qr — no local validation needed; KHQR redirects to ABA Payway
     return "";
   };
 
@@ -94,10 +112,17 @@ const SubscriptionPage: React.FC = () => {
       return;
     }
     const err = validatePayment();
-    if (err) { setMessage(err); return; }
+    if (err) {
+      setMessage(err);
+      return;
+    }
 
     subscribePlan(
-      { company_id: companyId.trim(), pricing_plan_id: selectedPlanId },
+      {
+        company_id: companyId.trim(),
+        pricing_plan_id: selectedPlanId,
+        amount: grandTotal,
+      },
       {
         onSuccess: (res) => {
           setSubscriptionCompleted(true);
@@ -107,7 +132,7 @@ const SubscriptionPage: React.FC = () => {
           setSubscriptionCompleted(false);
           setMessage(error.message || "Subscribe failed.");
         },
-      }
+      },
     );
   };
 
@@ -117,7 +142,11 @@ const SubscriptionPage: React.FC = () => {
       return;
     }
     unsubscribePlan(
-      { company_id: companyId.trim(), pricing_plan_id: selectedPlanId },
+      {
+        company_id: companyId.trim(),
+        pricing_plan_id: selectedPlanId,
+        amount: grandTotal, 
+      },
       {
         onSuccess: (res) => {
           setSubscriptionCompleted(false);
@@ -126,7 +155,7 @@ const SubscriptionPage: React.FC = () => {
         onError: (error) => {
           setMessage(error.message || "Unsubscribe failed.");
         },
-      }
+      },
     );
   };
 
@@ -173,13 +202,15 @@ const SubscriptionPage: React.FC = () => {
       {step === 2 && (
         <section
           className={cn(
-            `bg-gradient-to-br ${theme.cardBg} backdrop-blur-sm border ${theme.border} rounded-2xl p-6`
+            `bg-gradient-to-br ${theme.cardBg} backdrop-blur-sm border ${theme.border} rounded-2xl p-6`,
           )}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left: payment form */}
             <div>
-              <h2 className={cn("text-xl font-bold mb-4", theme.text)}>Payment Option</h2>
+              <h2 className={cn("text-xl font-bold mb-4", theme.text)}>
+                Payment Option
+              </h2>
               <PaymentForm
                 paymentMethod={paymentMethod}
                 cardNumber={cardNumber}
@@ -225,10 +256,13 @@ const SubscriptionPage: React.FC = () => {
               isSubscribing={isSubscribing}
               isUnsubscribing={isUnsubscribing}
               message={message}
+              companyId={companyId}
+              selectedPlanId={selectedPlanId}
               onBack={() => setStep(1)}
               onSubscribe={handleSubscribe}
               onUnsubscribe={handleUnsubscribe}
               onTryFree={handleTryFree}
+              onMessage={setMessage}
             />
           </div>
         </section>
@@ -241,7 +275,10 @@ const SubscriptionPage: React.FC = () => {
         progress={progress}
         businessName={businessName}
         onClose={closeTrialDialog}
-        onAccessNow={() => { console.log("Access business now"); closeTrialDialog(); }}
+        onAccessNow={() => {
+          console.log("Access business now");
+          closeTrialDialog();
+        }}
         onNotNow={closeTrialDialog}
       />
     </div>
