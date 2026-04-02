@@ -3,6 +3,7 @@ import { Palmtree, X } from "lucide-react";
 import { useThemeStore } from "../../../store/themeStore";
 import useDashboardStore from "../../../store/dashboardStore";
 import { navItems } from "../../../constants/dashboard";
+import { useCompanyStatus } from "../../../hooks/useCompanyStatus";
 
 interface StepsToUseSidebarProps {
   isSidebarOpen: boolean;
@@ -18,28 +19,15 @@ const StepsToUseSidebar: React.FC<StepsToUseSidebarProps> = ({
   onToggleSidebar,
 }) => {
   const theme = useThemeStore((state) => state.getTheme());
-  const { isMinimized, savedCategories, subscriptionCompleted } =
-    useDashboardStore();
-  const isDashboardCompleted = [
-    "company",
-    "branch",
-    "warehouse",
-    "position",
-    "currency",
-  ].every((category) => savedCategories.includes(category));
-  const isAllUnlocked = subscriptionCompleted;
+  const { isMinimized } = useDashboardStore();
+  const { hasCompany } = useCompanyStatus();
 
-  const isItemLocked = (id: string) => {
-    if (!id && (isAllUnlocked || isDashboardCompleted)) return false;
+  // Hide "Company Profile" once the user has already created their company
+  const visibleNavItems = navItems.filter(
+    (item) => !(item.id === "dashboard" && hasCompany)
+  );
 
-    // Original lock logic:
-    // if (isAllUnlocked) return false;
-    // if (id === "dashboard") return false;
-    // if (id === "subscription") return !isDashboardCompleted;
-    // return true;
-
-    return false;
-  };
+  const isItemLocked = (_id: string) => false;
 
   return (
     <aside
@@ -91,7 +79,7 @@ const StepsToUseSidebar: React.FC<StepsToUseSidebarProps> = ({
       </div>
 
       <nav className="flex-1 py-6 px-3 space-y-2">
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeNav === item.id;
           const isLocked = isItemLocked(item.id);

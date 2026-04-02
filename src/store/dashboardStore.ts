@@ -4,13 +4,14 @@ import { persist } from 'zustand/middleware';
 interface DashboardStore {
   activeCategory: string;
   savedCategories: string[];
-  isMinimized: boolean; 
+  isMinimized: boolean;
   subscriptionCompleted: boolean;
   setActiveCategory: (category: string) => void;
   addSavedCategory: (category: string) => void;
   removeSavedCategory: (category: string) => void;
-  toggleMinimize: () => void; 
+  toggleMinimize: () => void;
   setSubscriptionCompleted: (completed: boolean) => void;
+  reset: () => void;
 }
 
 const useDashboardStore = create<DashboardStore>()(
@@ -35,6 +36,8 @@ const useDashboardStore = create<DashboardStore>()(
         isMinimized: !state.isMinimized 
       })), 
       setSubscriptionCompleted: (completed) => set({ subscriptionCompleted: completed }),
+      reset: () =>
+        set({ activeCategory: 'company', savedCategories: [], subscriptionCompleted: false }),
     }),
     {
       name: 'dashboard-storage',

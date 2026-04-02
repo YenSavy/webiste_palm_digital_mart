@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { useThemeStore } from '../../../../store/themeStore'
 import { useAuthStore } from '../../../../store/authStore'
 import type { TCreateCompanyInput } from '../../../../types'
@@ -9,6 +11,8 @@ import { LocationDetailsSection } from './sections/LocationDetailSection'
 import { FormActions } from './FormActions'
 import { useCreateCompanyMutation } from '../../../../lib/mutations'
 import useDashboardStore from '../../../../store/dashboardStore'
+import axiosInstance from '../../../../lib/api'
+import { COMPANY_STATUS_KEY } from '../../../../hooks/useCompanyStatus'
 
 const INITIAL_FORM_DATA = {
   companyNameLocal: '',
@@ -29,7 +33,11 @@ const INITIAL_FORM_DATA = {
 const COUNTRIES = [{ key: 'KHR', value: 'ប្រទេសកម្ពុជា' }]
 
 const CreateCompany: React.FC = () => {
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const user = useAuthStore((state) => state.user)
   const token = useAuthStore((state) => state.token)
+  const userId = user?.email ?? user?.phone ?? 'guest'
   const theme = useThemeStore((state) => state.getTheme())
   const addSavedCategory = useDashboardStore((state) => state.addSavedCategory)
   const [formData, setFormData] = useState<TCreateCompanyInput>(INITIAL_FORM_DATA)
@@ -161,10 +169,36 @@ const CreateCompany: React.FC = () => {
     saveCompany(
       requestData,
       {
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
           setIsError(false)
           setMessage(`បានបង្កើតក្រុមហ៊ុន "${data.data.company_name_en}" ដោយជោគជ័យ`)
           addSavedCategory('company')
+          // Invalidate company status so sidebar hides Company Profile immediately
+          queryClient.invalidateQueries({ queryKey: [COMPANY_STATUS_KEY, userId] })
+
+          // The create API only accepts company_name_en + village.
+          // Save all other fields (email, phone, address, etc.) via the update endpoint.
+          const companyCode = data.data.company_code
+          if (companyCode) {
+            try {
+              await axiosInstance.put(`/company/update/${companyCode}`, null, {
+                params: {
+                  company_name_en: formData.companyNameEnglish,
+                  company_name_local: formData.companyNameLocal,
+                  village: formData.village,
+                  email: formData.email,
+                  phone: formData.phone,
+                  address_english: formData.addressEnglish,
+                  home_str_number: formData.homeStrNumber,
+                  road_str_number: formData.roadStrNumber,
+                },
+              })
+            } catch {
+              // silently ignore — company was still created
+            }
+          }
+
+          setTimeout(() => navigate('/dashboard/subscription'), 1200)
         },
         onError: (data) => {
           setIsError(true)

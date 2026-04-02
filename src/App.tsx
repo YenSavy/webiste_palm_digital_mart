@@ -26,6 +26,7 @@ import Subcription from "./pages/Dashboard/Subcription";
 import Reports from "./pages/Dashboard/Reports";
 import Settingpage from "./pages/Dashboard/Settingpage";
 import Messages from "./pages/Dashboard/Messages";
+import ProfileInfoPage from "./pages/Dashboard/ProfileInfoPage";
 import MainBackground from "./components/shared/MainBackground";
 import MainHeader, { type THeaderProps } from "./components/shared/MainHeader";
 import { ThemeProvider } from "./components/user-guide/ThemeProvider";
@@ -127,6 +128,7 @@ function App() {
                 <Route index element={<DashboardPage />} />
                 {/* <Route path="user" element={<UserPage />} /> */}
 
+                <Route path="profile-info" element={<ProfileInfoPage />} />
                 <Route path="subscription" element={<Subcription />} />
                 <Route path="reports" element={<Reports />} />
                 <Route path="messages" element={<Messages />} />

@@ -1,13 +1,12 @@
 import React, { useState } from "react";
-import { User, Receipt, ShieldCheck, CalendarClock } from "lucide-react";
+import { Receipt, ShieldCheck, CalendarClock } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useThemeStore } from "../../store/themeStore";
-import ProfileInfor from "../../components/settings/Profileinfor";
 import Billing from "../../components/settings/Billing";
 import Security from "../../components/settings/Security";
 import Timesandcondition from "../../components/settings/Timesandcondition";
 
-type TabKey = "profile" | "billing" | "security" | "timesandcondition";
+type TabKey = "billing" | "security" | "timesandcondition";
 
 interface Tab {
   key: TabKey;
@@ -18,15 +17,9 @@ interface Tab {
 
 const SettingPage: React.FC = () => {
   const theme = useThemeStore((state) => state.getTheme());
-  const [activeTab, setActiveTab] = useState<TabKey>("profile");
+  const [activeTab, setActiveTab] = useState<TabKey>("billing");
 
   const tabs: Tab[] = [
-    {
-      key: "profile",
-      label: "Profile Info",
-      icon: <User size={15} />,
-      component: <ProfileInfor />,
-    },
     {
       key: "billing",
       label: "Billing",
@@ -61,7 +54,7 @@ const SettingPage: React.FC = () => {
           <div>
             <h1 className={cn("text-2xl font-bold", theme.text)}>Settings</h1>
             <p className={cn("mt-1 text-sm", theme.textSecondary)}>
-              Manage your profile, billing, and security preferences.
+              Manage your billing and security preferences.
             </p>
           </div>
         </div>

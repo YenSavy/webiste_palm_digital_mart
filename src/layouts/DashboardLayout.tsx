@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useThemeStore } from '../store/themeStore'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { useQueryClient } from '@tanstack/react-query'
 import StepsToUseSidebar from '../components/shared/dashboard/StepsToUseSidebar'
 import Header from '../components/shared/dashboard/Header'
 import useDashboardStore from '../store/dashboardStore'
@@ -17,6 +18,7 @@ const DashboardLayout: React.FC = () => {
   const { isMinimized } = useDashboardStore()
 
   const navigate = useNavigate();
+  const queryClient = useQueryClient()
   const handleNavClick = (id: string, path?: string) => {
     setActiveNav(id)
     if (path) navigate(path)
@@ -25,6 +27,13 @@ const DashboardLayout: React.FC = () => {
     }
   }
   const { logout } = useAuthStore()
+  const resetDashboard = useDashboardStore((state) => state.reset)
+
+  const handleLogout = () => {
+    queryClient.clear()    // wipe all React Query cache
+    resetDashboard()       // wipe dashboard localStorage state
+    logout()
+  }
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
   
   return (
@@ -41,7 +50,7 @@ const DashboardLayout: React.FC = () => {
           isMinimized ? 'lg:ml-[80px]' : 'lg:ml-64'
         }`}
       >
-        <Header toggleSidebar={toggleSidebar} onLogout={() => logout()} />
+        <Header toggleSidebar={toggleSidebar} onLogout={handleLogout} />
         
         <main className='p-4 sm:p-6 lg:p-8'>
           <Outlet />
