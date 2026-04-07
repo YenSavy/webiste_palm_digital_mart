@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useThemeStore } from "../../store/themeStore";
 import { useAuthStore } from "../../store/authStore";
@@ -10,11 +10,153 @@ import {
 import axiosInstance from "../../lib/api";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const getList = (res: any): any[] => {
-  if (Array.isArray(res?.data)) return res.data;
-  if (Array.isArray(res?.data?.data)) return res.data.data;
-  if (res?.data && typeof res.data === "object" && !Array.isArray(res.data)) return [res.data];
-  return [];
+const DEFAULT_COLLECTION_KEYS = ["data", "items", "results", "rows", "list"];
+const WRAPPER_ONLY_KEYS = ["data", "status", "success", "message", "error", "meta"];
+
+const getList = (
+  payload: unknown,
+  preferredKeys: string[] = [],
+  depth = 0
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Record<string, any>[] => {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (!payload || typeof payload !== "object" || depth > 4) {
+    return [];
+  }
+
+  const record = payload as Record<string, unknown>;
+
+  for (const key of [...preferredKeys, ...DEFAULT_COLLECTION_KEYS]) {
+    const candidate = record[key];
+
+    if (Array.isArray(candidate)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return candidate as Record<string, any>[];
+    }
+
+    const nestedItems = getList(candidate, preferredKeys, depth + 1);
+    if (nestedItems.length > 0) {
+      return nestedItems;
+    }
+  }
+
+  for (const value of Object.values(record)) {
+    if (Array.isArray(value)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return value as Record<string, any>[];
+    }
+  }
+
+  const keys = Object.keys(record);
+  const hasOnlyWrapperFields =
+    keys.length > 0 && keys.every((key) => WRAPPER_ONLY_KEYS.includes(key));
+
+  if (hasOnlyWrapperFields) {
+    return [];
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return keys.length > 0 ? [record as Record<string, any>] : [];
+};
+
+const toStringValue = (...values: unknown[]) => {
+  const found = values.find(
+    (value) =>
+      value !== null &&
+      value !== undefined &&
+      String(value).trim().length > 0
+  );
+
+  return found === undefined || found === null ? "" : String(found);
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const normalizeBranchItem = (item: Record<string, any>) => {
+  const itemId = toStringValue(item.id, item.branch_id, item.branch_code);
+  const branchId = toStringValue(item.branch_id, item.branch_code, item.id);
+  const branchCode = toStringValue(item.branch_code, item.branch_id, item.id);
+  const branchEn = toStringValue(
+    item.branch_en,
+    item.branch_name_en,
+    item.name_en,
+    item.name
+  );
+  const branchKm = toStringValue(
+    item.branch_km,
+    item.branch_name_km,
+    item.name_kh,
+    item.name_km
+  );
+  const branchPhone = toStringValue(item.phone, item.branch_phone);
+  const telegram = toStringValue(
+    item.telegram,
+    item.telegram_username,
+    item.telegram_url
+  );
+  const branchEmail = toStringValue(item.email, item.branch_email);
+  const branchAddressEn = toStringValue(
+    item.address_en,
+    item.branch_address_en,
+    item.address
+  );
+  const latitude = toStringValue(item.latitude, item.lat);
+  const longitude = toStringValue(item.longitude, item.lng);
+
+  return {
+    ...item,
+    id: itemId,
+    branch_id: branchId,
+    branch_code: branchCode,
+    branch_en: branchEn,
+    branch_km: branchKm,
+    branch_name_en: branchEn,
+    branch_name_km: branchKm,
+    email: branchEmail,
+    branch_email: branchEmail,
+    phone: branchPhone,
+    branch_phone: branchPhone,
+    address_en: branchAddressEn,
+    branch_address_en: branchAddressEn,
+    telegram,
+    latitude,
+    longitude,
+    lat: latitude,
+    lng: longitude,
+    branch_contact: toStringValue(branchPhone, telegram, branchEmail),
+  };
+};
+
+const buildBranchUpdatePayload = (data: Record<string, string>) => {
+  const branchEn = toStringValue(data.branch_en, data.branch_name_en);
+  const branchKm = toStringValue(data.branch_km, data.branch_name_km);
+  const email = toStringValue(data.email, data.branch_email);
+  const phone = toStringValue(data.phone, data.branch_phone);
+  const addressEn = toStringValue(data.address_en, data.branch_address_en);
+  const latitude = toStringValue(data.latitude, data.lat);
+  const longitude = toStringValue(data.longitude, data.lng);
+  const telegram = toStringValue(data.telegram);
+
+  return {
+    ...data,
+    branch_en: branchEn,
+    branch_km: branchKm,
+    email,
+    phone,
+    address_en: addressEn,
+    latitude,
+    longitude,
+    telegram,
+    branch_name_en: branchEn,
+    branch_name_km: branchKm,
+    branch_email: email,
+    branch_phone: phone,
+    branch_address_en: addressEn,
+    lat: latitude,
+    lng: longitude,
+  };
 };
 
 // ─── Inline API helpers ───────────────────────────────────────────────────────
@@ -29,8 +171,12 @@ const fetchers = {
 const updaters = {
   company: (id: string, data: Record<string, string>) =>
     axiosInstance.put(`/company/update/${id}`, null, { params: data }).then((r) => r.data),
-  branch: (id: string, data: Record<string, string>) =>
-    axiosInstance.put(`/branches/update/${id}`, null, { params: data }).then((r) => r.data),
+  branch: (id: string, data: Record<string, string>) => {
+    const payload = buildBranchUpdatePayload(data);
+    return axiosInstance
+      .put(`/branches/update/${id}`, payload, { params: payload })
+      .then((r) => r.data);
+  },
   warehouse: (id: string, data: Record<string, string>) =>
     axiosInstance.put(`/warehouse/update/${id}`, null, { params: data }).then((r) => r.data),
   position: (id: string, data: Record<string, string>) =>
@@ -51,10 +197,13 @@ type FieldDef = {
 };
 
 interface EditableCardProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   item: Record<string, any>;
   idKey: string;
   fields: FieldDef[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdate: (id: string, data: Record<string, string>) => Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   theme: any;
   title: string;
   subtitle?: string;
@@ -219,18 +368,34 @@ const EditableCard: React.FC<EditableCardProps> = ({
 // ─── Tab section ──────────────────────────────────────────────────────────────
 interface TabSectionProps {
   queryKey: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fetcher: () => Promise<any>;
   idKey: string;
   fields: FieldDef[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updater: (id: string, data: Record<string, string>) => Promise<any>;
   titleKey: string;
   subtitleKey?: string;
+  collectionKeys?: string[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  normalizeItem?: (item: Record<string, any>) => Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   theme: any;
   emptyLabel: string;
 }
 
 const TabSection: React.FC<TabSectionProps> = ({
-  queryKey, fetcher, idKey, fields, updater, titleKey, subtitleKey, theme, emptyLabel,
+  queryKey,
+  fetcher,
+  idKey,
+  fields,
+  updater,
+  titleKey,
+  subtitleKey,
+  collectionKeys = [],
+  normalizeItem,
+  theme,
+  emptyLabel,
 }) => {
   const qc = useQueryClient();
   // Scope every cache key to the current user so user B never sees user A's cached data
@@ -243,7 +408,13 @@ const TabSection: React.FC<TabSectionProps> = ({
     queryFn: fetcher,
   });
 
-  const items = getList(raw);
+  const items = useMemo(
+    () =>
+      getList(raw, collectionKeys).map((item) =>
+        normalizeItem ? normalizeItem(item) : item
+      ),
+    [collectionKeys, normalizeItem, raw]
+  );
 
   const handleUpdate = async (id: string, data: Record<string, string>) => {
     await updater(id, data);
@@ -283,8 +454,8 @@ const TabSection: React.FC<TabSectionProps> = ({
   }
 
   return (
-    <div className="space-y-3">
-      {items.map((item: any, i: number) => (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <div className="space-y-3"> {items.map((item: any, i: number) => (
         <EditableCard
           key={String(item[idKey] ?? i)}
           item={item}
@@ -320,6 +491,7 @@ const TAB_CONFIG: Record<
     idKey: "company_code",
     titleKey: "company_name_en",
     subtitleKey: "company_phone",
+    collectionKeys: ["companies", "company"],
     fields: [
       { displayKey: "company_name_en",  key: "company_name_en",   label: "Name (EN)",  placeholder: "Company name in English" },
       { displayKey: "company_name_km",  key: "company_name_local",label: "Name (KH)",  placeholder: "Company name in Khmer" },
@@ -338,13 +510,20 @@ const TAB_CONFIG: Record<
     icon: GitBranch,
     queryKey: "profile-branches",
     fetcher: fetchers.branches,
-    idKey: "branch_code",
-    titleKey: "branch_name_en",
-    subtitleKey: "telegram",
+    idKey: "id",
+    titleKey: "branch_en",
+    subtitleKey: "branch_contact",
+    collectionKeys: ["branches", "branch"],
+    normalizeItem: normalizeBranchItem,
     fields: [
-      { key: "branch_name_en", label: "Name (EN)", placeholder: "Branch name in English" },
-      { key: "branch_name_km", label: "Name (KH)", placeholder: "Branch name in Khmer" },
-      { key: "telegram",       label: "Telegram",  placeholder: "Telegram contact" },
+      { key: "branch_en",  label: "Name (EN)", placeholder: "Branch name in English" },
+      { key: "branch_km",  label: "Name (KH)", placeholder: "Branch name in Khmer" },
+      { key: "email",      label: "Email",     placeholder: "branch@example.com" },
+      { key: "phone",      label: "Phone",     placeholder: "+855 ..." },
+      { key: "telegram",   label: "Telegram",  placeholder: "Telegram contact" },
+      { key: "address_en", label: "Address",   placeholder: "Full branch address" },
+      { key: "latitude",   label: "Latitude",  placeholder: "11.562108" },
+      { key: "longitude",  label: "Longitude", placeholder: "104.888535" },
     ],
     updater: (id, data) => updaters.branch(id, data),
     emptyLabel: "No branches found.",
@@ -358,6 +537,7 @@ const TAB_CONFIG: Record<
     idKey: "id",
     titleKey: "name_en",
     subtitleKey: "address",
+    collectionKeys: ["warehouses", "warehouse"],
     fields: [
       { displayKey: "name_en",  key: "warehouse_en",  label: "Name (EN)",  placeholder: "Warehouse name" },
       { displayKey: "name_kh",  key: "warehouse_km",  label: "Name (KH)",  placeholder: "Warehouse name in Khmer" },
@@ -376,6 +556,7 @@ const TAB_CONFIG: Record<
     idKey: "id",
     titleKey: "position_en",
     subtitleKey: "position_km",
+    collectionKeys: ["positions", "position"],
     fields: [
       { key: "position_en", label: "Position (EN)", placeholder: "Position name" },
       { key: "position_km", label: "Position (KH)", placeholder: "Position in Khmer" },
@@ -392,6 +573,7 @@ const TAB_CONFIG: Record<
     idKey: "currency_id",
     titleKey: "currencyname",
     subtitleKey: "currencycode",
+    collectionKeys: ["currencies", "currency"],
     fields: [
       { key: "currencycode", label: "Code", placeholder: "USD" },
       { key: "currencyname", label: "Name", placeholder: "US Dollar" },
@@ -464,6 +646,8 @@ const ProfileInfoPage: React.FC = () => {
           updater={cfg.updater}
           titleKey={cfg.titleKey}
           subtitleKey={cfg.subtitleKey}
+          collectionKeys={cfg.collectionKeys}
+          normalizeItem={cfg.normalizeItem}
           theme={theme}
           emptyLabel={cfg.emptyLabel}
         />
