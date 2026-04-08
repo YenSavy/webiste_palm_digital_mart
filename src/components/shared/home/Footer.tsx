@@ -8,7 +8,6 @@ import {
   Youtube,
   Palmtree,
   ArrowUp,
-  Download,
   Send,
   Music2
 } from 'lucide-react'
@@ -50,9 +49,6 @@ type TFooterResponse = {
 }
 
 const Footer: React.FC = () => {
-  const installerFileName = "Palm_ERP_Installer.exe"
-  const installerHref = `/${installerFileName}`
-
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -216,16 +212,6 @@ const Footer: React.FC = () => {
       </div>
 
       <div className='fixed bottom-8 right-4 md:right-8 z-50 flex max-w-[calc(100vw-2rem)] items-center gap-3'>
-        <a
-          href={installerHref}
-          download={installerFileName}
-          className='inline-flex min-w-0 items-center gap-3 rounded-lg bg-gradient-to-br from-[#DAA520] to-[#8f7c15] px-4 py-3 text-sm font-semibold text-slate-900 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(218,165,32,0.45)]'
-          aria-label='Download Palm ERP Installer'
-        >
-          <Download size={18} className='flex-shrink-0' />
-          <span className='truncate'>Download Palm ERP</span>
-        </a>
-
         <button
           onClick={scrollToTop}
           className='h-12 w-12 flex-shrink-0 rounded-full bg-gradient-to-br from-[#DAA520] to-[#8f7c15] shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-[0_0_20px_rgba(218,165,32,0.6)] group flex items-center justify-center'

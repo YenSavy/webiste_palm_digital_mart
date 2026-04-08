@@ -6,7 +6,7 @@ import LoadingModal from "./shared/LoadingModal";
 import ReaderContent from "./ReaderContent";
 import { getChapterContentsFromBook, type TBook, type TContents, type TTopics } from "../../lib/api";
 import { useReaderStore } from "../../store/readerStore";
-import { ChevronLeft, ChevronRight, RefreshCcw, VideoIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, RefreshCcw, VideoIcon } from "lucide-react";
 import { toKhmerNumber } from "../../utils/toKhmerNumber";
 
 type Props = {
@@ -36,6 +36,8 @@ const findTopicInTree = (
 };
 
 const CHARS_PER_PAGE = 3500;
+const installerFileName = "Palm_ERP_Installer.exe";
+const installerHref = `/${installerFileName}`;
 
 function splitParagraphIntoChunks(para: string, budget: number): string[] {
   if (!para) return [""];
@@ -540,7 +542,17 @@ export default function Reader({
               {getChapterTitle()}
             </h1>
           </div>
-          <span className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <a
+              href={installerHref}
+              download={installerFileName}
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text transition-colors hover:bg-slate-50"
+              aria-label="Download Palm ERP Installer"
+              title="Download Palm ERP Installer"
+            >
+              <Download size={16} className="flex-shrink-0" />
+              <span className="hidden sm:inline">Download Palm ERP</span>
+            </a>
             {/* Video Button */}
             <button
               onClick={handleVideoClick}
@@ -608,7 +620,7 @@ export default function Reader({
                 )}
               </div>
             )}
-          </span>
+          </div>
         </div>
       </header>
       {!displayChapter && !chapterId && (
