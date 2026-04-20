@@ -3,7 +3,7 @@ import { videoApi, type VideoItem as BaseVideoItem, type ApiResponse } from "../
 // ========== Extend VideoItem to include children_recursive ==========
 
 export interface VideoItem extends BaseVideoItem {
-  children_recursive?: VideoItem[];
+  children_recursive?: VideoItem[] | null;
 }
 
 export type { ApiResponse };

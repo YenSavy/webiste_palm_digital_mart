@@ -11,7 +11,6 @@ import GoogleAuth from "../components/auth/GoogleAuth";
 
 const AuthPage: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const { isSignInPage, isAuthenticated } = useAuthStore();
   useEffect(() => {
     if (isAuthenticated) {

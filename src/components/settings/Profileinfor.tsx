@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import {
   Save, X, User, Mail, Phone, CreditCard,
-  Building2, GitBranch, Warehouse, Briefcase, DollarSign,
-  ChevronRight, Globe, MapPin, Upload, FileText, ChevronDown,
+  Building2, GitBranch, Warehouse, Briefcase, DollarSign, Globe, MapPin, Upload, FileText, ChevronDown,
   Plus, Trash2, Pencil, Search,
 } from "lucide-react";
 import { cn } from "../../lib/utils";

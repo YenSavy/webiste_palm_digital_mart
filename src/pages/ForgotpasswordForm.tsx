@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowLeftIcon, Phone, AlertCircle, LockKeyhole } from "lucide-react";
@@ -29,7 +30,7 @@ const ForgotPasswordPage: React.FC = () => {
 
   // Validate phone number
   const validatePhone = () => {
-    const { prefix, phone } = formData;
+    const { phone } = formData;
     let error = "";
     
     if (!phone.trim()) {

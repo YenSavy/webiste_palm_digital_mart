@@ -1,16 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AlertCircle, ArrowLeftIcon, Lock, Mail, Phone, User, UserPen } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { signUp } from "../lib/apis/auth/authApi";
 
-
-
-interface SignUpFormProps {
-  setIsSignInPage?: (value: boolean) => void; 
-}
-
-const SignUpForm: React.FC<SignUpFormProps> = ({ setIsSignInPage }) => {
+const SignUpForm: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [message, setMessage] = useState<string>('');
@@ -169,15 +164,6 @@ if (!hasError) {
 }
 
   };
-
-  const handleSignInClick = () => {
-    if (setIsSignInPage) {
-      setIsSignInPage(true);
-    } else {
-      navigate('/signup');
-    }
-  };
-
   const hasFormErrors = Object.values(errors).some(error => error !== '');
 
   return (
